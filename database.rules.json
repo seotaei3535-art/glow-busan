@@ -1,0 +1,12 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "glow": {
+      "shops": {
+        ".read": true,
+        ".write": false
+      }
+    }
+  }
+}

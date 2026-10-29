@@ -1,0 +1,7 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Reference photos remain private; enable only after authorized upload API is implemented.
+    match /{allPaths=**} { allow read, write: if false; }
+  }
+}

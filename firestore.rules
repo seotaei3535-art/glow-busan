@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Production writes require an authenticated, authorized server API.
+    match /shops/{shopId} { allow read: if resource.data.published == true; allow write: if false; }
+    match /users/{userId} { allow read: if request.auth != null && request.auth.uid == userId; allow write: if false; }
+    match /reservations/{id} { allow read: if request.auth != null && resource.data.customerId == request.auth.uid; allow write: if false; }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
