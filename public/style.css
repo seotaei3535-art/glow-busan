@@ -19,3 +19,5 @@
 .hero:before{border-color:#ffffffa3}.hero-stamp{display:none}
 @media(min-width:851px){.hero:after{background-size:auto,55% auto;background-position:center,right 51%}}
 @media(max-width:560px){.hero:after{background:linear-gradient(90deg,#fffaf8f5 0%,#fffaf8c9 50%,#fffaf836 100%),url('https://pointerclicker.com/wp-content/uploads/2024/02/pink-tulip-flowers-on-white-fabric-768x1024.jpg') right center/cover no-repeat}}
+
+.naver-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:16px 0}.naver-link{font-size:12px;color:#226447;font-weight:600}.naver-link:hover{text-decoration:underline}.naver-pending{font-size:11px;color:var(--muted)}
