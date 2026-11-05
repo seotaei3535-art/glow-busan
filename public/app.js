@@ -2,7 +2,8 @@ import {naverLinks,validateNaverUrl} from './naver.js';
 import {completeCatalog} from './catalog.js';
 import {loadShops} from './firebase.js';
 import {basicNailShapes,specialNailShapes,nailShapes,nailShapeIcon} from './nail-shapes.js';
-import {menus,quote,distanceKm,overlaps,availableSlots} from './domain.js';
+import {menus,quote,distanceKm,availableSlots} from './domain.js';
+import {firstNailSteps} from './first-nail-guide.js';
 const $=s=>document.querySelector(s),money=n=>Number(n).toLocaleString('ko-KR')+'원';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function read(key,fallback){try{return JSON.parse(localStorage.getItem('glow-'+key))??fallback;}catch{return fallback;}}
@@ -22,10 +23,8 @@ shops=completeCatalog(shops);
 let bookings=read('bookings',[]),favorites=read('favorites',[]),compared=read('compared',[]),origin=null;
 let ownerSession=null,loginFailures=0,loginBlockedUntil=0;
 let filters={area:'all',date:'',menu:'monthly',sort:'rating',favorites:false};
-const fingers={thumb:'엄지',index:'검지',middle:'중지',ring:'약지',little:'새끼'};
 const savedPreferences=read('estimate-preferences',{});
 let preferences={
- finger:Object.hasOwn(fingers,savedPreferences.finger)?savedPreferences.finger:'',
  shape:Object.hasOwn(nailShapes,savedPreferences.shape)?savedPreferences.shape:'',
  extensions:Number.isInteger(savedPreferences.extensions)&&savedPreferences.extensions>=0&&savedPreferences.extensions<=10?savedPreferences.extensions:0
 };
@@ -33,16 +32,7 @@ const main=$('#main'),modal=$('#modal');
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200);}
 function open(html){$('#modal-body').innerHTML=html;if(!modal.open)modal.showModal();}
 $('.close').onclick=()=>modal.close();
-const art=(s,small=false,focus='')=>`<div class="art" style="--nail:${s.color};--bg:${s.bg}">${Object.keys(fingers).map(finger=>`<i class="nail${finger===focus?' is-focused':''}"></i>`).join('')}${small?'':`<span class="sample-tag">디자인 일러스트</span><span class="art-label">THE ART OF YOUR EVERYDAY</span>`}</div>`;
-function quoteNailPreview(shop){
- if(!preferences.finger)return '';
- const {finger,shape}=preferences;
- const caption=shape?`${fingers[finger]} · ${nailShapes[shape].name}`:fingers[finger];
- const preview=shape?`<div class="art" style="--nail:${shop.color};--bg:${shop.bg}">
-  ${Object.keys(fingers).map(key=>`<span class="quote-shape${key===finger?' is-focused':''}">${nailShapeIcon(shape)}</span>`).join('')}
- </div>`:art(shop,true,finger);
- return `<figure class="quote-nails"><figcaption class="sub">내 손톱 미리보기 · ${caption}</figcaption>${preview}</figure>`;
-}
+const art=(s,small=false)=>`<div class="art" style="--nail:${s.color};--bg:${s.bg}">${'<i class="nail"></i>'.repeat(5)}${small?'':`<span class="sample-tag">디자인 일러스트</span><span class="art-label">THE ART OF YOUR EVERYDAY</span>`}</div>`;
 function today(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
 function options(){return {menu:filters.menu,extensions:preferences.extensions,pieces:0,removal:'none'};}
 function extensionOptions(selected){
@@ -56,7 +46,7 @@ function estimateNote(){
 function updateCount(){$('#compare-count').textContent=compared.length;}
 function route(){updateCount();const page=location.hash.slice(1)||'home';if(page==='compare')renderCompare();else if(page==='reservations')renderBookings();else if(page==='owner')renderOwner();else renderHome();}
 window.addEventListener('hashchange',()=>{route();window.scrollTo(0,0);});
-function renderHome(){main.innerHTML=`<section class="hero"><div class="eyebrow">YOUR NAIL, YOUR MOMENT</div><h1>부산의 네일, 한눈에.<br>내 취향에 꼭 맞는 <em>Glow.</em></h1><p>디자인부터 가격, 예약 가능한 시간까지.<br>흩어져 있던 네일샵을 한곳에서 만나보세요.</p></section><form class="searchbar" id="search"><label>어디에서 찾으세요?<select id="area"><option value="all">부산 전체</option>${['중구','서구','동구','영도구','부산진구','동래구','남구','북구','해운대구','사하구','금정구','강서구','연제구','수영구','사상구','기장군'].map(x=>`<option ${filters.area===x?'selected':''}>${x}</option>`).join('')}</select></label><label>방문하고 싶은 날<input aria-label="방문 날짜" type="date" id="search-date" min="${today()}" value="${filters.date}"></label><label>어떤 네일을 원하세요?<select id="search-menu">${Object.entries(menus).map(([k,v])=>`<option value="${k}" ${filters.menu===k?'selected':''}>${v.name}</option>`).join('')}</select></label><button class="primary gold">네일샵 찾기 ↗</button></form><section class="content"><div class="guide-banner"><span class="spark">✧</span><div><strong>네일이 처음이라면, 여기부터 시작해요.</strong><p>나에게 맞는 디자인과 방문 전 체크리스트를 알려드릴게요.</p></div><button class="text-button" id="guide">첫 네일 가이드 ↗</button></div><div class="section-head"><div><div class="eyebrow">FIND YOUR FAVORITE</div><h2>당신을 위한 네일샵</h2><button class="location" id="locate">⌖ ${origin?'현재 위치 기준 · 10km 이내':'현재 위치로 찾기'}</button></div><select class="outline small" id="sort" aria-label="정렬"><option value="rating">리뷰 높은 순</option><option value="price">가격 낮은 순</option><option value="distance">가까운 순</option></select></div><div class="filters">${[['monthly','이달의 아트'],['plain','원컬러'],['gradient','그라데이션'],['art','일반 아트']].map(([k,v])=>`<button class="chip ${filters.menu===k?'active':''}" data-menu="${k}">${v}</button>`).join('')}<button id="only-favorites" class="chip ${filters.favorites?'active':''}">♡ 찜한 샵</button></div><p class="note">${origin?'현재 위치 반경 10km의 네일샵입니다.':(filters.area==='all'?'부산 전체':escape(filters.area))+(filters.date?' · '+escape(filters.date):'')+' · 조건에 맞는 후보를 표시합니다.'} ${estimateNote()}</p><div class="grid" id="shops"></div><p class="note">부산 16개 구·군의 테스트 후보입니다. 실제 영업점·실시간 예약 정보가 아닙니다.</p></section>`;
+function renderHome(){main.innerHTML=`<section class="hero"><div class="eyebrow">YOUR NAIL, YOUR MOMENT</div><h1>부산의 네일, 한눈에.<br>내 취향에 꼭 맞는 <em>Glow.</em></h1><p>디자인부터 가격, 예약 가능한 시간까지.<br>흩어져 있던 네일샵을 한곳에서 만나보세요.</p></section><form class="searchbar" id="search"><label>어디에서 찾으세요?<select id="area"><option value="all">부산 전체</option>${['중구','서구','동구','영도구','부산진구','동래구','남구','북구','해운대구','사하구','금정구','강서구','연제구','수영구','사상구','기장군'].map(x=>`<option ${filters.area===x?'selected':''}>${x}</option>`).join('')}</select></label><label>방문하고 싶은 날<input aria-label="방문 날짜" type="date" id="search-date" min="${today()}" value="${filters.date}"></label><label>어떤 네일을 원하세요?<select id="search-menu">${Object.entries(menus).map(([k,v])=>`<option value="${k}" ${filters.menu===k?'selected':''}>${v.name}</option>`).join('')}</select></label><button class="primary gold">네일샵 찾기 ↗</button></form><section class="content"><div class="guide-banner"><span class="spark">✧</span><div><strong>네일이 처음이라면, 여기부터 시작해요.</strong><p>메뉴 고르기부터 예약과 시술까지 그림으로 따라가요.</p></div><button class="text-button" id="guide">첫 네일 가이드 ↗</button></div><div class="section-head"><div><div class="eyebrow">FIND YOUR FAVORITE</div><h2>당신을 위한 네일샵</h2><button class="location" id="locate">⌖ ${origin?'현재 위치 기준 · 10km 이내':'현재 위치로 찾기'}</button></div><select class="outline small" id="sort" aria-label="정렬"><option value="rating">리뷰 높은 순</option><option value="price">가격 낮은 순</option><option value="distance">가까운 순</option></select></div><div class="filters">${[['monthly','이달의 아트'],['plain','원컬러'],['gradient','그라데이션'],['art','일반 아트']].map(([k,v])=>`<button class="chip ${filters.menu===k?'active':''}" data-menu="${k}">${v}</button>`).join('')}<button id="only-favorites" class="chip ${filters.favorites?'active':''}">♡ 찜한 샵</button></div><p class="note">${origin?'현재 위치 반경 10km의 네일샵입니다.':(filters.area==='all'?'부산 전체':escape(filters.area))+(filters.date?' · '+escape(filters.date):'')+' · 조건에 맞는 후보를 표시합니다.'} ${estimateNote()}</p><div class="grid" id="shops"></div><p class="note">부산 16개 구·군의 테스트 후보입니다. 실제 영업점·실시간 예약 정보가 아닙니다.</p></section>`;
 $('#sort').value=filters.sort;$('#sort').onchange=e=>{filters.sort=e.target.value;if(filters.sort==='distance'&&!origin){toast('가까운 순은 현재 위치를 먼저 설정해주세요.');}renderCards();};
 $('#search').onsubmit=e=>{e.preventDefault();applySearch(true);};
 function applySearch(scroll=false){filters.area=$('#area').value;filters.date=$('#search-date').value;filters.menu=$('#search-menu').value;filters.favorites=false;renderHome();if(scroll)$('#shops').scrollIntoView({behavior:'smooth',block:'start'});}
@@ -69,10 +59,19 @@ function naverActions(s){const links=shopNaver(s);return `<div class="naver-acti
 function bindBook(){document.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>booking(b.dataset.book));}
 function toggleCompare(id){if(compared.includes(id))compared=compared.filter(x=>x!==id);else if(compared.length>=3){toast('최대 3개 샵까지 비교할 수 있어요.');return;}else compared.push(id);save('compared',compared);updateCount();route();}
 function locate(){if(!navigator.geolocation){toast('위치 기능을 지원하지 않습니다. 지역을 직접 선택해주세요.');return;}toast('위치를 확인하고 있어요.');navigator.geolocation.getCurrentPosition(p=>{origin={lat:p.coords.latitude,lng:p.coords.longitude};renderHome();toast('현재 위치 반경 10km 이내에서 찾습니다.');},()=>toast('위치를 확인할 수 없어요. 지역을 직접 선택해주세요.'),{timeout:10000,maximumAge:60000});}
-function guide(){open(`<div class="eyebrow">YOUR FIRST NAIL</div><h2 class="modal-title">첫 네일, 어렵지 않아요.</h2><p class="sub">처음에는 마음에 드는 색과 편안한 길이부터 골라보세요.</p><div class="inspo">${shops.slice(0,3).map((s,i)=>`<div>${art(s,true)}<p>${['단정한 누드 원컬러','은은한 골드 포인트','차분한 그린 컬러'][i]}</p></div>`).join('')}</div><ul class="guide-list"><li>가격에 제거·연장·파츠가 포함되는지 확인해요.</li><li>원하는 디자인 사진을 예약에 첨부해주세요.</li><li>손톱 상태나 불편한 점은 시술 전에 담당자에게 알려주세요.</li><li>예약 시간과 취소·환불 조건을 확인해주세요.</li></ul><p class="note">디자인 추천은 취향 선택을 위한 안내입니다.</p><button class="primary full" id="guide-next">내 견적 기본값 설정</button>`);$('#guide-next').onclick=showPreferences;}
+function guide(){
+ open(`<div class="eyebrow">YOUR FIRST NAIL</div>
+  <h2 class="modal-title" id="first-nail-title" tabindex="-1">처음 네일샵에 가는 날</h2>
+  <p class="sub">메뉴 고르기부터 샵에서 시술받기까지, 처음이라면 그림을 따라 한 단계씩 살펴보세요.</p>
+  ${firstNailSteps()}
+  <button class="primary full" id="guide-next">내 견적 기본값 설정</button>`);
+ modal.scrollTop=0;
+ $('#first-nail-title').focus();
+ $('#guide-next').onclick=showPreferences;
+}
 function shapeChoices(shapes){
  return Object.entries(shapes).map(([key,{name}])=>`
-  <label class="finger-option shape-option">
+  <label class="shape-option">
    <input type="radio" name="shape" value="${key}" ${key===preferences.shape?'checked':''}>
    <span>${nailShapeIcon(key)}${name}</span>
   </label>`).join('');
@@ -80,18 +79,10 @@ function shapeChoices(shapes){
 function showPreferences(){
  open(`<div class="eyebrow">MY NAIL PREFERENCES</div>
   <h2 class="modal-title">내 견적 기본값</h2>
-  <p class="sub">여기서 고른 손톱, 모양, 연장 개수를 새 견적에 자동으로 적용해요.</p>
+  <p class="sub">고른 모양과 연장 개수를 새 견적에 적용해요.</p>
   <form id="preferences-form">
-   <fieldset class="finger-picker">
-    <legend>견적에서 미리 볼 손톱</legend>
-    <div class="finger-options">${Object.entries(fingers).map(([key,label])=>`
-     <label class="finger-option">
-      <input type="radio" name="finger" value="${key}" ${key===preferences.finger?'checked':''} required>
-      <span><i aria-hidden="true"></i>${label}</span>
-     </label>`).join('')}</div>
-   </fieldset>
    <label class="field">기본 연장 개수<select name="extensions">${extensionOptions(preferences.extensions)}</select></label>
-   <fieldset class="finger-picker">
+   <fieldset class="shape-picker">
     <legend>손톱 모양</legend>
     <p class="sub shape-description" id="shape-description" role="status">${nailShapes[preferences.shape].description}</p>
     <div class="shape-options">${shapeChoices(basicNailShapes)}</div>
@@ -105,8 +96,7 @@ function showPreferences(){
    <button class="primary full">기본값 저장</button>
   </form>`);
  modal.scrollTop=0;
- const selectedFinger=$('#preferences-form [name=finger]:checked')||$('#preferences-form [name=finger]');
- selectedFinger.focus();
+ $('#preferences-form [name=extensions]').focus();
  const preferencesForm=$('#preferences-form');
  preferencesForm.onchange=e=>{
   if(e.target.name==='shape')$('#shape-description').textContent=nailShapes[e.target.value].description;
@@ -115,7 +105,6 @@ function showPreferences(){
   e.preventDefault();
   const form=new FormData(e.currentTarget);
   const next={
-   finger:form.get('finger'),
    shape:form.get('shape'),
    extensions:Number(form.get('extensions'))
   };
@@ -132,20 +121,86 @@ function showPreferences(){
 }
 function onboarding(){open(`<div class="eyebrow">WELCOME TO GLOW BUSAN</div><h2 class="modal-title">어떤 네일 경험을 찾고 있나요?</h2><p class="sub">로그인 없이도 샵과 가격을 비교할 수 있어요.</p><button id="first-time" class="primary full">네일이 처음이에요 · 가이드 보기</button><button id="experienced" class="outline full">경험이 있어요 · 바로 둘러보기</button><button id="skip" class="text-button full">지금은 건너뛰기</button>`);$('#first-time').onclick=()=>{save('onboarded',true);guide();};['experienced','skip'].forEach(id=>$('#'+id).onclick=()=>{save('onboarded',true);modal.close();});}
 function renderCompare(){const list=shops.filter(s=>compared.includes(s.id));main.innerHTML=`<section class="content"><div class="page-head"><div class="eyebrow">SIDE BY SIDE</div><h1>내 취향을, 한눈에 비교.</h1><p class="sub">동일한 메뉴 기준 · ${estimateNote()}</p></div><div class="filters">${Object.entries(menus).map(([k,v])=>`<button class="chip ${filters.menu===k?'active':''}" data-cmenu="${k}">${v.name}</button>`).join('')}</div>${list.length?`<div class="table-scroll"><table class="compare-table"><tbody><tr><th>비교 기준</th>${list.map(s=>`<th>${s.name}<br><button class="text-button small" data-remove="${s.id}">삭제 ×</button></th>`).join('')}</tr>${[['디자인',s=>art(s,true)],['지역',s=>s.area],['리뷰',s=>`★ ${s.rating} (${s.reviews}개)`],['선택 메뉴',()=>menus[filters.menu].name],['총가격',s=>money(quote(s,options()).total)],['예상 시간',s=>quote(s,options()).minutes+'분'],['디자이너',s=>s.designers.join(' · ')],['예약',s=>`<button class="primary small" data-book="${s.id}">예약하기</button>`]].map(([label,fn])=>`<tr><th>${label}</th>${list.map(s=>`<td>${fn(s)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="empty">비교할 샵을 골라주세요.<p>샵 카드에서 ‘+ 비교’를 누르면 최대 3곳을 비교할 수 있어요.</p><a class="primary" href="#home">샵 둘러보기</a></div>`}</section>`;bindBook();document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>toggleCompare(b.dataset.remove));document.querySelectorAll('[data-cmenu]').forEach(b=>b.onclick=()=>{filters.menu=b.dataset.cmenu;renderCompare();});}
-function booking(id,previous){const s=shops.find(x=>x.id===id);if(!s)return;const o=previous?.options||options();open(`<div class="eyebrow">MAKE YOUR MOMENT</div><h2 class="modal-title">${s.name}</h2><p class="sub">${s.area} · ${s.station} · ★ ${s.rating} (리뷰 ${s.reviews}개)</p>${naverActions(s)}${previous?'':quoteNailPreview(s)}<form id="book-form"><div class="form-grid"><label class="field">시술 메뉴<select id="b-menu">${Object.entries(menus).map(([k,v])=>`<option value="${k}" ${k===o.menu?'selected':''}>${v.name} · ${money(v.price+s.offset)}</option>`).join('')}</select></label><label class="field">디자이너<select id="b-designer">${s.designers.map(x=>`<option ${x===previous?.designer?'selected':''}>${x}</option>`).join('')}</select></label><label class="field">연장 개수<select id="b-extensions">${extensionOptions(o.extensions)}</select>${!previous&&preferences.extensions?`<span class="note">내 설정에서 불러왔어요. 이번 견적의 개수는 여기서 바꿀 수 있어요.</span>`:''}</label><label class="field">제거 여부<select id="b-removal"><option value="none">제거 없음</option><option value="own">자샵 제거 +5,000원</option><option value="other">타샵 제거 +15,000원</option></select></label><label class="field" id="pieces-field">일반 아트 개수<select id="b-pieces">${Array.from({length:11},(_,i)=>`<option value="${i}" ${i===Number(o.pieces)?'selected':''}>${i}개 · ${money(i*5000)}</option>`).join('')}</select></label><label class="field">방문 날짜<input id="b-date" type="date" required min="${today()}" value="${filters.date||today()}"></label><label class="field">시술 시작 시간<select id="b-time"></select></label></div><p class="date-note">10:00~20:00 시연 영업시간 · 소요 시간과 기존 테스트 예약을 반영합니다.</p><label class="field">참고 사진 (선택 · 최대 5MB)<input id="b-photo" type="file" accept="image/jpeg,image/png,image/webp"><span id="photo-output"></span></label><label class="field">담당자에게 전달할 요청사항<textarea id="b-note" maxlength="500" placeholder="선호하는 색상, 원하는 스타일 등을 적어주세요."></textarea></label><p class="note">참고 사진은 현재 창에서만 미리보기 됩니다. 실제 전송·상담은 연결되지 않았습니다.<br>참고 사진 디자인은 별도 상담 견적 대상이며, 아래 금액은 선택한 메뉴 기준입니다.</p><div class="summary" id="quote"></div><label class="consent"><input type="checkbox" required> 예약 내용을 이 기기에 저장합니다. 실제 예약 확정과 결제는 샵 또는 네이버 예약에서 진행합니다.</label><button class="primary full gold" id="pay">예약 내용 저장</button><p class="note">이 예약은 현재 브라우저에만 저장됩니다. 새 기기에서는 조회할 수 없습니다.</p></form>`);
+function booking(id,previous){const s=shops.find(x=>x.id===id);if(!s)return;const o=previous?.options||options();
+const preferredShape=previous?o.shape:preferences.shape;
+const shape=Object.hasOwn(nailShapes,preferredShape)?preferredShape:'';
+const bookingUrl=shopNaver(s).booking;
+open(`<div class="eyebrow">MAKE YOUR MOMENT</div><h2 class="modal-title">${s.name}</h2><p class="sub">${s.area} · ${s.station} · ★ ${s.rating} (리뷰 ${s.reviews}개)</p>${naverActions(s)}${shape?`<p class="sub">선호 모양 · ${nailShapes[shape].name}</p>`:''}<form id="book-form"><div class="form-grid"><label class="field">시술 메뉴<select id="b-menu">${Object.entries(menus).map(([k,v])=>`<option value="${k}" ${k===o.menu?'selected':''}>${v.name} · ${money(v.price+s.offset)}</option>`).join('')}</select></label><label class="field">디자이너<select id="b-designer">${s.designers.map(x=>`<option ${x===previous?.designer?'selected':''}>${x}</option>`).join('')}</select></label><label class="field">연장 개수<select id="b-extensions">${extensionOptions(o.extensions)}</select>${!previous&&preferences.extensions?`<span class="note">내 설정에서 불러왔어요. 이번 견적의 개수는 여기서 바꿀 수 있어요.</span>`:''}</label><label class="field">제거 여부<select id="b-removal"><option value="none">제거 없음</option><option value="own">자샵 제거 +5,000원</option><option value="other">타샵 제거 +15,000원</option></select></label><label class="field" id="pieces-field">일반 아트 개수<select id="b-pieces">${Array.from({length:11},(_,i)=>`<option value="${i}" ${i===Number(o.pieces)?'selected':''}>${i}개 · ${money(i*5000)}</option>`).join('')}</select></label><label class="field">희망 방문 날짜<input id="b-date" type="date" required min="${today()}" value="${filters.date||today()}"></label><label class="field">희망 시작 시간<select id="b-time"></select></label></div><p class="date-note">여기서 고르는 시간은 견적용이에요. 실제 가능한 시간은 네이버나 매장에서 확인해 주세요.</p><label class="field">참고 사진 (선택 · 최대 5MB)<input id="b-photo" type="file" accept="image/jpeg,image/png,image/webp"><span id="photo-output"></span></label><label class="field">예약에 참고할 요청사항<textarea id="b-note" maxlength="500" placeholder="선호하는 색상, 원하는 스타일 등을 적어주세요."></textarea></label><p class="note">참고 사진은 현재 창에서만 미리보기 됩니다. 실제 전송·상담은 연결되지 않았습니다.<br>참고 사진 디자인은 별도 상담 견적 대상이며, 아래 금액은 선택한 메뉴 기준입니다.</p><div class="summary" id="quote"></div><label class="consent"><input type="checkbox" required> 견적과 희망 일정을 이 기기에 저장합니다.</label><button class="primary full gold" id="pay">${bookingUrl?'저장하고 네이버 예약 열기 ↗':'견적 저장'}</button><p class="note">${bookingUrl?'저장 후 네이버에서 실제 일정과 가격을 확인하고 예약을 신청하세요.':'이 샵의 네이버 예약 링크가 준비 중이에요. 견적은 이 브라우저에 저장할 수 있어요.'}</p></form>`);
 $('#b-removal').value=o.removal;$('#b-note').value=previous?.note||'';
-const getOptions=()=>({menu:$('#b-menu').value,extensions:Number($('#b-extensions').value),pieces:Number($('#b-pieces').value),removal:$('#b-removal').value});
-function refresh(){const q=quote(s,getOptions());$('#pieces-field').hidden=$('#b-menu').value!=='art';$('#quote').innerHTML=`<div class="summary-row"><span>예상 시술 시간</span><strong>${q.minutes}분</strong></div><div class="summary-row total"><span>총 시술금액</span><strong>${money(q.total)}</strong></div>`;const previousTime=$('#b-time').value;const times=availableSlots(s,$('#b-date').value,getOptions(),bookings).filter(slot=>slot.designer===$('#b-designer').value).map(slot=>slot.start);$('#b-time').innerHTML=times.length?times.map(t=>`<option value="${t}">${time(t)}</option>`).join(''):'<option value="">예약 가능한 시간이 없습니다</option>';if(times.includes(Number(previousTime)))$('#b-time').value=previousTime;$('#pay').disabled=!times.length;}
+const getOptions=()=>({menu:$('#b-menu').value,shape,extensions:Number($('#b-extensions').value),pieces:Number($('#b-pieces').value),removal:$('#b-removal').value});
+function refresh(){const q=quote(s,getOptions());$('#pieces-field').hidden=$('#b-menu').value!=='art';$('#quote').innerHTML=`<div class="summary-row"><span>예상 시술 시간</span><strong>${q.minutes}분</strong></div><div class="summary-row total"><span>총 시술금액</span><strong>${money(q.total)}</strong></div>`;const previousTime=$('#b-time').value;const times=availableSlots(s,$('#b-date').value,getOptions(),bookings).filter(slot=>slot.designer===$('#b-designer').value).map(slot=>slot.start);$('#b-time').innerHTML=times.length?times.map(t=>`<option value="${t}">${time(t)}</option>`).join(''):'<option value="">선택할 수 있는 견적 시간이 없어요</option>';if(times.includes(Number(previousTime)))$('#b-time').value=previousTime;$('#pay').disabled=!times.length;}
 ['b-menu','b-extensions','b-removal','b-pieces','b-date','b-designer'].forEach(x=>$('#'+x).onchange=refresh);refresh();
 $('#b-photo').onchange=e=>{const f=e.target.files[0];$('#photo-output').replaceChildren();if(!f)return;if(f.size>5*1024*1024||!['image/jpeg','image/png','image/webp'].includes(f.type)){e.target.value='';toast('5MB 이하 JPG, PNG, WebP 파일을 선택해주세요.');return;}const img=document.createElement('img');img.className='photo-preview';img.alt='첨부한 참고 사진 미리보기';const url=URL.createObjectURL(f);img.src=url;img.onload=()=>URL.revokeObjectURL(url);$('#photo-output').append(img);};
-$('#book-form').onsubmit=e=>{e.preventDefault();if(!$('#b-time').value)return;const opt=getOptions(),q=quote(s,opt),b={id:crypto.randomUUID(),shopId:id,shopName:s.name,designer:$('#b-designer').value,date:$('#b-date').value,start:Number($('#b-time').value),minutes:q.minutes,options:opt,...q,note:$('#b-note').value,status:'confirmed',createdAt:new Date().toISOString()};bookings=read('bookings',[]);if(bookings.some(x=>overlaps(b,x))){toast('해당 시간에 예약이 생겼습니다. 다른 시간을 선택해주세요.');refresh();return;}bookings.push(b);save('bookings',bookings);open(`<div class="success-icon">✓</div><div class="eyebrow">RESERVATION COMPLETE</div><h2 class="modal-title">예약 내용을 저장했어요.</h2><p>${s.name} · ${b.designer} 디자이너</p><p>${b.date} ${time(b.start)} · ${q.minutes}분</p><div class="summary"><div class="summary-row"><span>총금액</span><strong>${money(q.total)}</strong></div></div><p class="note">아직 샵에 확정된 예약이 아닙니다. 연결된 네이버 예약 페이지 또는 샵을 통해 확정해주세요.</p><button class="primary full" id="show-booking">내 예약 확인</button>`);$('#show-booking').onclick=()=>{modal.close();location.hash='reservations';route();};};}
+$('#book-form').onsubmit=e=>{
+ e.preventDefault();
+ if(!$('#b-time').value)return;
+ const opt=getOptions(), date=$('#b-date').value, designer=$('#b-designer').value, start=Number($('#b-time').value);
+ bookings=read('bookings',[]);
+ const slots=availableSlots(s,date,opt,bookings);
+ if(!slots.some(slot=>slot.designer===designer&&slot.start===start)){
+  toast('희망 시간을 다시 선택해 주세요.');
+  refresh();
+  return;
+ }
+ const saved={
+  id:crypto.randomUUID(),shopId:id,shopName:s.name,designer,date,start,
+  options:opt,...quote(s,opt),note:$('#b-note').value,kind:'estimate',status:'draft',createdAt:new Date().toISOString()
+ };
+ const next=[...bookings,saved];
+ if(!save('bookings',next))return;
+ bookings=next;
+ showSavedBooking(saved,bookingUrl);
+ if(bookingUrl)window.open(bookingUrl,'_blank','noopener,noreferrer');
+};
+}
+
+function bookingOptionText(opt){
+ const removal={own:'자샵 제거',other:'타샵 제거'}[opt.removal];
+ const shape=opt.shape&&Object.hasOwn(nailShapes,opt.shape)?nailShapes[opt.shape].name:'';
+ return [menus[opt.menu].name,shape,opt.extensions?`연장 ${opt.extensions}개`:'',removal,opt.menu==='art'&&opt.pieces?`아트 ${opt.pieces}개`:''].filter(Boolean).join(' · ');
+}
+
+function showSavedBooking(saved,bookingUrl){
+ const details=[
+  saved.shopName,
+  `희망 일정 ${saved.date} ${time(saved.start)} · ${saved.designer} 디자이너`,
+  bookingOptionText(saved.options),
+  `예상 금액 ${money(saved.total)}`,
+  saved.note?`요청사항 ${saved.note}`:''
+ ].filter(Boolean);
+ open(`<div class="success-icon">✓</div>
+  <h2 class="modal-title">견적을 저장했어요.</h2>
+  <div class="summary booking-handoff">${details.map(detail=>`<p>${escape(detail)}</p>`).join('')}</div>
+  ${bookingUrl?`<p class="note">네이버에서 가능한 일정과 가격을 확인한 뒤 예약을 신청해 주세요. 저장한 내용은 복사해 참고할 수 있어요.</p>
+   <div class="card-actions"><a class="primary" href="${escape(bookingUrl)}" target="_blank" rel="noopener noreferrer">네이버 예약 열기 ↗</a>
+   <button class="outline" id="copy-booking">견적 복사</button></div>
+   <p class="note" role="status" id="copy-booking-status"></p>`:'<p class="note">이 샵은 네이버 예약 링크가 준비 중이에요.</p>'}
+  <button class="outline full" id="show-booking">내 예약 보기</button>`);
+ modal.scrollTop=0;
+ if(bookingUrl)$('#copy-booking').onclick=async()=>{
+  const status=$('#copy-booking-status');
+  try{
+   await navigator.clipboard.writeText(details.join('\n'));
+   status.textContent='견적 내용을 복사했어요.';
+  }catch{
+   status.textContent='위에 표시된 견적을 선택해 복사해 주세요.';
+  }
+ };
+ $('#show-booking').onclick=()=>{modal.close();location.hash='reservations';route();};
+}
 function time(t){return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');}
-function renderBookings(){main.innerHTML=`<section class="content"><div class="page-head"><div class="eyebrow">YOUR NAIL JOURNEY</div><h1>내 예약과 시술 기록</h1><p class="sub">현재 브라우저의 게스트 체험 내역입니다. 실회원 정보와 연결되지 않습니다.</p></div>${bookings.length?bookings.slice().reverse().map(b=>`<article class="booking-card"><div class="booking-top"><h3>${escape(b.shopName)}</h3><span class="status">${b.status==='cancelled'?'저장 내역 취소':b.status==='completed'?'시술 완료 (시연)':'저장됨 · 샵 미확정'}</span></div><p>${b.date} ${time(b.start)} · ${escape(b.designer)} 디자이너</p><p class="sub">${menus[b.options.menu].name} · 연장 ${b.options.extensions}개 · ${b.minutes}분</p><p>총금액 <strong>${money(b.total)}</strong></p>${b.note?`<p class="sub">요청사항: ${escape(b.note)}</p>`:''}${b.record?`<p class="sub">사용 컬러·시술 메모: ${escape(b.record)}</p>`:''}<div class="card-actions"><button class="outline" data-rebook="${b.id}">같은 옵션으로 재예약</button>${b.status==='confirmed'?`<button class="outline" data-cancel="${b.id}">예약 취소</button>`:''}</div></article>`).join(''):`<div class="empty">아직 예약 내역이 없어요.<p>마음에 드는 디자인부터 찾아볼까요?</p><a class="primary" href="#home">샵 둘러보기</a></div>`}<div class="modal-section"><h3>외부 예약 연결</h3><div class="integration">네이버 예약<span>샵별 외부 예약 페이지에서 확인</span></div><div class="integration">Instagram DM<span>미연동 · 샵 계정 승인 필요</span></div><button class="outline full" id="member">샵 회원 인증 안내</button></div></section>`;document.querySelectorAll('[data-rebook]').forEach(x=>x.onclick=()=>{const b=bookings.find(b=>b.id===x.dataset.rebook);booking(b.shopId,b);});document.querySelectorAll('[data-cancel]').forEach(x=>x.onclick=()=>cancelBooking(x.dataset.cancel));$('#member').onclick=memberInfo;}
-function cancelBooking(id){open(`<h2 class="modal-title">예약을 취소할까요?</h2><p>이 기기에 저장한 예약 내용을 취소합니다.</p><p class="note">실제 환불이나 결제사 요청은 발생하지 않습니다.</p><button class="primary full" id="confirm-cancel">저장 내역 취소</button>`);$('#confirm-cancel').onclick=()=>{bookings=bookings.map(b=>b.id===id?{...b,status:'cancelled'}:b);save('bookings',bookings);modal.close();route();toast('저장한 예약 내용이 취소됐어요.');};}
+function savedBookingLink(saved){
+ if(saved.status==='cancelled'||saved.status==='completed')return '';
+ const shop=shops.find(s=>s.id===saved.shopId);
+ const bookingUrl=shop&&shopNaver(shop).booking;
+ return bookingUrl?`<a class="primary" href="${escape(bookingUrl)}" target="_blank" rel="noopener noreferrer">네이버 예약 계속하기 ↗</a>`:'';
+}
+function renderBookings(){main.innerHTML=`<section class="content"><div class="page-head"><div class="eyebrow">YOUR NAIL JOURNEY</div><h1>내 예약과 시술 기록</h1><p class="sub">이 브라우저에 저장한 견적과 희망 일정을 볼 수 있어요. 네이버에서 신청한 예약은 네이버 예약 내역에서 확인하세요.</p></div>${bookings.length?bookings.slice().reverse().map(b=>`<article class="booking-card"><div class="booking-top"><h3>${escape(b.shopName)}</h3><span class="status">${b.status==='cancelled'?'저장 내역 취소':b.status==='completed'?'시술 완료 (시연)':'저장됨 · 샵 미확정'}</span></div><p>${b.date} ${time(b.start)} · ${escape(b.designer)} 디자이너</p><p class="sub">${bookingOptionText(b.options)} · ${b.minutes}분</p><p>예상 금액 <strong>${money(b.total)}</strong></p>${b.note?`<p class="sub">요청사항: ${escape(b.note)}</p>`:''}${b.record?`<p class="sub">사용 컬러·시술 메모: ${escape(b.record)}</p>`:''}<div class="card-actions">${savedBookingLink(b)}<button class="outline" data-rebook="${b.id}">같은 옵션으로 다시 견적</button>${['draft','confirmed'].includes(b.status)?`<button class="outline" data-cancel="${b.id}">저장 내역 취소</button>`:''}</div></article>`).join(''):`<div class="empty">아직 예약 내역이 없어요.<p>마음에 드는 디자인부터 찾아볼까요?</p><a class="primary" href="#home">샵 둘러보기</a></div>`}<div class="modal-section"><h3>외부 예약 연결</h3><div class="integration">네이버 예약<span>샵별 외부 예약 페이지에서 확인</span></div><div class="integration">Instagram DM<span>미연동 · 샵 계정 승인 필요</span></div><button class="outline full" id="member">샵 회원 인증 안내</button></div></section>`;document.querySelectorAll('[data-rebook]').forEach(x=>x.onclick=()=>{const b=bookings.find(b=>b.id===x.dataset.rebook);booking(b.shopId,b);});document.querySelectorAll('[data-cancel]').forEach(x=>x.onclick=()=>cancelBooking(x.dataset.cancel));$('#member').onclick=memberInfo;}
+function cancelBooking(id){open(`<h2 class="modal-title">저장 내역을 취소할까요?</h2><p>네이버에서 신청한 예약은 네이버 예약 내역에서 따로 취소해 주세요.</p><button class="primary full" id="confirm-cancel">저장 내역 취소</button>`);$('#confirm-cancel').onclick=()=>{bookings=bookings.map(b=>b.id===id?{...b,status:'cancelled'}:b);save('bookings',bookings);modal.close();route();toast('저장한 예약 내용이 취소됐어요.');};}
 function memberInfo(){open(`<div class="eyebrow">MEMBERSHIP</div><h2 class="modal-title">샵 회원 연결 안내</h2><p>실서비스에서는 이름·전화번호 입력 후 본인확인과 샵 회원정보 대조가 필요합니다.</p><p class="note">과제 버전에서는 실제 이름·전화번호를 수집하지 않으며 문자 인증과 회원 혜택은 연결되지 않았습니다.</p><button class="primary full" id="member-close">확인</button>`);$('#member-close').onclick=()=>modal.close();}
 function renderOwner(){if(!ownerSession){main.innerHTML=`<section class="content"><div class="page-head"><div class="eyebrow">SALON LOGIN</div><h1>네일샵 사업자 전용</h1><p class="sub">로그인 후 연결된 샵의 예약·가격·시술 기록을 확인할 수 있습니다.</p></div><div class="empty"><p>사업자 로그인이 필요합니다.</p><button class="primary" id="open-owner-login">사업자 로그인</button></div><p class="note">테스트 로그인 시연입니다. 실제 접근 보호는 Firebase 서버 인증 연결 후 적용해야 합니다.</p></section>`;$('#open-owner-login').onclick=ownerLogin;return;}main.innerHTML=`<section class="content"><div class="page-head"><div class="eyebrow">SALON WORKSPACE · DEMO</div><h1>사장님 관리 화면</h1><p class="sub">로그인한 샵의 정보를 관리합니다. 테스트 브라우저 로그인 시연이며 서버 인증은 미연결입니다.</p></div><button class="outline small" id="owner-logout">로그아웃</button><div class="admin-layout" style="margin-top:20px"><aside class="admin-sidebar"><button id="admin-res">예약 관리</button><button id="admin-menus">메뉴 · 가격 관리</button><button id="admin-links">네이버 연결</button></aside><div><label class="field">관리할 네일샵<select id="owner-shop">${shops.filter(s=>s.id===ownerSession.shopId).map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></label><div id="owner-body"></div></div></div></section>`;$('#owner-logout').onclick=()=>{ownerSession=null;$('#account').textContent='파트너 로그인';renderOwner();toast('로그아웃되었습니다.');};$('#owner-shop').onchange=()=>ownerReservations();$('#admin-res').onclick=ownerReservations;$('#admin-menus').onclick=ownerMenus;$('#admin-links').onclick=ownerNaver;ownerReservations();}
 function ownerNaver(){const shop=shops.find(s=>s.id===$('#owner-shop').value),saved=read('naverLinks',{})[shop.id]||{};$('#owner-body').innerHTML=`<h3>네이버 지도 · 예약 연결</h3><p class="note">해당 샵의 실제 네이버 URL을 등록하세요. 네이버 예약 내역을 앱으로 가져오는 기능은 연결되지 않았습니다.</p><form id="naver-form"><label class="field">네이버 지도 URL<input type="url" id="naver-map-url" placeholder="https://map.naver.com/…" value="${escape(saved.mapUrl||shop.naverMapUrl||'')}"></label><label class="field">네이버 예약 URL<input type="url" id="naver-book-url" placeholder="https://booking.naver.com/booking/…" value="${escape(saved.bookingUrl||shop.naverBookingUrl||'')}"></label><p class="note">등록한 링크는 현재 기기에 저장됩니다.</p><p id="naver-error" class="note" role="alert"></p><button class="primary">연결 정보 저장</button></form>`;$('#naver-form').onsubmit=e=>{e.preventDefault();const rawMap=$('#naver-map-url').value.trim(),rawBooking=$('#naver-book-url').value.trim(),mapUrl=validateNaverUrl(rawMap,'map'),bookingUrl=validateNaverUrl(rawBooking,'booking');if(rawMap&&!mapUrl||rawBooking&&!bookingUrl){$('#naver-error').textContent='네이버 지도 또는 예약의 올바른 HTTPS 주소를 입력해주세요.';return;}const links=read('naverLinks',{});links[shop.id]={mapUrl,bookingUrl};save('naverLinks',links);toast('네이버 연결 정보를 저장했습니다.');};}
-function ownerReservations(){const id=$('#owner-shop').value,list=bookings.filter(b=>b.shopId===id);$('#owner-body').innerHTML=`<div class="stats"><div class="stat">전체 시연 예약<strong>${list.length}</strong></div><div class="stat">예약 확정<strong>${list.filter(b=>b.status==='confirmed').length}</strong></div><div class="stat">시술 완료<strong>${list.filter(b=>b.status==='completed').length}</strong></div></div><h3>예약 일정</h3>${list.length?list.slice().sort((a,b)=>(a.date+time(a.start)).localeCompare(b.date+time(b.start))).map(b=>`<div class="booking-card"><div class="booking-top"><strong>${b.date} ${time(b.start)} · ${escape(b.designer)}</strong><span class="status">${b.status==='confirmed'?'예약 확정':b.status==='completed'?'시술 완료':'취소됨'}</span></div><p class="sub">${menus[b.options.menu].name} · ${b.minutes}분 · ${money(b.total)}</p>${b.note?`<p class="sub">요청: ${escape(b.note)}</p>`:''}${b.record?`<p class="sub">시술 메모: ${escape(b.record)}</p>`:''}${b.status==='confirmed'?`<button class="outline small" data-complete="${b.id}">시술 완료 · 컬러 기록</button> <button class="text-button small" data-owner-cancel="${b.id}">저장 내역 취소</button>`:''}</div>`).join(''):'<div class="empty">등록된 테스트 예약이 없습니다.</div>'}`;document.querySelectorAll('[data-owner-cancel]').forEach(b=>b.onclick=()=>cancelBooking(b.dataset.ownerCancel));document.querySelectorAll('[data-complete]').forEach(b=>b.onclick=()=>{open(`<h2 class="modal-title">시술 기록 남기기</h2><form id="record-form"><label class="field">사용 컬러·고객 요청사항<textarea required maxlength="500" id="record" placeholder="예: 로즈베이지 03 · 짧은 라운드 모양"></textarea></label><button class="primary full">시연 시술 완료</button></form>`);$('#record-form').onsubmit=e=>{e.preventDefault();bookings=bookings.map(x=>x.id===b.dataset.complete?{...x,status:'completed',record:$('#record').value}:x);save('bookings',bookings);modal.close();ownerReservations();};});}
+function ownerReservations(){const id=$('#owner-shop').value,list=bookings.filter(b=>b.shopId===id&&b.kind!=='estimate');$('#owner-body').innerHTML=`<div class="stats"><div class="stat">전체 시연 예약<strong>${list.length}</strong></div><div class="stat">예약 확정<strong>${list.filter(b=>b.status==='confirmed').length}</strong></div><div class="stat">시술 완료<strong>${list.filter(b=>b.status==='completed').length}</strong></div></div><h3>예약 일정</h3>${list.length?list.slice().sort((a,b)=>(a.date+time(a.start)).localeCompare(b.date+time(b.start))).map(b=>`<div class="booking-card"><div class="booking-top"><strong>${b.date} ${time(b.start)} · ${escape(b.designer)}</strong><span class="status">${b.status==='confirmed'?'예약 확정':b.status==='completed'?'시술 완료':'취소됨'}</span></div><p class="sub">${menus[b.options.menu].name} · ${b.minutes}분 · ${money(b.total)}</p>${b.note?`<p class="sub">요청: ${escape(b.note)}</p>`:''}${b.record?`<p class="sub">시술 메모: ${escape(b.record)}</p>`:''}${b.status==='confirmed'?`<button class="outline small" data-complete="${b.id}">시술 완료 · 컬러 기록</button> <button class="text-button small" data-owner-cancel="${b.id}">저장 내역 취소</button>`:''}</div>`).join(''):'<div class="empty">등록된 테스트 예약이 없습니다.</div>'}`;document.querySelectorAll('[data-owner-cancel]').forEach(b=>b.onclick=()=>cancelBooking(b.dataset.ownerCancel));document.querySelectorAll('[data-complete]').forEach(b=>b.onclick=()=>{open(`<h2 class="modal-title">시술 기록 남기기</h2><form id="record-form"><label class="field">사용 컬러·고객 요청사항<textarea required maxlength="500" id="record" placeholder="예: 로즈베이지 03 · 짧은 라운드 모양"></textarea></label><button class="primary full">시연 시술 완료</button></form>`);$('#record-form').onsubmit=e=>{e.preventDefault();bookings=bookings.map(x=>x.id===b.dataset.complete?{...x,status:'completed',record:$('#record').value}:x);save('bookings',bookings);modal.close();ownerReservations();};});}
 function ownerMenus(){const s=shops.find(s=>s.id===$('#owner-shop').value);$('#owner-body').innerHTML=`<h3>${s.name} · 메뉴와 가격</h3><p class="note">기본 메뉴 가격에 샵별 조정금액을 더합니다. 기존 예약의 가격은 바뀌지 않습니다.</p>${Object.entries(menus).map(([k,v])=>`<div class="admin-shop"><strong>${v.name}</strong><span>${money(v.price+s.offset)} · ${v.minutes}분</span></div>`).join('')}<form id="price-form"><label class="field">샵별 기본가격 조정 (원)<input type="number" id="offset" step="1000" min="-20000" max="100000" required value="${s.offset}"></label><button class="primary">가격 저장</button></form><p class="note">연장 1개 7,000원 · 자샵 제거 5,000원 · 타샵 제거 15,000원 · 일반 아트 1개 5,000원</p>`;$('#price-form').onsubmit=e=>{e.preventDefault();s.offset=Number($('#offset').value);save('shops',shops);ownerMenus();toast('가격이 저장됐어요.');};}
 function ownerLogin(){if(ownerSession){location.hash='owner';renderOwner();return;}open(`<div class="eyebrow">SALON BUSINESS LOGIN</div><h2 class="modal-title">파트너 로그인</h2><p class="sub">등록된 관리자 계정으로 로그인해주세요.</p><form id="owner-login-form"><label class="field">사업자등록번호<input id="business-number" inputmode="numeric" autocomplete="username" maxlength="12" pattern="[0-9]{3}-?[0-9]{2}-?[0-9]{5}" placeholder="000-00-00000" required></label><label class="field">비밀번호 (숫자 4자리)<input id="business-pin" type="password" inputmode="numeric" autocomplete="current-password" minlength="4" maxlength="4" pattern="[0-9]{4}" placeholder="숫자 4자리" required></label><p id="login-error" role="alert" class="note" style="color:#a33b59"></p><button class="primary full">관리자 로그인</button></form><div class="summary"><strong>테스트 계정 · 오브 네일</strong><p class="note">사업자번호: 000-00-00000 / 비밀번호: 1234<br>실제 사업자번호가 아닌 시연 계정입니다. 브라우저 코드에 포함된 시연 로그인은 실제 보안 인증이 아닙니다.</p></div>`);$('#business-pin').oninput=e=>e.target.value=e.target.value.replace(/[^0-9]/g,'').slice(0,4);$('#owner-login-form').onsubmit=e=>{e.preventDefault();const error=$('#login-error');if(Date.now()<loginBlockedUntil){error.textContent='시도가 많습니다. 잠시 후 다시 시도해주세요.';return;}const number=$('#business-number').value.replace(/-/g,''),pin=$('#business-pin').value;if(number!=='0000000000'||pin!=='1234'){loginFailures++;if(loginFailures>=5){loginBlockedUntil=Date.now()+30000;loginFailures=0;}error.textContent='등록된 사업자번호와 비밀번호를 확인해주세요.';$('#business-pin').value='';return;}loginFailures=0;ownerSession={shopId:'s1'};$('#account').textContent='오브 네일 · 관리';modal.close();location.hash='owner';renderOwner();toast('오브 네일 관리 화면에 로그인했습니다.');};}
 $('#estimate-settings').onclick=showPreferences;
