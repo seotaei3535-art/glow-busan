@@ -11,5 +11,5 @@ export function naverLinks(shop,saved={}){
  const entry=saved[shop.id]||{};
  const map=validateNaverUrl(entry.mapUrl||shop.naverMapUrl,'map');
  const booking=validateNaverUrl(entry.bookingUrl||shop.naverBookingUrl,'booking');
- return {map:map||'https://map.naver.com/p/search/'+encodeURIComponent(shop.address?shop.name+' '+shop.address:'부산 '+shop.area+' 네일샵'),booking,mapIsSearch:!map};
+ return {map:map||'https://map.naver.com/p/search/'+encodeURIComponent(shop.address?shop.name+' 부산 '+shop.area:'부산 '+shop.area+' 네일샵'),booking,mapIsSearch:!map};
 }
