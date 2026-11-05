@@ -36,3 +36,20 @@
 .quote-nails .art{height:80px;gap:10px;border-radius:8px}
 .quote-nails .nail{width:19px;height:38px;opacity:.35}
 .quote-nails .nail.is-focused{opacity:1;outline:2px solid var(--ink);outline-offset:3px}
+.shape-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;margin-top:8px}
+.shape-option span{height:100%;align-content:center;min-height:65px;padding:6px 3px;text-align:center;white-space:normal;line-height:1.25}
+.shape-option input:checked+span{--shape-fill:#c9829d;--shape-stroke:#87405f}
+.nail-shape-icon{display:block;width:26px;height:36px;fill:var(--shape-fill,#e6b9c9);stroke:var(--shape-stroke,#9d5871);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.nail-shape-icon.is-undecided{fill:none;stroke-dasharray:3 3}
+.nail-shape-icon .nail-shape-detail{fill:none;opacity:.75}
+.shape-description{margin:4px 0 0;min-height:2.8em}
+.shape-details{margin:10px 0 0}
+.shape-details summary{padding:7px 0;cursor:pointer;font-weight:600}
+.quote-shape{position:relative;display:block;opacity:.36;--shape-fill:var(--nail);--shape-stroke:var(--nail)}
+.quote-shape .nail-shape-icon{width:28px;height:47px}
+.quote-shape.is-focused{opacity:1;--shape-stroke:var(--ink);filter:drop-shadow(1px 3px 2px #503b4440)}
+.quote-shape:first-child{transform:rotate(-13deg)}
+.quote-shape:nth-child(2){transform:translateY(-4px) rotate(-7deg)}
+.quote-shape:nth-child(3){transform:translateY(-6px)}
+.quote-shape:nth-child(4){transform:translateY(-4px) rotate(8deg)}
+.quote-shape:nth-child(5){transform:rotate(14deg)}
