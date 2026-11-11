@@ -1,4 +1,4 @@
-// Merchant-published menu prices checked 2026-11-05.
+// Merchant-published menu prices checked November 5–12, 2026.
 export const publishedPrices = {
   "naver-1534398": {
     sourceUrl: "https://m.booking.naver.com/booking/13/bizes/1534398/items/7184421",
@@ -63,5 +63,53 @@ export const publishedPrices = {
       label: "상가 외관과 매장 간판"
     },
     prices: {"plain":{"amount":35000,"from":true,"note":"회원가"}}
+  },
+  "permit-3250000-213-2025-00006": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/jalhae-foz1ukw2zo9c/",
+    prices: {plain:{amount:30000,from:true,note:"공개 손젤 기본가"}}
+  },
+  "permit-3330000-215-2024-00011": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/유네일-7tqhbhk3mqep/",
+    prices: {plain:{amount:40000,note:"비회원가 · 회원가 35,000원부터"}}
+  },
+  "permit-3270000-213-2013-00003": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/뷰티바이정-f6h7nusr8hxm/",
+    prices: {plain:{amount:25000,from:true,note:"공개 손젤 기본가"}}
+  },
+  "permit-3370000-222-2025-00002": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/효리의-빛나는-네일-ohvcf6ysqzna/",
+    prices: {plain:{amount:40000,from:true,note:"비회원가 · 첫 방문 할인 별도"}}
+  },
+  "permit-3290000-218-2025-00001": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/콩네일-dzniu6iv7twa/",
+    prices: {plain:{amount:40000,from:true,note:"현금가 · 케어와 오버레이 포함"},monthly:{amount:66000,from:true,note:"현금가 · 디자인별 금액 상이"}}
+  },
+  "permit-3340000-215-2025-00003": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/르온네일-aoozozeafks9/",
+    prices: {plain:{amount:35000,from:true,note:"오버레이 포함 · 제거 별도"},gradient:{amount:50000,from:true,note:"오버레이 포함 · 제거 별도"},monthly:{amount:50000,from:true,note:"디자인별 금액 상이"}}
+  },
+  "permit-3300000-215-2025-00006": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/네일-어여쁘리-iqhhnivds85c/",
+    prices: {plain:{amount:25000,from:true},gradient:{amount:35000},monthly:{amount:35000,from:true}}
+  },
+  "permit-3380000-213-2025-00007": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/메이무드-네일-j1oja914e1qg/",
+    prices: {plain:{amount:35000,from:true,note:"회원가"}}
+  },
+  "permit-3290000-215-2022-00046": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/네일디스튜디오-mdy5uq5cvpn5/",
+    prices: {plain:{amount:40000,from:true,note:"오버레이 포함"}}
+  },
+  "permit-3320000-215-2025-00006": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/오아이네일-7mwe8ejmacfg/",
+    prices: {plain:{amount:35000,from:true,note:"회원권 할인 별도"}}
+  },
+  "permit-3290000-222-2025-00003": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/시어네일-d3muaq4jjy74/",
+    prices: {plain:{amount:40000,from:true,note:"제거 별도"},art:{amount:55000,from:true,note:"제거 별도"}}
+  },
+  "permit-3390000-213-2017-00002": {
+    sourceUrl: "https://www.daangn.com/kr/local-profile/사상-네일하루-akzxj8fwbexf/",
+    prices: {art:{amount:40000,note:"매장 소개에 공개된 손젤 아트 가격"}}
   }
 };
