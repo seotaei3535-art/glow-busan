@@ -12,17 +12,6 @@ export const publicShops = [
     }
   },
   {
-    id:'naver-265481', name:'GK NAIL 하단 아트몰링점', area:'사하구',
-    address:'부산 사하구 낙동남로 1413 아트몰링 11층',
-    deposit:'매장 안내 10,000원 · 상품별 상이', color:'#9f7eaa', bg:'#f0e9f3',
-    naverBookingUrl:'https://booking.naver.com/booking/13/bizes/265481',
-    exterior:{
-      image:'https://dnvefa72aowie.cloudfront.net/capri/bizPlatform/profile/3653785/1639979686345/a0cf1e214b1e6b5a229417982b3c99b5f45af23342703db791dfb56ea854da01.jpeg?q=95&s=720x720&t=inside&service=business-profile',
-      source:'https://www.daangn.com/kr/local-profile/gk-nail-하단-아트몰링점-fsmonc9gf19j/',
-      label:'아트몰링 11층 매장 정면'
-    }
-  },
-  {
     id:'naver-505353', permitId:'3370000-222-2021-00001', name:'이유네일', area:'연제구',
     address:'부산 연제구 중앙대로 1130 2층 206호',
     deposit:'원장 상품 안내 20,000원', color:'#b68b78', bg:'#f5ebe3',

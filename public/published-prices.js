@@ -4,15 +4,6 @@ export const publishedPrices = {
     sourceUrl: "https://m.booking.naver.com/booking/13/bizes/1534398/items/7184421",
     prices: {"plain":{"amount":35000}}
   },
-  "naver-265481": {
-    sourceUrl: "https://booking.naver.com/booking/13/bizes/265481/items/5364423",
-    menuBookingUrls: {
-      plain: "https://booking.naver.com/booking/13/bizes/265481/items/5364423",
-      art: "https://booking.naver.com/booking/13/bizes/265481/items/5364423",
-      gradient: "https://booking.naver.com/booking/13/bizes/265481/items/5364423"
-    },
-    prices: {"plain":{"amount":45000,"note":"준화 디자이너 비회원가"},"art":{"amount":55000,"from":true,"note":"디자인에 따라 달라요"},"gradient":{"amount":55000,"note":"준화 디자이너 비회원가"}}
-  },
   "naver-505353": {
     sourceUrl: "https://m.booking.naver.com/booking/13/bizes/505353/items/3864513",
     menuBookingUrls: {plain: "https://m.booking.naver.com/booking/13/bizes/505353/items/3864513"},

@@ -13,15 +13,17 @@ function save(key,value){
  try{localStorage.setItem('glow-'+key,JSON.stringify(value));return true;}
  catch{toast('저장 공간이 부족하거나 브라우저 저장이 차단되었습니다.');return false;}
 }
-const verifiedPermits=new Set(verifiedShops.map(shop=>shop.permitId).filter(Boolean));
+const activePermits=new Set(registryShops.map(([permit])=>permit));
+const activeVerifiedShops=verifiedShops.filter(shop=>activePermits.has(shop.permitId));
+const verifiedPermits=new Set(activeVerifiedShops.map(shop=>shop.permitId));
 const publicShops=[
- ...verifiedShops,
+ ...activeVerifiedShops,
  ...registryShops.filter(([permit])=>!verifiedPermits.has(permit)).map(([permit,name,area,address])=>({
   id:'permit-'+permit,name,area,address,color:'#bd95a5',bg:'#f6ecef'
  }))
 ].map(shop=>publishedPrices[shop.id]?{...shop,...publishedPrices[shop.id]}:shop);
 const publicAreas=districts.map(([area])=>area);
-const directBookingCount=verifiedShops.length;
+const directBookingCount=activeVerifiedShops.filter(shop=>shop.naverBookingUrl).length;
 const directoryPageSize=24;
 let resultsLimit=directoryPageSize;
 const areaCenters=Object.fromEntries(districts.map(([area,lat,lng])=>[area,{lat,lng}]));
@@ -74,7 +76,7 @@ function renderHome(){resultsLimit=directoryPageSize;main.innerHTML=`<section cl
   <label class="directory-check"><input type="checkbox" id="price-only" ${filters.priceOnly?'checked':''}> 가격이 확인된 샵만</label>
   <label class="directory-check"><input type="checkbox" id="direct-only" ${filters.directOnly?'checked':''}> 네이버 직접 예약이 확인된 샵만</label>
  </div>
- <p class="note directory-source">부산 16개 구·군 ${publicShops.length.toLocaleString('ko-KR')}곳 · 직접 예약 확인 ${directBookingCount}곳 · <a href="https://www.data.go.kr/data/15045037/fileData.do" target="_blank" rel="noopener noreferrer">미용업 인허가 자료 ${directoryUpdated} ↗</a></p>
+ <p class="note directory-source">부산 16개 구·군 인허가상 영업 중 ${publicShops.length.toLocaleString('ko-KR')}곳 · 직접 예약 확인 ${directBookingCount}곳 · <a href="https://www.data.go.kr/data/15045037/fileData.do" target="_blank" rel="noopener noreferrer">미용업 인허가 자료 ${directoryUpdated} ↗</a><br>오늘 영업시간이나 임시휴무는 방문 전 네이버 지도에서 확인해 주세요.</p>
  <p id="directory-results" class="note" role="status"></p><div class="grid" id="shops"></div><div id="directory-pagination"></div></section>`;
 $('#sort').value=filters.sort;
 $('#sort').onchange=e=>{
