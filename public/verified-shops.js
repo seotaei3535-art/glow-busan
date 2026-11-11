@@ -4,13 +4,23 @@ export const publicShops = [
     id:'naver-1534398', permitId:'3390000-215-2025-00010', name:'네일이지', area:'사상구',
     address:'부산 사상구 엄궁로179번가길 17-9',
     color:'#b47f95', bg:'#f7e9ec',
-    naverBookingUrl:'https://m.booking.naver.com/booking/13/bizes/1534398/items/7184421'
+    naverBookingUrl:'https://m.booking.naver.com/booking/13/bizes/1534398/items/7184421',
+    exterior:{
+      image:'https://img.kr.gcp-karroter.net/local_business_ugc/local_business_ugc/undefined/32950380/1776587834798/NTg2OTBiYTZmYTMyZDZiODgyMGQ5NDI0YzMzODAzNmZiNWIwZjNkZTYxYjI5M2MwZjU0ZDNlMjk4ZTM2ZmYyYl8wLmpwZWc=.jpeg?service=business-profile&s=720x720&q=95&t=inside',
+      source:'https://www.daangn.com/kr/local-profile/네일이지-gpdwi5tu9abn/',
+      label:'매장 외관'
+    }
   },
   {
     id:'naver-265481', name:'GK NAIL 하단 아트몰링점', area:'사하구',
     address:'부산 사하구 낙동남로 1413 아트몰링 11층',
     deposit:'매장 안내 10,000원 · 상품별 상이', color:'#9f7eaa', bg:'#f0e9f3',
-    naverBookingUrl:'https://booking.naver.com/booking/13/bizes/265481'
+    naverBookingUrl:'https://booking.naver.com/booking/13/bizes/265481',
+    exterior:{
+      image:'https://dnvefa72aowie.cloudfront.net/capri/bizPlatform/profile/3653785/1639979686345/a0cf1e214b1e6b5a229417982b3c99b5f45af23342703db791dfb56ea854da01.jpeg?q=95&s=720x720&t=inside&service=business-profile',
+      source:'https://www.daangn.com/kr/local-profile/gk-nail-하단-아트몰링점-fsmonc9gf19j/',
+      label:'아트몰링 11층 매장 정면'
+    }
   },
   {
     id:'naver-505353', permitId:'3370000-222-2021-00001', name:'이유네일', area:'연제구',

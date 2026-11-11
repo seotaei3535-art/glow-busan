@@ -37,7 +37,15 @@ const main=$('#main'),modal=$('#modal');
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200);}
 function open(html){$('#modal-body').innerHTML=html;if(!modal.open)modal.showModal();}
 $('.close').onclick=()=>modal.close();
-const art=(s,small=false)=>`<div class="art" style="--nail:${s.color};--bg:${s.bg}">${'<i class="nail"></i>'.repeat(5)}${small?'':`<span class="sample-tag">디자인 일러스트</span><span class="art-label">THE ART OF YOUR EVERYDAY</span>`}</div>`;
+function shopExterior(shop){
+ const photo=shop.exterior;
+ const fallback=`<div class="shop-photo-missing"${photo?' hidden':''}><span>외관 사진 미확인</span><a href="${escape(shopNaver(shop).map)}" target="_blank" rel="noopener noreferrer">지도에서 위치 확인 ↗</a></div>`;
+ if(!photo)return fallback;
+ return `<figure class="shop-exterior">
+  <img src="${escape(photo.image)}" alt="${escape(shop.name+' '+photo.label)}" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+  <figcaption><span>${escape(photo.label)}</span><a href="${escape(photo.source)}" target="_blank" rel="noopener noreferrer">매장 사진 출처 ↗</a></figcaption>
+ </figure>${fallback}`;
+}
 function today(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
 function options(){return {menu:filters.menu,extensions:preferences.extensions,pieces:0,removal:'none'};}
 function extensionOptions(selected){
@@ -108,7 +116,7 @@ function renderCards(){
  $('#directory-results').textContent=`선택한 메뉴 가격 확인 ${priced.length.toLocaleString('ko-KR')}곳 · ${visible.length.toLocaleString('ko-KR')} / ${list.length.toLocaleString('ko-KR')}곳 표시`;
  $('#shops').innerHTML=visible.length?visible.map(shop=>`
   <article class="shop-card">
-   <div style="position:relative">${art(shop)}
+   <div class="shop-card-media">${shopExterior(shop)}
     <button class="heart ${favorites.includes(shop.id)?'saved':''}" aria-label="${escape(shop.name)} 찜" aria-pressed="${favorites.includes(shop.id)}" data-fav="${shop.id}">${favorites.includes(shop.id)?'♥':'♡'}</button>
    </div>
    <div class="card-body">
@@ -123,6 +131,15 @@ function renderCards(){
     </div>
    </div>
   </article>`).join(''):`<div class="empty" style="grid-column:1/-1">${filters.priceOnly&&matches.length?'이 조건에서 확인된 가격이 없어요.':'조건에 맞는 샵이 없어요.'}<p>검색어 또는 시술 메뉴를 바꿔 보세요.</p>${filters.priceOnly&&matches.length?'<button class="outline" id="show-all-prices">가격 미확인 매장도 보기</button>':'<button class="outline" id="reset">필터 초기화</button>'}</div>`;
+ document.querySelectorAll('.shop-exterior img').forEach(img=>{
+  const showFallback=()=>{
+   const figure=img.closest('figure');
+   figure.hidden=true;
+   figure.nextElementSibling.hidden=false;
+  };
+  img.addEventListener('error',showFallback,{once:true});
+  if(img.complete&&!img.naturalWidth)showFallback();
+ });
  document.querySelectorAll('[data-fav]').forEach(button=>button.onclick=()=>{
   const id=button.dataset.fav;
   favorites=favorites.includes(id)?favorites.filter(saved=>saved!==id):[...favorites,id];
