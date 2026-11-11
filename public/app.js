@@ -122,7 +122,7 @@ function renderCards(){
    <div class="card-body">
     <div class="card-top"><h3>${escape(shop.name)}</h3></div>
     <p class="sub">${escape(shop.address)}</p>
-    <div class="price-line"><div><small>${menus[filters.menu].name} · 매장 공개가</small><br><strong>${priceText(shop,filters.menu)}</strong>${priceCondition(shop,filters.menu)?`<br><small>${escape(priceCondition(shop,filters.menu))}</small>`:''}</div>${sourceLink(shop)}</div>
+    <div class="price-line"><div><small>${menus[filters.menu].name} · 공개 기본가</small><br><strong>${priceText(shop,filters.menu)}</strong>${priceCondition(shop,filters.menu)?`<br><small>${escape(priceCondition(shop,filters.menu))}</small>`:''}</div>${sourceLink(shop)}</div>
     ${shop.deposit?`<p class="note">예약금 · ${shop.deposit}</p>`:''}
     ${naverActions(shop)}
     <div class="card-actions">
@@ -236,7 +236,8 @@ function renderCompare(){
  const list=publicShops.filter(shop=>compared.includes(shop.id));
  const rows=[
   ['주소',shop=>escape(shop.address)],
-  ['매장 공개가',shop=>priceText(shop,filters.menu)],
+  ['공개 기본가',shop=>priceText(shop,filters.menu)],
+  ...(preferences.extensions?[['연장 추가요금',()=>`${preferences.extensions}개 · 미확인`]]:[]),
   ['가격 조건',shop=>escape(priceCondition(shop,filters.menu)||'—')],
   ['가격 출처',shop=>sourceLink(shop)||'—'],
   ['예약금 안내',shop=>shop.deposit||'예약 화면에서 확인'],
@@ -244,7 +245,7 @@ function renderCompare(){
   ['견적 저장',shop=>`<button class="primary small" data-book="${shop.id}">견적 · 예약 보기</button>`]
  ];
  main.innerHTML=`<section class="content">
-  <div class="page-head"><div class="eyebrow">SIDE BY SIDE</div><h1>네일샵 한눈에 비교</h1><p class="sub">같은 메뉴의 공개 가격과 적용 조건을 비교해 보세요.</p></div>
+  <div class="page-head"><div class="eyebrow">SIDE BY SIDE</div><h1>네일샵 한눈에 비교</h1><p class="sub">같은 메뉴의 기본가를 비교하세요. 연장·제거 비용은 매장마다 달라요.</p></div>
   <div class="filters">${Object.entries(menus).map(([key,menu])=>`<button class="chip ${filters.menu===key?'active':''}" data-cmenu="${key}">${menu.name}</button>`).join('')}</div>
   ${list.length?`<div class="table-scroll"><table class="compare-table"><tbody>
    <tr><th>비교 기준</th>${list.map(shop=>`<th>${escape(shop.name)}<br><button class="text-button small" data-remove="${shop.id}">삭제 ×</button></th>`).join('')}</tr>
@@ -269,27 +270,36 @@ function booking(id,previous){
    <div class="form-grid">
     <label class="field">시술 메뉴<select id="b-menu">${Object.entries(menus).map(([key,menu])=>`<option value="${key}" ${key===selected.menu?'selected':''}>${menu.name}</option>`).join('')}</select></label>
     <label class="field">연장 개수<select id="b-extensions">${extensionOptions(selected.extensions)}</select></label>
-    <label class="field">제거 여부<select id="b-removal"><option value="none">제거 없음</option><option value="own">자샵 제거</option><option value="other">타샵 제거</option></select></label>
+    <label class="field">기존 젤 제거<select id="b-removal"><option value="none">제거 없음</option><option value="own">이 매장에서 받은 젤</option><option value="other">다른 매장에서 받은 젤</option></select></label>
     <label class="field" id="pieces-field">일반 아트 개수<select id="b-pieces">${Array.from({length:11},(_,i)=>`<option value="${i}" ${i===Number(selected.pieces)?'selected':''}>${i}개</option>`).join('')}</select></label>
     <label class="field">희망 방문 날짜<input id="b-date" type="date" required min="${today()}" value="${escape(date)}"></label>
    </div>
-   <p class="note">시간은 다음 단계에서 매장의 네이버 예약 화면을 열고 예약 가능한 시간 중에서 골라요.</p>
-   <label class="field">참고 사진 (선택 · 최대 5MB)<input id="b-photo" type="file" accept="image/jpeg,image/png,image/webp"><span id="photo-output"></span></label>
-   <p class="note">사진은 여기서 미리 볼 수 있어요. 매장에 보여줄 사진은 네이버 예약 안내에 따라 준비해 주세요.</p>
-   <label class="field">예약에 참고할 요청사항<textarea id="b-note" maxlength="500" placeholder="선호하는 색상, 원하는 스타일 등을 적어주세요."></textarea></label>
-   <div class="summary" id="quote"></div>
-   <p class="note">옵션별 요금과 예약금은 매장의 예약 안내를 확인해 주세요.</p>
+   <div class="summary" id="quote" aria-live="polite"></div>
+   <details class="quote-extras"${previous?.note?' open':''}>
+    <summary>요청사항과 참고 사진 추가 (선택)</summary>
+    <label class="field">예약 요청사항<textarea id="b-note" maxlength="500" placeholder="원하는 색상이나 스타일을 적어주세요."></textarea></label>
+    <label class="field">참고 사진 미리보기 (최대 5MB)<input id="b-photo" type="file" accept="image/jpeg,image/png,image/webp"><span id="photo-output"></span></label>
+   </details>
    <label class="consent"><input type="checkbox" required> 견적과 희망 일정을 이 기기에 저장합니다.</label>
    <button class="primary full gold">견적 저장하고 이어가기</button>
   </form>`);
  $('#b-removal').value=selected.removal;
  $('#b-note').value=previous?.note||'';
+ const readOptions=()=>({
+  menu:$('#b-menu').value,shape,extensions:Number($('#b-extensions').value),
+  pieces:Number($('#b-pieces').value),removal:$('#b-removal').value
+ });
  function refresh(){
-  const menu=$('#b-menu').value;
-  $('#pieces-field').hidden=menu!=='art';
-  $('#quote').innerHTML=`<div class="summary-row"><span>매장 공개가</span><strong>${priceText(shop,menu)}</strong></div>${priceCondition(shop,menu)?`<p class="note">${escape(priceCondition(shop,menu))}</p>`:''}${sourceLink(shop)}`;
+  const opt=readOptions();
+  $('#pieces-field').hidden=opt.menu!=='art';
+  const extras=estimateAddOns(opt);
+  $('#quote').innerHTML=`<div class="summary-row"><span>${menus[opt.menu].name} 기본가</span><strong>${priceText(shop,opt.menu)}</strong></div>
+   ${priceCondition(shop,opt.menu)?`<p class="note">${escape(priceCondition(shop,opt.menu))}</p>`:''}
+   ${extras.map(label=>`<div class="summary-row quote-add-on"><span>${label}</span><strong>추가요금 미확인</strong></div>`).join('')}
+   ${extras.length?'<p class="note">선택한 옵션의 추가요금은 네이버 예약 화면이나 매장에서 확인해 주세요.</p>':''}
+   ${sourceLink(shop)}`;
  }
- $('#b-menu').onchange=refresh;
+ ['#b-menu','#b-extensions','#b-removal','#b-pieces'].forEach(selector=>$(selector).onchange=refresh);
  refresh();
  $('#b-photo').onchange=event=>{
   const input=event.currentTarget;
@@ -312,10 +322,7 @@ function booking(id,previous){
  };
  $('#book-form').onsubmit=event=>{
   event.preventDefault();
-  const opt={
-   menu:$('#b-menu').value,shape,extensions:Number($('#b-extensions').value),
-   pieces:Number($('#b-pieces').value),removal:$('#b-removal').value
-  };
+  const opt=readOptions();
   const saved={
    id:crypto.randomUUID(),shopId:id,shopName:shop.name,
    date:$('#b-date').value,options:opt,
@@ -329,10 +336,13 @@ function booking(id,previous){
  };
 }
 
-function bookingOptionText(opt){
- const removal={own:'자샵 제거',other:'타샵 제거'}[opt.removal];
+function estimateAddOns(opt){
+ const removal={own:'이 매장에서 받은 젤 제거',other:'다른 매장에서 받은 젤 제거'}[opt.removal];
+ return [opt.extensions?`연장 ${Number(opt.extensions)}개`:'',removal,opt.menu==='art'&&opt.pieces?`아트 ${Number(opt.pieces)}개`:''].filter(Boolean);
+}
+function bookingOptionText(opt,includeAddOns=true){
  const shape=opt.shape&&Object.hasOwn(nailShapes,opt.shape)?nailShapes[opt.shape].name:'';
- return [menus[opt.menu].name,shape,opt.extensions?`연장 ${opt.extensions}개`:'',removal,opt.menu==='art'&&opt.pieces?`아트 ${opt.pieces}개`:''].filter(Boolean).join(' · ');
+ return [menus[opt.menu].name,shape,...(includeAddOns?estimateAddOns(opt):[])].filter(Boolean).join(' · ');
 }
 
 function savedSchedule(saved){
@@ -348,6 +358,9 @@ function savedPrice(saved){
  if(Object.hasOwn(saved,'basePrice'))return saved.basePrice===null?'매장 확인':money(saved.basePrice)+'부터';
  return Number.isFinite(saved.total)?money(saved.total):'매장 확인';
 }
+function savedPriceLabel(saved){
+ return Object.hasOwn(saved,'publishedPrice')||Object.hasOwn(saved,'basePrice')?'저장 당시 기본가':'저장 당시 견적';
+}
 
 function showSavedBooking(saved,shop){
  const links=shopNaver(shop);
@@ -356,17 +369,17 @@ function showSavedBooking(saved,shop){
  const details=[
   saved.shopName,
   `희망 일정 ${savedSchedule(saved)}`,
-  bookingOptionText(saved.options),
-  `매장 공개가 ${savedPrice(saved)}`,
+  bookingOptionText(saved.options,saved.kind!=='estimate'),
+  `${savedPriceLabel(saved)} ${savedPrice(saved)}`,
+  ...(saved.kind==='estimate'?estimateAddOns(saved.options).map(label=>`${label} · 추가요금 미확인`):[]),
   saved.note?`요청사항 ${saved.note}`:''
  ].filter(Boolean);
  const quote=details.join('\n');
- open(`<div class="success-icon">✓</div>
-  <h2 class="modal-title">저장한 견적으로 예약 이어가기</h2>
+ open(`<h2 class="modal-title">견적을 저장했어요</h2>
+  <a class="primary full booking-time-action" id="open-handoff" href="${escape(bookingUrl||links.map)}" target="_blank" rel="noopener noreferrer">${bookingUrl?'네이버에서 가능한 시간 고르기 ↗':'네이버 지도에서 매장 찾기 ↗'}</a>
+  <p class="handoff-instructions">버튼을 누르면 선택한 옵션도 복사돼요. ${bookingUrl?'네이버의 요청사항 칸에 붙여넣을 수 있어요.':'매장에 문의할 때 사용할 수 있어요.'}</p>
   <div class="summary booking-handoff">${details.map(detail=>`<p>${escape(detail)}</p>`).join('')}</div>
-  <p class="note">${bookingUrl?'네이버에서 가능한 시간 중 하나를 선택하세요. 원하는 날짜에 시간이 없으면 다른 날짜를 골라보세요. 요청사항 칸이 있으면 복사한 견적을 붙여넣을 수 있어요.':'네이버 지도에서 매장을 찾은 뒤 예약 버튼이 있는지 확인하세요. 견적을 복사해 매장 문의에도 쓸 수 있어요.'}</p>
-  <div class="card-actions"><a class="primary" id="open-handoff" href="${escape(bookingUrl||links.map)}" target="_blank" rel="noopener noreferrer">${bookingUrl?'견적 복사하고 네이버에서 시간 선택 ↗':'견적 복사하고 네이버 지도 열기 ↗'}</a>
-   <button class="outline" id="copy-booking">견적만 복사</button></div>
+  <button class="outline" id="copy-booking">견적만 복사</button>
   <p class="note" role="status" id="copy-booking-status"></p>
   <details id="manual-booking-copy" hidden><summary>복사용 견적 보기</summary><label class="field">저장한 견적<textarea id="booking-copy-text" rows="5" readonly>${escape(quote)}</textarea></label></details>
   <button class="outline full" id="show-booking">내 예약 보기</button>`);
@@ -408,7 +421,8 @@ function renderBookings(){
    <div class="booking-top"><h3>${escape(saved.shopName)}</h3><span class="status">${saved.status==='cancelled'?'저장 내역 취소':saved.status==='completed'?'시술 완료 (시연)':'견적 저장'}</span></div>
    <p>희망 일정 · ${escape(savedSchedule(saved))}</p>
    <p class="sub">${escape(bookingOptionText(saved.options))}</p>
-   <p>${Object.hasOwn(saved,'publishedPrice')||Object.hasOwn(saved,'basePrice')?'저장 당시 공개가':'저장 당시 견적'} <strong>${escape(savedPrice(saved))}</strong></p>
+   <p>${savedPriceLabel(saved)} <strong>${escape(savedPrice(saved))}</strong></p>
+   ${saved.kind==='estimate'&&estimateAddOns(saved.options).length?'<p class="sub">선택한 옵션 · 추가요금 미확인</p>':''}
    ${saved.note?`<p class="sub">요청사항 · ${escape(saved.note)}</p>`:''}
    ${saved.record?`<p class="sub">시술 메모 · ${escape(saved.record)}</p>`:''}
    <div class="card-actions">
