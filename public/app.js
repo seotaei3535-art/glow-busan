@@ -88,11 +88,11 @@ function renderEntry(){
   <div class="journey-choices">
    <a href="#beginner" class="journey-choice">
     <span class="art-sample art-sample--french" aria-hidden="true"><i></i><i></i><i></i></span>
-    <strong>네일이 처음이에요</strong><span>첫 네일 가이드 · 나에게 맞는 스타일</span>
+    <strong lang="en">Welcome, Princess!</strong><span>첫 네일 가이드 · 내 스타일 찾기</span>
    </a>
    <a href="#experienced" class="journey-choice">
     <span class="art-sample art-sample--monthly" aria-hidden="true"><i></i><i></i><i></i></span>
-    <strong>경험자예요</strong><span>해시태그 검색 · 단골샵 예약</span>
+    <strong lang="en">Welcome back, Princess!</strong><span>해시태그 검색 · 단골샵 예약</span>
    </a>
   </div>
  </div></section>`;

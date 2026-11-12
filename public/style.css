@@ -357,3 +357,22 @@
  .regular-form{grid-template-columns:1fr}
  #style-form{grid-template-columns:1fr}
 }
+
+body{font-family:"Gowun Dodum",system-ui,-apple-system,"Malgun Gothic",sans-serif}
+.brand{font-family:Nunito,"Gowun Dodum",system-ui,sans-serif;font-weight:900}
+main :is(h1,h2),.modal-title{font-family:Jua,"Gowun Dodum",system-ui,sans-serif;font-weight:400}
+.journey-entry h1{letter-spacing:-.015em}
+.journey-choices{max-width:840px}
+.journey-choice strong{
+  font-family:Nunito,"Gowun Dodum",system-ui,sans-serif;
+  font-size:clamp(21px,3vw,28px);
+  font-weight:900;
+  line-height:1.12;
+  color:#823d61;
+}
+.journey-choice>span:last-child{font-size:15px}
+@media(max-width:560px){
+  .journey-choice{grid-template-columns:62px minmax(0,1fr)}
+  .journey-choice strong{font-size:clamp(19px,5.8vw,25px)}
+  .journey-choice>span:last-child{font-size:13px}
+}
