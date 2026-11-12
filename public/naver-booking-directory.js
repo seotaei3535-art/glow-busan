@@ -231,4 +231,14 @@ export const naverBookingByPermit = {
   "3400000-222-2020-00005": "https://m.place.naver.com/nailshop/1538578837/stylist?theme=place&entry=ple&lang=ko", // 네일은 빛나게
   "3400000-226-2021-00002": "https://m.place.naver.com/nailshop/1202615718/stylist?theme=place&entry=ple&lang=ko", // 리아드네일
   "3400000-226-2021-00003": "https://m.place.naver.com/nailshop/1059332253/stylist?theme=place&entry=ple&lang=ko", // 보니따뷰티(bonita beauty)
+  "3260000-215-2016-00002": "https://m.place.naver.com/nailshop/1933588246/stylist?theme=place&entry=ple&lang=ko", // 여우네일 토성동점
+  "3260000-215-2017-00002": "https://m.place.naver.com/nailshop/691652589/stylist?theme=place&entry=ple&lang=ko", // 네일메이드
+  "3260000-223-2020-00001": "https://m.place.naver.com/nailshop/1329116860/stylist?theme=place&entry=ple&lang=ko", // 빛네일
+  "3280000-226-2024-00002": "https://m.place.naver.com/nailshop/1931140160/stylist?theme=place&entry=ple&lang=ko", // 쁨잇
+  "3310000-213-2011-00005": "https://m.place.naver.com/nailshop/36476643/stylist?theme=place&entry=ple&lang=ko", // JY네일
+  "3310000-226-2013-00002": "https://m.place.naver.com/nailshop/21854019/stylist?theme=place&entry=ple&lang=ko", // 더뷰티네일
+  "3340000-215-2026-00006": "https://m.place.naver.com/nailshop/2066847806/stylist?theme=place&entry=ple&lang=ko", // 네일드초
+  "3340000-215-2025-00002": "https://m.place.naver.com/nailshop/1133036972/stylist?theme=place&entry=ple&lang=ko", // 레푸스 부산하단점
+  "3340000-213-2024-00001": "https://m.place.naver.com/nailshop/21597818/stylist?theme=place&entry=ple&lang=ko", // 네일멜로디
+  "3400000-222-2023-00004": "https://m.place.naver.com/nailshop/1283671318/stylist?theme=place&entry=ple&lang=ko", // 네일빛
 };

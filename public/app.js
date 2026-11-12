@@ -1,11 +1,11 @@
-import {naverLinks,naverBookingForDate} from './naver.js?v=20261112-15';
-import {naverBookingByPermit} from './naver-booking-directory.js?v=20261112-15';
+import {naverLinks,naverBookingForDate,validateNaverUrl} from './naver.js?v=20261112-15';
+import {naverBookingByPermit} from './naver-booking-directory.js?v=20261112-21';
 import {districts} from './catalog.js';
 import {publicShops as verifiedShops} from './verified-shops.js?v=20261112-14';
 import {registryShops} from './busan-directory.js';
 import {publishedPrices} from './published-prices.js?v=20261112-14';
 import {shopArt} from './shop-art.js?v=20261112-16';
-import {shopDiscovery} from './shop-discovery.js?v=20261112-19';
+import {shopDiscovery} from './shop-discovery.js?v=20261112-21';
 import {basicNailShapes,nailShapes} from './nail-shapes.js';
 import {menus,distanceKm} from './domain.js';
 import {firstNailGuide} from './first-nail-guide.js?v=20261112-7';
@@ -26,14 +26,15 @@ const publicShops=[
  }))
 ].map(shop=>publishedPrices[shop.id]?{...shop,...publishedPrices[shop.id]}:shop);
 const publicAreas=districts.map(([area])=>area);
-const directoryPageSize=24;
-let resultsLimit=directoryPageSize;
+const defaultArea='부산진구';
+const districtLimit=10;
 const areaCenters=Object.fromEntries(districts.map(([area,lat,lng])=>[area,{lat,lng}]));
 const naverMyUrl='https://m.place.naver.com/my';
 let bookings=read('bookings',[]),favorites=read('favorites',[]),compared=read('compared',[]).filter(id=>publicShops.some(shop=>shop.id===id)),origin=null;
-let filters={area:'all',date:'',menu:'plain',sort:'recommended',favorites:false,query:''};
+let filters={area:defaultArea,date:'',menu:'plain',sort:'recommended',favorites:false,query:''};
 const featuredTags=['연말','가을','겨울','자석네일','프렌치','글리터','시럽네일'];
-let popularArea='부산진구';
+let beginnerArea=defaultArea;
+let styleChoice=read('nail-style',null);
 const main=$('#main'),modal=$('#modal');
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200);}
 function open(html){$('#modal-body').innerHTML=html;if(!modal.open)modal.showModal();}
@@ -68,22 +69,197 @@ function catalogView(){
  return 'directory';
 }
 function updateCount(){$('#compare-count').textContent=compared.length;}
-function route(){updateCount();const page=location.hash.slice(1)||'home';if(page==='compare')renderCompare();else if(page==='reservations')renderBookings();else renderHome();}
+function route(){
+ updateCount();
+ const page=location.hash.slice(1)||(catalogView()==='booking'?'booking':'home');
+ if(page==='home')renderEntry();
+ else if(page==='beginner')renderBeginner();
+ else if(page==='compare')renderCompare();
+ else if(page==='reservations')renderBookings();
+ else renderHome();
+}
 window.addEventListener('hashchange',()=>{route();window.scrollTo(0,0);});
+function areaOptions(selected){
+ return publicAreas.map(area=>`<option${area===selected?' selected':''}>${area}</option>`).join('');
+}
+function renderEntry(){
+ main.innerHTML=`<section class="pastel-sky journey-entry"><div class="journey-inner">
+  <h1>오늘은 어떤 네일을 할까요?</h1>
+  <div class="journey-choices">
+   <a href="#beginner" class="journey-choice">
+    <span class="art-sample art-sample--french" aria-hidden="true"><i></i><i></i><i></i></span>
+    <strong>네일이 처음이에요</strong><span>첫 네일 가이드 · 나에게 맞는 스타일</span>
+   </a>
+   <a href="#experienced" class="journey-choice">
+    <span class="art-sample art-sample--monthly" aria-hidden="true"><i></i><i></i><i></i></span>
+    <strong>경험자예요</strong><span>해시태그 검색 · 단골샵 예약</span>
+   </a>
+  </div>
+ </div></section>`;
+}
+const nailPalettes={
+ warm:{label:'따뜻한 색',colors:['#efd3ad','#d9987e','#ac605c'],names:'살구 베이지 · 코랄 · 로즈 브라운'},
+ cool:{label:'차분하고 시원한 색',colors:['#f1c7d6','#b5a4d9','#946184'],names:'밀키 핑크 · 라벤더 · 모브'},
+ neutral:{label:'어디에나 어울리는 색',colors:['#f7e7e0','#d0aaa3','#9b7c79'],names:'밀크 베이지 · 누드 핑크 · 토프'}
+};
+const nailLooks={
+ simple:{label:'깔끔한 원컬러',menu:'plain',tag:'',name:'원컬러'},
+ soft:{label:'은은하게 물든 느낌',menu:'gradient',tag:'그라데이션',name:'그라데이션'},
+ point:{label:'한두 손톱에 포인트',menu:'art',tag:'글리터',name:'글리터 포인트 아트'}
+};
+function styleOptions(choices,selected){
+ return Object.entries(choices).map(([key,value])=>`<option value="${key}"${key===selected?' selected':''}>${value.label}</option>`).join('');
+}
+function renderBeginner(){
+ main.innerHTML=`<section class="pastel-sky journey-heading"><div class="journey-inner"><a class="journey-back" href="#home">← 코너 선택</a><h1>첫 네일 가이드</h1><a class="primary gold" href="#beginner" id="jump-style">내 스타일 찾기 ↓</a></div></section>
+ <div class="content journey-content">
+  <section class="journey-panel">${firstNailGuide()}</section>
+  <section class="journey-panel" aria-labelledby="care-video-title">
+   <h2 id="care-video-title">젤 네일 전후 유의사항 영상</h2>
+   <iframe class="care-video" src="https://www.youtube-nocookie.com/embed/wyGnWOVIMec?rel=0" title="미국피부과학회 젤 네일 전후 관리 영상" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+   <p class="sub">영상은 영어예요. 도구 소독을 확인하고, 들뜬 젤은 손으로 뜯지 마세요.</p>
+   <a class="naver-link" href="https://www.aad.org/public/everyday-care/nail-care-secrets/basics/pedicures/gel-manicures" target="_blank" rel="noopener noreferrer">미국피부과학회에서 영상 보기 ↗</a>
+  </section>
+  <section class="journey-panel" id="nail-style" aria-labelledby="nail-style-title">
+   <h2 id="nail-style-title">내 스타일 찾기</h2>
+   <form id="style-form" class="form-grid">
+    <label class="field">끌리는 색<select name="tone">${styleOptions(nailPalettes,styleChoice?.tone||'neutral')}</select></label>
+    <label class="field">원하는 분위기<select name="look">${styleOptions(nailLooks,styleChoice?.look||'simple')}</select></label>
+    <label class="field">편한 손톱 길이<select name="length"><option value="short"${styleChoice?.length==='short'?' selected':''}>짧고 편하게</option><option value="long"${styleChoice?.length==='long'?' selected':''}>조금 길고 날렵하게</option></select></label>
+    <button type="submit" class="primary gold">내 스타일 추천 받기</button>
+   </form>
+   <div id="style-result"></div>
+  </section>
+  <section class="journey-panel">
+   <div class="journey-section-heading"><h2>첫 네일 예약</h2><label>지역 <select id="beginner-area" class="outline small">${areaOptions(beginnerArea)}</select></label></div>
+   <div id="beginner-shops"></div>
+  </section>
+ </div>`;
+ $('#jump-style').onclick=event=>{event.preventDefault();$('#nail-style').scrollIntoView({block:'start'});$('#style-form select').focus({preventScroll:true});};
+ $('#style-form').onsubmit=event=>{
+  event.preventDefault();
+  styleChoice=Object.fromEntries(new FormData(event.currentTarget));
+  save('nail-style',styleChoice);
+  renderStyleResult();
+  renderBeginnerShops();
+  $('#style-result').focus();
+ };
+ $('#beginner-area').onchange=event=>{beginnerArea=event.target.value;renderBeginnerShops();};
+ renderStyleResult();
+ renderBeginnerShops();
+}
+function renderStyleResult(){
+ const target=$('#style-result');
+ if(!styleChoice||!Object.hasOwn(nailPalettes,styleChoice.tone)||!Object.hasOwn(nailLooks,styleChoice.look))return;
+ const palette=nailPalettes[styleChoice.tone],look=nailLooks[styleChoice.look];
+ const shape=styleChoice.length==='long'?'almond':'oval';
+ target.tabIndex=-1;
+ target.innerHTML=`<div class="style-result">
+  <h3>${look.name} · ${nailShapes[shape].name}</h3>
+  <div class="style-colors" aria-hidden="true">${palette.colors.map(color=>`<i style="--swatch:${color}"></i>`).join('')}</div>
+  <p>${palette.names}</p><p class="sub">고른 스타일은 견적의 예약 요청사항에 담겨요.</p>
+ </div>`;
+}
+function renderBeginnerShops(){
+ const look=styleChoice&&Object.hasOwn(nailLooks,styleChoice.look)?nailLooks[styleChoice.look]:null;
+ const list=rankedShops(beginnerArea).filter(shop=>bookingUrlForShop(shop,look?.menu||'plain'));
+ if(look?.tag){
+  const hasTag=shop=>(shopDiscovery[shop.permitId]?.tags||[]).includes(look.tag);
+  list.sort((a,b)=>Number(hasTag(b))-Number(hasTag(a)));
+ }
+ const target=$('#beginner-shops');
+ target.innerHTML=list.length?`<ul class="journey-shop-list">${list.map(shop=>`<li>
+  <div><strong>${escape(shop.name)}</strong><small>${escape(shop.address)}</small></div>
+  <button class="primary small" type="button" data-first-book="${escape(shop.id)}">견적 · 예약</button>
+ </li>`).join('')}</ul>`:'<p class="note">이 지역에서 예약 링크를 확인한 매장이 없어요.</p>';
+ target.querySelectorAll('[data-first-book]').forEach(button=>button.onclick=()=>{
+  const palette=styleChoice&&Object.hasOwn(nailPalettes,styleChoice.tone)?nailPalettes[styleChoice.tone]:null;
+  const previous=palette&&look?{
+   options:{...options(),menu:look.menu,shape:styleChoice.length==='long'?'almond':'oval'},
+   note:`원하는 스타일 · ${look.name}, ${palette.names}`
+  }:{options:{...options(),menu:'plain'}};
+  booking(button.dataset.firstBook,previous);
+ });
+}
+function regularShopPanel(){
+ return `<section class="journey-panel regular-panel">
+  <h2>내 단골샵</h2>
+  <div id="regular-shops"></div>
+  <details class="regular-add"><summary>단골샵 등록</summary>
+   <label class="field">매장명 검색<input id="regular-search" type="search" placeholder="예: 네일이지" maxlength="80"></label>
+   <div id="regular-matches" aria-live="polite"></div>
+   <form id="regular-form" class="regular-form">
+    <label class="field">매장 이름<input name="name" required maxlength="80"></label>
+    <label class="field">네이버 예약 링크<input name="url" type="url" required maxlength="1000" placeholder="https://m.booking.naver.com/…"></label>
+    <button class="outline small" type="submit">링크로 등록</button>
+    <p class="note" id="regular-error" role="status"></p>
+   </form>
+  </details>
+ </section>`;
+}
+function renderRegularShops(){
+ const target=$('#regular-shops');
+ const entries=read('regular-shops',[]).map(entry=>({...entry,url:validateNaverUrl(entry.url,'booking')})).filter(entry=>entry.url);
+ target.innerHTML=entries.length?`<ul class="journey-shop-list">${entries.map(entry=>`<li>
+  <strong>${escape(entry.name)}</strong><div class="regular-actions">
+   <a class="primary small" href="${escape(entry.url)}">네이버 예약 ↗</a>
+   <button class="text-button small" type="button" data-regular-remove="${escape(entry.url)}" aria-label="${escape(entry.name)} 삭제">삭제</button>
+  </div>
+ </li>`).join('')}</ul>`:'<p class="note">자주 가는 매장을 저장해 바로 예약하세요.</p>';
+ target.querySelectorAll('[data-regular-remove]').forEach(button=>button.onclick=()=>{
+  const next=read('regular-shops',[]).filter(entry=>validateNaverUrl(entry.url,'booking')!==button.dataset.regularRemove);
+  if(save('regular-shops',next))renderRegularShops();
+ });
+}
+function addRegularShop(name,url){
+ const bookingUrl=validateNaverUrl(url,'booking');
+ if(!bookingUrl||!name.trim()){
+  $('#regular-error').textContent='매장 이름과 네이버의 직접 예약 링크를 입력해 주세요.';
+  return false;
+ }
+ const entries=read('regular-shops',[]);
+ if(entries.some(entry=>validateNaverUrl(entry.url,'booking')===bookingUrl)){
+  $('#regular-error').textContent='이미 등록한 예약 링크예요.';
+  return false;
+ }
+ if(!save('regular-shops',[...entries,{name:name.trim(),url:bookingUrl}]))return false;
+ $('#regular-error').textContent='';
+ renderRegularShops();
+ toast('단골샵을 등록했어요.');
+ return true;
+}
+function bindRegularShopPanel(){
+ renderRegularShops();
+ $('#regular-search').oninput=event=>{
+  const term=searchable(event.target.value);
+  const matches=term?publicShops.filter(shop=>searchable(shop.name+' '+shop.area).includes(term)&&shopNaver(shop).booking).slice(0,6):[];
+  const target=$('#regular-matches');
+  target.innerHTML=matches.length?`<ul class="journey-shop-list">${matches.map(shop=>`<li>
+   <div><strong>${escape(shop.name)}</strong><small>${escape(shop.address)}</small></div>
+   <button class="outline small" type="button" data-regular-add="${escape(shop.id)}">등록</button>
+  </li>`).join('')}</ul>`:term?'<p class="note">예약 링크가 있는 매장을 찾지 못했어요. 아래에 링크를 입력해 주세요.</p>':'';
+  target.querySelectorAll('[data-regular-add]').forEach(button=>button.onclick=()=>{
+   const shop=matches.find(item=>item.id===button.dataset.regularAdd);
+   if(addRegularShop(shop.name,shopNaver(shop).booking))button.disabled=true;
+  });
+ };
+ $('#regular-form').onsubmit=event=>{
+  event.preventDefault();
+  const values=new FormData(event.currentTarget);
+  if(addRegularShop(values.get('name'),values.get('url')))event.currentTarget.reset();
+ };
+}
 function renderHome(){
- resultsLimit=directoryPageSize;
- main.innerHTML=`<section class="hero hero--nails browse-hero">
-  <div><h1>부산 네일샵 찾기</h1><button class="text-button browse-guide" id="guide">✧ 첫 네일 가이드</button></div>
-  <div class="hero-polish" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
- </section>
+ main.innerHTML=`<section class="pastel-sky journey-heading"><div class="journey-inner"><a class="journey-back" href="#home">← 코너 선택</a><h1>경험자 코너</h1><p>해시태그로 찾거나 단골샵에서 바로 예약하세요.</p></div></section>
  <section class="content browse-content">
+ ${regularShopPanel()}
  <form class="browse-search" id="search">
   <div class="browse-search-main">
    <label class="directory-search" for="shop-query">매장·주소·해시태그<input id="shop-query" type="search" maxlength="80" placeholder="매장명, 전포동, #연말" value="${escape(filters.query)}"></label>
    <button class="primary gold" type="submit">검색</button>
   </div>
   <div class="browse-search-options">
-   <label>지역<select id="area"><option value="all">부산 전체</option>${publicAreas.map(area=>`<option ${filters.area===area?'selected':''}>${area}</option>`).join('')}</select></label>
+   <label>지역<select id="area">${areaOptions(filters.area)}</select></label>
    <label>시술<select id="search-menu">${Object.entries(menus).map(([key,menu])=>`<option value="${key}" ${filters.menu===key?'selected':''}>${menu.name}</option>`).join('')}</select></label>
    <label>희망 방문일<input aria-label="방문 날짜" type="date" id="search-date" min="${today()}" value="${filters.date}"></label>
   </div>
@@ -95,36 +271,28 @@ function renderHome(){
     `<a class="chip ${view===catalogView()?'active':''}" href="${href}" ${view===catalogView()?'aria-current="page"':''}>${label}</a>`).join('')}
   </div>
  </div>
- <section id="popular-panel" class="popular-panel" aria-labelledby="popular-title">
-  <div class="popular-heading"><div><h2 id="popular-title">인기 네일샵 TOP 5</h2><p class="note">확인한 매장 · 네이버 리뷰 수 기준</p></div>
-   <select class="outline small" id="popular-area" aria-label="인기 네일샵 지역">${publicAreas.map(area=>`<option>${area}</option>`).join('')}</select>
-  </div>
-  <ol id="popular-shops" class="popular-shops"></ol>
- </section>
  <div class="section-head browse-list-heading">
-  <div><h2>네일샵 목록</h2><p id="directory-results" class="note" role="status"></p></div>
+  <div><h2>${escape(filters.area)} 인기 TOP 10</h2><p id="directory-results" class="note" role="status"></p></div>
   <div class="browse-list-controls">
    <button class="chip ${filters.favorites?'active':''}" id="only-favorites" aria-pressed="${filters.favorites}">♡ 찜한 샵</button>
-   <select class="outline small" id="sort" aria-label="정렬"><option value="recommended">추천순</option><option value="price">가격 낮은 순</option><option value="distance">가까운 지역 순</option></select>
+   <select class="outline small" id="sort" aria-label="정렬"><option value="recommended">네이버 리뷰 많은 순</option><option value="price">가격 낮은 순</option></select>
    <button class="location" id="locate">⌖ ${origin?'현재 위치 기준':'내 주변'}</button>
   </div>
  </div>
- <div class="grid browse-results" id="shops"></div><div id="directory-pagination"></div></section>`;
+ <div class="grid browse-results" id="shops"></div></section>`;
 $('#sort').value=filters.sort;
 $('#sort').onchange=e=>{
  filters.sort=e.target.value;
- if(filters.sort==='distance'&&!origin)toast('가까운 지역 순으로 보려면 현재 위치를 먼저 설정해 주세요.');
- renderFirstPage();
+ renderCards();
 };
-$('#shop-query').oninput=e=>{filters.query=e.target.value;renderFirstPage();};
-$('#popular-area').onchange=e=>{popularArea=e.target.value;renderPopularShops();};
+$('#shop-query').oninput=e=>{filters.query=e.target.value;renderCards();};
 document.querySelectorAll('[data-style-tag]').forEach(button=>button.onclick=()=>{
  const tag=button.dataset.styleTag;
  const selected=searchParts(filters.query).tags.includes(tag);
  const tokens=filters.query.match(/#[\p{L}\p{N}_-]+|[^#\s,]+/gu)||[];
  filters.query=(selected?tokens.filter(token=>!token.startsWith('#')||searchable(token)!==tag):[...tokens,'#'+tag]).join(' ');
  $('#shop-query').value=filters.query;
- renderFirstPage();
+ renderCards();
 });
 $('#search').onsubmit=e=>{e.preventDefault();applySearch({scroll:true});};
 function applySearch({scroll=false}={}){
@@ -135,12 +303,12 @@ function applySearch({scroll=false}={}){
  renderHome();
  if(scroll)$('#directory-results').scrollIntoView({behavior:'smooth',block:'start'});
 }
-$('#area').onchange=e=>{
- if(e.target.value!=='all')popularArea=e.target.value;
- applySearch();
-};
+$('#area').onchange=()=>applySearch();
 ['search-date','search-menu'].forEach(id=>$('#'+id).onchange=()=>applySearch());
-$('#guide').onclick=guide;$('#locate').onclick=locate;$('#only-favorites').onclick=()=>{filters.favorites=!filters.favorites;renderHome();};renderCards();}
+$('#locate').onclick=locate;
+$('#only-favorites').onclick=()=>{filters.favorites=!filters.favorites;renderHome();};
+bindRegularShopPanel();
+renderCards();}
 function searchable(value){
  return value.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
 }
@@ -154,31 +322,16 @@ function searchParts(query){
 function reviewCount(shop){
  return shopDiscovery[shop.permitId]?.reviews??-1;
 }
-function renderPopularShops(){
- $('#popular-area').value=popularArea;
- const ranked=publicShops.filter(shop=>shop.area===popularArea&&reviewCount(shop)>=0)
-  .sort((a,b)=>reviewCount(b)-reviewCount(a)||a.name.localeCompare(b.name,'ko')).slice(0,5);
- $('#popular-shops').innerHTML=ranked.length?ranked.map((shop,index)=>`<li>
-  <button type="button" data-popular-shop="${escape(shop.id)}">
-   <span class="popular-rank">${index+1}</span>
-   <span class="popular-details"><strong>${escape(shop.name)}</strong><small>리뷰 ${reviewCount(shop).toLocaleString('ko-KR')}</small></span>
-   <span aria-hidden="true">↗</span>
-  </button>
- </li>`).join(''):'<li class="note">리뷰 수를 확인한 매장이 없어요.</li>';
- document.querySelectorAll('[data-popular-shop]').forEach(button=>button.onclick=()=>booking(button.dataset.popularShop));
-}
-function renderFirstPage(){
- resultsLimit=directoryPageSize;
- renderCards();
+function rankedShops(area){
+ return publicShops.filter(shop=>shop.area===area&&reviewCount(shop)>=0)
+  .sort((a,b)=>reviewCount(b)-reviewCount(a)||a.name.localeCompare(b.name,'ko')).slice(0,districtLimit);
 }
 function renderCards(){
  const view=catalogView();
  const {terms,tags}=searchParts(filters.query);
- $('#popular-panel').hidden=!!(terms.length||tags.length||filters.favorites);
- if(!$('#popular-panel').hidden)renderPopularShops();
  document.querySelectorAll('[data-style-tag]').forEach(button=>button.setAttribute('aria-pressed',tags.includes(button.dataset.styleTag)));
- const matches=publicShops.filter(shop=>{
-  if(filters.area!=='all'&&shop.area!==filters.area)return false;
+ const ranked=rankedShops(filters.area);
+ const matches=ranked.filter(shop=>{
   if(filters.favorites&&!favorites.includes(shop.id))return false;
   const searchableAddress=searchable(shop.name+' '+shop.address);
   const availableTags=shopDiscovery[shop.permitId]?.tags||[];
@@ -186,24 +339,20 @@ function renderCards(){
  });
  const list=view==='booking'?matches.filter(shop=>bookingUrlForShop(shop,filters.menu)):
   view==='prices'?matches.filter(shop=>shop.prices?.[filters.menu]):matches;
- if(filters.sort==='distance'&&origin){
-  list.sort((a,b)=>distanceKm(origin,areaCenters[a.area])-distanceKm(origin,areaCenters[b.area]));
- }else if(tags.length&&filters.sort==='recommended'){
-  list.sort((a,b)=>reviewCount(b)-reviewCount(a)||a.name.localeCompare(b.name,'ko'));
- }else{
+ if(filters.sort==='price'){
   list.sort((a,b)=>(a.prices?.[filters.menu]?.amount??Number.MAX_SAFE_INTEGER)-(b.prices?.[filters.menu]?.amount??Number.MAX_SAFE_INTEGER));
  }
- const visible=list.slice(0,resultsLimit);
+ const visible=list;
  const resultLabel=tags.length?tags.map(tag=>'#'+tag).join(' ')+' 검색 결과':{booking:'네이버 바로 예약',prices:'가격 있는 매장',directory:'전체 매장'}[view];
- $('#directory-results').textContent=`${resultLabel} ${list.length.toLocaleString('ko-KR')}곳 · ${visible.length.toLocaleString('ko-KR')}곳 표시`;
+ $('#directory-results').textContent=`${resultLabel} ${list.length.toLocaleString('ko-KR')}곳 · 네이버 리뷰 확인 매장 기준`;
  $('#shops').innerHTML=visible.length?visible.map(shop=>`
   <article class="shop-card">
    ${shopArtBackground(shop)}
    <button class="heart ${favorites.includes(shop.id)?'saved':''}" aria-label="${escape(shop.name)} 찜" aria-pressed="${favorites.includes(shop.id)}" data-fav="${shop.id}">${favorites.includes(shop.id)?'♥':'♡'}</button>
    <div class="card-body">
-    <div class="card-top"><h3>${escape(shop.name)}</h3></div>
+    <div class="card-top"><h3><span class="district-rank">${ranked.indexOf(shop)+1}</span> ${escape(shop.name)}</h3></div>
     <p class="sub shop-address">${escape(shop.address)}</p>
-    ${tags.length?`<div class="shop-style-tags">${tags.map(tag=>`<span>#${escape(tag)}</span>`).join('')}${reviewCount(shop)>=0?`<small>리뷰 ${reviewCount(shop).toLocaleString('ko-KR')}</small>`:''}</div>`:''}
+    <div class="shop-style-tags">${tags.map(tag=>`<span>#${escape(tag)}</span>`).join('')}<small>리뷰 ${reviewCount(shop).toLocaleString('ko-KR')}</small></div>
     ${shop.prices?.[filters.menu]?`<div class="price-line"><div><small>${menus[filters.menu].name} 기본가</small> <strong>${priceText(shop,filters.menu)}</strong>${priceCondition(shop.prices[filters.menu])?`<small class="price-condition">${escape(priceCondition(shop.prices[filters.menu]))}</small>`:''}</div></div>`:'<p class="note shop-price-missing">가격 정보 없음</p>'}
     ${shop.deposit?`<p class="note">예약금 · ${shop.deposit}</p>`:''}
     ${naverActions(shop)}
@@ -230,15 +379,8 @@ function renderCards(){
  document.querySelectorAll('[data-compare]').forEach(button=>button.onclick=()=>toggleCompare(button.dataset.compare));
  bindBook();
  if($('#reset'))$('#reset').onclick=()=>{
-  filters.area='all';filters.favorites=false;filters.query='';
+  filters.favorites=false;filters.query='';
   renderHome();
- };
- const pagination=$('#directory-pagination');
- pagination.innerHTML=visible.length<list.length?`<button class="outline" id="load-more">매장 더 보기 · ${(list.length-visible.length).toLocaleString('ko-KR')}곳 남음</button>`:'';
- if($('#load-more'))$('#load-more').onclick=()=>{
-  resultsLimit+=directoryPageSize;
-  renderCards();
-  $('#shops').children[visible.length]?.querySelector('button')?.focus({preventScroll:true});
  };
 }
 function shopNaver(shop){
@@ -257,14 +399,14 @@ function naverActions(shop){
 }
 function bindBook(){document.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>booking(b.dataset.book));}
 function toggleCompare(id){if(compared.includes(id))compared=compared.filter(x=>x!==id);else if(compared.length>=3){toast('최대 3개 샵까지 비교할 수 있어요.');return;}else compared.push(id);save('compared',compared);updateCount();route();}
-function locate(){if(!navigator.geolocation){toast('위치 기능을 지원하지 않습니다. 지역을 직접 선택해주세요.');return;}toast('위치를 확인하고 있어요.');navigator.geolocation.getCurrentPosition(p=>{origin={lat:p.coords.latitude,lng:p.coords.longitude};filters.sort='distance';renderHome();toast('현재 위치에서 가까운 지역 순으로 정렬했어요.');},()=>toast('위치를 확인할 수 없어요. 지역을 직접 선택해주세요.'),{timeout:10000,maximumAge:60000});}
-function guide(){
- open(`<h2 class="modal-title" id="first-nail-title" tabindex="-1">첫 네일 가이드</h2>
-  ${firstNailGuide()}`);
- modal.scrollTop=0;
- $('#first-nail-title').focus();
+function locate(){
+ if(!navigator.geolocation){toast('지역을 직접 선택해 주세요.');return;}
+ navigator.geolocation.getCurrentPosition(({coords})=>{
+  origin={lat:coords.latitude,lng:coords.longitude};
+  filters.area=[...publicAreas].sort((a,b)=>distanceKm(origin,areaCenters[a])-distanceKm(origin,areaCenters[b]))[0];
+  if($('#area'))renderHome();
+ },()=>toast('위치를 확인할 수 없어요. 지역을 직접 선택해 주세요.'),{timeout:10000,maximumAge:60000});
 }
-function onboarding(){open(`<h2 class="modal-title">어떤 네일 경험을 찾고 있나요?</h2><button id="first-time" class="primary full">네일이 처음이에요 · 가이드 보기</button><button id="experienced" class="outline full">경험이 있어요 · 바로 둘러보기</button><button id="skip" class="text-button full">지금은 건너뛰기</button>`);$('#first-time').onclick=()=>{save('onboarded',true);guide();};['experienced','skip'].forEach(id=>$('#'+id).onclick=()=>{save('onboarded',true);modal.close();});}
 function renderCompare(){
  const selected=publicShops.filter(shop=>compared.includes(shop.id));
  const list=selected.filter(shop=>shop.prices?.[filters.menu]);
@@ -570,4 +712,4 @@ function confirmCancelAllBookings(entries){
  $('#confirm-cancel-all').onclick=()=>cancelSavedBookings(ids);
 }
 function memberInfo(){open(`<div class="eyebrow">MEMBERSHIP</div><h2 class="modal-title">샵 회원 연결 안내</h2><p>실서비스에서는 이름·전화번호 입력 후 본인확인과 샵 회원정보 대조가 필요합니다.</p><p class="note">과제 버전에서는 실제 이름·전화번호를 수집하지 않으며 문자 인증과 회원 혜택은 연결되지 않았습니다.</p><button class="primary full" id="member-close">확인</button>`);$('#member-close').onclick=()=>modal.close();}
-route();if(!read('onboarded',false))onboarding();
+route();
