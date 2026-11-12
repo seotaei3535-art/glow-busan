@@ -1,8 +1,8 @@
 import {naverLinks,naverBookingForDate} from './naver.js';
 import {districts} from './catalog.js';
-import {publicShops as verifiedShops} from './verified-shops.js?v=20261112-12';
+import {publicShops as verifiedShops} from './verified-shops.js?v=20261112-13';
 import {directoryUpdated,registryShops} from './busan-directory.js';
-import {publishedPrices} from './published-prices.js?v=20261112-12';
+import {publishedPrices} from './published-prices.js?v=20261112-13';
 import {basicNailShapes,nailShapes} from './nail-shapes.js';
 import {menus,distanceKm} from './domain.js';
 import {firstNailGuide} from './first-nail-guide.js?v=20261112-7';
@@ -36,13 +36,10 @@ function open(html){$('#modal-body').innerHTML=html;if(!modal.open)modal.showMod
 $('.close').onclick=()=>modal.close();
 function shopExterior(shop){
  const photo=shop.buildingExterior;
- const roadView=shop.buildingRoadViewUrl;
- const fallback=`<div class="shop-photo-missing"${photo?' hidden':''}><span>${roadView?'건물 외부는 로드뷰에서 확인할 수 있어요':'건물 외부 사진 미확인'}</span><a href="${escape(roadView||shopNaver(shop).map)}" target="_blank" rel="noopener noreferrer">${roadView?'건물 로드뷰 보기 ↗':'지도에서 위치 확인 ↗'}</a></div>`;
- if(!photo)return fallback;
+ if(!photo)return '';
  return `<figure class="shop-exterior">
-  <img src="${escape(photo.image)}" alt="${escape(shop.name+' '+photo.label)}" loading="lazy" decoding="async" referrerpolicy="no-referrer">
-  <figcaption><span>${escape(photo.label)}</span><a href="${escape(photo.source)}" target="_blank" rel="noopener noreferrer">사진 출처 ↗</a></figcaption>
- </figure>${fallback}`;
+  <img src="${escape(photo.image)}" alt="${escape(shop.name+' 건물 외부')}" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+ </figure>`;
 }
 function today(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
 function options(){return {menu:filters.menu,extensions:0,pieces:0,removal:'none'};}
@@ -130,9 +127,8 @@ function renderCards(){
  $('#directory-results').textContent=`${resultLabel} ${list.length.toLocaleString('ko-KR')}곳 · ${visible.length.toLocaleString('ko-KR')}곳 표시`;
  $('#shops').innerHTML=visible.length?visible.map(shop=>`
   <article class="shop-card">
-   <div class="shop-card-media">${shopExterior(shop)}
-    <button class="heart ${favorites.includes(shop.id)?'saved':''}" aria-label="${escape(shop.name)} 찜" aria-pressed="${favorites.includes(shop.id)}" data-fav="${shop.id}">${favorites.includes(shop.id)?'♥':'♡'}</button>
-   </div>
+   ${shopExterior(shop)}
+   <button class="heart ${favorites.includes(shop.id)?'saved':''}" aria-label="${escape(shop.name)} 찜" aria-pressed="${favorites.includes(shop.id)}" data-fav="${shop.id}">${favorites.includes(shop.id)?'♥':'♡'}</button>
    <div class="card-body">
     <div class="card-top"><h3>${escape(shop.name)}</h3></div>
     <p class="sub">${escape(shop.address)}</p>
@@ -149,13 +145,9 @@ function renderCards(){
   <button class="outline" id="reset">필터 초기화</button>
   ${view==='directory'?'':'<a class="outline" href="#directory">전체 영업 매장에서 찾기</a>'}</div>`;
  document.querySelectorAll('.shop-exterior img').forEach(img=>{
-  const showFallback=()=>{
-   const figure=img.closest('figure');
-   figure.hidden=true;
-   figure.nextElementSibling.hidden=false;
-  };
-  img.addEventListener('error',showFallback,{once:true});
-  if(img.complete&&!img.naturalWidth)showFallback();
+  const removePhoto=()=>img.closest('figure')?.remove();
+  img.addEventListener('error',removePhoto,{once:true});
+  if(img.complete&&!img.naturalWidth)removePhoto();
  });
  document.querySelectorAll('[data-fav]').forEach(button=>button.onclick=()=>{
   const id=button.dataset.fav;

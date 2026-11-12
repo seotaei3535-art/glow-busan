@@ -31,7 +31,6 @@ export const publishedPrices = {
   },
   "permit-3330000-215-2026-00012": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/작은도화지네일-g9jq6ca3rivz/",
-    buildingRoadViewUrl: "https://map.kakao.com/link/roadview/35.1678345,129.179072",
     prices: {"plain":{"amount":30000,"note":"일반가 · 첫 방문 할인 별도"}}
   },
   "permit-3300000-215-2024-00024": {
@@ -45,18 +44,16 @@ export const publishedPrices = {
   "permit-3390000-213-2024-00005": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/달처럼-예뻐라-6y38jxa3o8sk/",
     buildingExterior: {
-      image: "https://img.kr.gcp-karroter.net/local_business_ugc/local_business_ugc/undefined/20276897/1778562195635/NjhhMTE0ZDg0ZGFhMjc1ZTRjYjhhMTlhYTExMmVkM2RiNDAzZTg2ZWMxODAyNzRmODk1YThlMjRjNjYzYTJlOV8wLmpwZWc=.jpeg?service=business-profile",
-      source: "https://www.daangn.com/kr/local-profile/달처럼-예뻐라-6y38jxa3o8sk/",
-      label: "건물 외부와 매장 간판"
+      image: "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=w750&src=https%3A%2F%2Fblogfiles.pstatic.net%2FMjAyNjA1MTlfMjEy%2FMDAxNzc5MTkzMDM3MjAw.3BphSbo1iQbDSgMX3VdzbH4suRQGgMeIgfVhq-6zX0og.X8obg7m0CV9BANn2ARDBWfRz2PRHXqKsOS_ffeSlJ28g.JPEG%2F1779193033502.jpg",
+      source: "https://m.place.naver.com/nailshop/1699052156/photo"
     },
     prices: {"plain":{"amount":45000,"from":true},"monthly":{"amount":55000,"from":true}}
   },
   "permit-3290000-215-2026-00016": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/네일그리밍-tf9dyvaxetgr/",
     buildingExterior: {
-      image: "https://img.kr.gcp-karroter.net/business-profile/business-profile/2496470/1779675689219/RklMRV9LSVRfMTA1Njc5MDU5NDAzMjY3NQ==.png?q=95&s=1440x1440&t=inside&service=business-profile",
-      source: "https://www.daangn.com/kr/local-profile/네일그리밍-tf9dyvaxetgr/",
-      label: "건물 외부와 매장 간판"
+      image: "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=w750&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260526_195%2F1779721924262hhMLF_JPEG%2F1000074957.jpg",
+      source: "https://m.place.naver.com/nailshop/2057959979/photo"
     },
     prices: {"plain":{"amount":35000,"from":true,"note":"회원가"}}
   },

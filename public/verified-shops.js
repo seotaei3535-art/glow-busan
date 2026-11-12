@@ -6,9 +6,8 @@ export const publicShops = [
     color:'#b47f95', bg:'#f7e9ec',
     naverBookingUrl:'https://m.booking.naver.com/booking/13/bizes/1534398/items/7184421',
     buildingExterior:{
-      image:'https://img.kr.gcp-karroter.net/local_business_ugc/local_business_ugc/undefined/32950380/1776587834798/NTg2OTBiYTZmYTMyZDZiODgyMGQ5NDI0YzMzODAzNmZiNWIwZjNkZTYxYjI5M2MwZjU0ZDNlMjk4ZTM2ZmYyYl8wLmpwZWc=.jpeg?service=business-profile&s=720x720&q=95&t=inside',
-      source:'https://www.daangn.com/kr/local-profile/네일이지-gpdwi5tu9abn/',
-      label:'건물 외부'
+      image:'https://search.pstatic.net/common/?autoRotate=true&quality=95&type=w750&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20251104_224%2F1762245501799EmFxj_JPEG%2FKakaoTalk_20251104_173533631_01.jpg',
+      source:'https://m.place.naver.com/nailshop/2022406101/photo'
     }
   },
   {
