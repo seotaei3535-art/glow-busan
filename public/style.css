@@ -21,20 +21,9 @@
 @media(max-width:560px){.hero:after{background:linear-gradient(90deg,#fffaf8f5 0%,#fffaf8c9 50%,#fffaf836 100%),url('https://pointerclicker.com/wp-content/uploads/2024/02/pink-tulip-flowers-on-white-fabric-768x1024.jpg') right center/cover no-repeat}}
 
 .naver-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:16px 0}.naver-link{font-size:12px;color:#226447;font-weight:600}.naver-link:hover{text-decoration:underline}.naver-pending{font-size:11px;color:var(--muted)}
-.nav-settings{background:none;color:var(--ink);padding:0;font-size:13px;white-space:nowrap}
-.shape-picker{border:0;padding:0;margin:20px 0 0;min-width:0}
-.shape-picker legend{padding:0;font-weight:600}
-.shape-option{position:relative;min-width:0;cursor:pointer}
-.shape-option span{display:grid;justify-items:center;gap:5px;padding:7px 0;border:1px solid #dfbdcb;border-radius:8px;white-space:nowrap;font-size:12px}
-.shape-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;margin-top:8px}
-.shape-option span{height:100%;align-content:center;min-height:65px;padding:6px 3px;text-align:center;white-space:normal;line-height:1.25}
-.shape-option input:checked+span{--shape-fill:#c9829d;--shape-stroke:#87405f}
 .nail-shape-icon{display:block;width:26px;height:36px;fill:var(--shape-fill,#e6b9c9);stroke:var(--shape-stroke,#9d5871);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
 .nail-shape-icon.is-undecided{fill:none;stroke-dasharray:3 3}
 .nail-shape-icon .nail-shape-detail{fill:none;opacity:.75}
-.shape-description{margin:4px 0 0;min-height:2.8em}
-.shape-details{margin:10px 0 0}
-.shape-details summary{padding:7px 0;cursor:pointer;font-weight:600}
 .booking-handoff p{margin:0 0 6px;overflow-wrap:anywhere}
 .booking-handoff p:last-child{margin-bottom:0}
 .directory-tools{display:flex;align-items:end;gap:16px;flex-wrap:wrap;margin:14px 0 6px}

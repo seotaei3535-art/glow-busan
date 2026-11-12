@@ -3,7 +3,7 @@ import {districts} from './catalog.js';
 import {publicShops as verifiedShops} from './verified-shops.js';
 import {directoryUpdated,registryShops} from './busan-directory.js';
 import {publishedPrices} from './published-prices.js';
-import {basicNailShapes,nailShapes,nailShapeIcon} from './nail-shapes.js';
+import {basicNailShapes,nailShapes} from './nail-shapes.js';
 import {menus,distanceKm} from './domain.js';
 import {firstNailGuide} from './first-nail-guide.js?v=20261112-7';
 const $=s=>document.querySelector(s),money=n=>Number(n).toLocaleString('ko-KR')+'원';
@@ -31,11 +31,6 @@ const naverMyUrl='https://m.place.naver.com/my';
 let bookings=read('bookings',[]),favorites=read('favorites',[]),compared=read('compared',[]).filter(id=>publicShops.some(shop=>shop.id===id)),origin=null;
 const startWithDirectBooking=new URLSearchParams(location.search).get('booking')==='direct';
 let filters={area:'all',date:'',menu:'plain',sort:'price',favorites:false,query:'',directOnly:startWithDirectBooking};
-const savedPreferences=read('estimate-preferences',{});
-let preferences={
- shape:Object.hasOwn(basicNailShapes,savedPreferences.shape)?savedPreferences.shape:'',
- extensions:Number.isInteger(savedPreferences.extensions)&&savedPreferences.extensions>=0&&savedPreferences.extensions<=10?savedPreferences.extensions:0
-};
 const main=$('#main'),modal=$('#modal');
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200);}
 function open(html){$('#modal-body').innerHTML=html;if(!modal.open)modal.showModal();}
@@ -50,7 +45,7 @@ function shopExterior(shop){
  </figure>${fallback}`;
 }
 function today(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
-function options(){return {menu:filters.menu,extensions:preferences.extensions,pieces:0,removal:'none'};}
+function options(){return {menu:filters.menu,extensions:0,pieces:0,removal:'none'};}
 function extensionOptions(selected){
  return Array.from({length:11},(_,i)=>`<option value="${i}" ${i===Number(selected)?'selected':''}>${i?`${i}개`:'연장 안 함'}</option>`).join('');
 }
@@ -189,52 +184,6 @@ function guide(){
  modal.scrollTop=0;
  $('#first-nail-title').focus();
 }
-function shapeChoices(shapes){
- return Object.entries(shapes).map(([key,{name}])=>`
-  <label class="shape-option">
-   <input type="radio" name="shape" value="${key}" ${key===preferences.shape?'checked':''}>
-   <span>${nailShapeIcon(key)}${name}</span>
-  </label>`).join('');
-}
-function showPreferences(){
- open(`<div class="eyebrow">MY NAIL PREFERENCES</div>
-  <h2 class="modal-title">내 견적 기본값</h2>
-  <p class="sub">고른 모양과 연장 개수를 새 견적에 적용해요.</p>
-  <form id="preferences-form">
-   <label class="field">기본 연장 개수<select name="extensions">${extensionOptions(preferences.extensions)}</select></label>
-   <fieldset class="shape-picker">
-    <legend>손톱 모양</legend>
-    <p class="sub shape-description" id="shape-description" role="status">${nailShapes[preferences.shape].description}</p>
-    <div class="shape-options">${shapeChoices(basicNailShapes)}</div>
-   </fieldset>
-   <p class="note">견적마다 연장 개수를 바꿀 수 있어요. 기본값은 이 브라우저에 저장돼요.</p>
-   <p id="preferences-error" class="note" role="alert" hidden>브라우저에 설정을 저장할 수 없어요. 저장 권한을 확인해주세요.</p>
-   <button class="primary full">기본값 저장</button>
-  </form>`);
- modal.scrollTop=0;
- $('#preferences-form [name=extensions]').focus();
- const preferencesForm=$('#preferences-form');
- preferencesForm.onchange=e=>{
-  if(e.target.name==='shape')$('#shape-description').textContent=nailShapes[e.target.value].description;
- };
- preferencesForm.onsubmit=e=>{
-  e.preventDefault();
-  const form=new FormData(e.currentTarget);
-  const next={
-   shape:form.get('shape'),
-   extensions:Number(form.get('extensions'))
-  };
-  if(!save('estimate-preferences',next)){
-   $('#preferences-error').hidden=false;
-   return;
-  }
-  preferences=next;
-  modal.close();
-  route();
-  $('#estimate-settings').focus();
-  toast('견적 기본값을 저장했어요.');
- };
-}
 function onboarding(){open(`<div class="eyebrow">WELCOME TO GLOW BUSAN</div><h2 class="modal-title">어떤 네일 경험을 찾고 있나요?</h2><p class="sub">로그인 없이도 샵과 가격을 비교할 수 있어요.</p><button id="first-time" class="primary full">네일이 처음이에요 · 가이드 보기</button><button id="experienced" class="outline full">경험이 있어요 · 바로 둘러보기</button><button id="skip" class="text-button full">지금은 건너뛰기</button>`);$('#first-time').onclick=()=>{save('onboarded',true);guide();};['experienced','skip'].forEach(id=>$('#'+id).onclick=()=>{save('onboarded',true);modal.close();});}
 function renderCompare(){
  const selected=publicShops.filter(shop=>compared.includes(shop.id));
@@ -243,7 +192,6 @@ function renderCompare(){
  const rows=[
   ['주소',shop=>escape(shop.address)],
   ['공개 기본가',shop=>priceText(shop,filters.menu)],
-  ...(preferences.extensions?[['연장 추가요금',()=>`${preferences.extensions}개 · 미확인`]]:[]),
   ['가격 조건',shop=>escape(priceCondition(shop,filters.menu)||'—')],
   ['가격 출처',shop=>sourceLink(shop)||'—'],
   ['예약금 안내',shop=>shop.deposit||'예약 화면에서 확인'],
@@ -267,8 +215,7 @@ function booking(id,previous){
  const shop=publicShops.find(item=>item.id===id);
  if(!shop)return;
  const selected=previous?.options||options();
- const preferredShape=previous?selected.shape:preferences.shape;
- const shape=Object.hasOwn(basicNailShapes,preferredShape)?preferredShape:'';
+ const shape=Object.hasOwn(basicNailShapes,selected.shape)?selected.shape:'';
  const date=previous?.date>=today()?previous.date:filters.date||today();
  open(`<div class="eyebrow">MAKE YOUR MOMENT</div>
   <h2 class="modal-title">${escape(shop.name)}</h2><p class="sub">${escape(shop.address)}</p>
@@ -465,5 +412,4 @@ function renderBookings(){
 }
 function cancelBooking(id){open(`<h2 class="modal-title">저장 내역을 취소할까요?</h2><p>네이버에서 신청한 예약은 네이버 예약 내역에서 따로 취소해 주세요.</p><button class="primary full" id="confirm-cancel">저장 내역 취소</button>`);$('#confirm-cancel').onclick=()=>{bookings=bookings.map(b=>b.id===id?{...b,status:'cancelled'}:b);save('bookings',bookings);modal.close();route();toast('저장한 예약 내용이 취소됐어요.');};}
 function memberInfo(){open(`<div class="eyebrow">MEMBERSHIP</div><h2 class="modal-title">샵 회원 연결 안내</h2><p>실서비스에서는 이름·전화번호 입력 후 본인확인과 샵 회원정보 대조가 필요합니다.</p><p class="note">과제 버전에서는 실제 이름·전화번호를 수집하지 않으며 문자 인증과 회원 혜택은 연결되지 않았습니다.</p><button class="primary full" id="member-close">확인</button>`);$('#member-close').onclick=()=>modal.close();}
-$('#estimate-settings').onclick=showPreferences;
 route();if(!read('onboarded',false))onboarding();
