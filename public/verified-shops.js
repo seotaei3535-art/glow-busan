@@ -5,10 +5,10 @@ export const publicShops = [
     address:'부산 사상구 엄궁로179번가길 17-9',
     color:'#b47f95', bg:'#f7e9ec',
     naverBookingUrl:'https://m.booking.naver.com/booking/13/bizes/1534398/items/7184421',
-    exterior:{
+    buildingExterior:{
       image:'https://img.kr.gcp-karroter.net/local_business_ugc/local_business_ugc/undefined/32950380/1776587834798/NTg2OTBiYTZmYTMyZDZiODgyMGQ5NDI0YzMzODAzNmZiNWIwZjNkZTYxYjI5M2MwZjU0ZDNlMjk4ZTM2ZmYyYl8wLmpwZWc=.jpeg?service=business-profile&s=720x720&q=95&t=inside',
       source:'https://www.daangn.com/kr/local-profile/네일이지-gpdwi5tu9abn/',
-      label:'매장 외관'
+      label:'건물 외부'
     }
   },
   {

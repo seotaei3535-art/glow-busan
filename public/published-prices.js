@@ -31,11 +31,7 @@ export const publishedPrices = {
   },
   "permit-3330000-215-2026-00012": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/작은도화지네일-g9jq6ca3rivz/",
-    exterior: {
-      image: "https://dnvefa72aowie.cloudfront.net/capri/bizPlatform/profile/2158346/1642680080317/a165cb2c4435a7b3f0dee4f6467f1830c9cad08087896fdb88df5cefdad8d208.jpeg?q=95&s=1440x1440&t=inside&service=business-profile",
-      source: "https://www.daangn.com/kr/local-profile/작은도화지네일-g9jq6ca3rivz/",
-      label: "매장 입구"
-    },
+    buildingRoadViewUrl: "https://map.kakao.com/link/roadview/35.1678345,129.179072",
     prices: {"plain":{"amount":30000,"note":"일반가 · 첫 방문 할인 별도"}}
   },
   "permit-3300000-215-2024-00024": {
@@ -48,19 +44,19 @@ export const publishedPrices = {
   },
   "permit-3390000-213-2024-00005": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/달처럼-예뻐라-6y38jxa3o8sk/",
-    exterior: {
+    buildingExterior: {
       image: "https://img.kr.gcp-karroter.net/local_business_ugc/local_business_ugc/undefined/20276897/1778562195635/NjhhMTE0ZDg0ZGFhMjc1ZTRjYjhhMTlhYTExMmVkM2RiNDAzZTg2ZWMxODAyNzRmODk1YThlMjRjNjYzYTJlOV8wLmpwZWc=.jpeg?service=business-profile",
       source: "https://www.daangn.com/kr/local-profile/달처럼-예뻐라-6y38jxa3o8sk/",
-      label: "상가 외관과 매장 간판"
+      label: "건물 외부와 매장 간판"
     },
     prices: {"plain":{"amount":45000,"from":true},"monthly":{"amount":55000,"from":true}}
   },
   "permit-3290000-215-2026-00016": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/네일그리밍-tf9dyvaxetgr/",
-    exterior: {
+    buildingExterior: {
       image: "https://img.kr.gcp-karroter.net/business-profile/business-profile/2496470/1779675689219/RklMRV9LSVRfMTA1Njc5MDU5NDAzMjY3NQ==.png?q=95&s=1440x1440&t=inside&service=business-profile",
       source: "https://www.daangn.com/kr/local-profile/네일그리밍-tf9dyvaxetgr/",
-      label: "상가 외관과 매장 간판"
+      label: "건물 외부와 매장 간판"
     },
     prices: {"plain":{"amount":35000,"from":true,"note":"회원가"}}
   },

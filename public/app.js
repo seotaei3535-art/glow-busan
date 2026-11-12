@@ -1,8 +1,8 @@
 import {naverLinks,naverBookingForDate} from './naver.js';
 import {districts} from './catalog.js';
-import {publicShops as verifiedShops} from './verified-shops.js';
+import {publicShops as verifiedShops} from './verified-shops.js?v=20261112-12';
 import {directoryUpdated,registryShops} from './busan-directory.js';
-import {publishedPrices} from './published-prices.js';
+import {publishedPrices} from './published-prices.js?v=20261112-12';
 import {basicNailShapes,nailShapes} from './nail-shapes.js';
 import {menus,distanceKm} from './domain.js';
 import {firstNailGuide} from './first-nail-guide.js?v=20261112-7';
@@ -35,12 +35,13 @@ function toast(message){$('#toast').textContent=message;$('#toast').classList.ad
 function open(html){$('#modal-body').innerHTML=html;if(!modal.open)modal.showModal();}
 $('.close').onclick=()=>modal.close();
 function shopExterior(shop){
- const photo=shop.exterior;
- const fallback=`<div class="shop-photo-missing"${photo?' hidden':''}><span>외관 사진 미확인</span><a href="${escape(shopNaver(shop).map)}" target="_blank" rel="noopener noreferrer">지도에서 위치 확인 ↗</a></div>`;
+ const photo=shop.buildingExterior;
+ const roadView=shop.buildingRoadViewUrl;
+ const fallback=`<div class="shop-photo-missing"${photo?' hidden':''}><span>${roadView?'건물 외부는 로드뷰에서 확인할 수 있어요':'건물 외부 사진 미확인'}</span><a href="${escape(roadView||shopNaver(shop).map)}" target="_blank" rel="noopener noreferrer">${roadView?'건물 로드뷰 보기 ↗':'지도에서 위치 확인 ↗'}</a></div>`;
  if(!photo)return fallback;
  return `<figure class="shop-exterior">
   <img src="${escape(photo.image)}" alt="${escape(shop.name+' '+photo.label)}" loading="lazy" decoding="async" referrerpolicy="no-referrer">
-  <figcaption><span>${escape(photo.label)}</span><a href="${escape(photo.source)}" target="_blank" rel="noopener noreferrer">매장 사진 출처 ↗</a></figcaption>
+  <figcaption><span>${escape(photo.label)}</span><a href="${escape(photo.source)}" target="_blank" rel="noopener noreferrer">사진 출처 ↗</a></figcaption>
  </figure>${fallback}`;
 }
 function today(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
