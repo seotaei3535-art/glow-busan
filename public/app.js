@@ -175,7 +175,10 @@ function renderBeginnerShops(){
  const target=$('#beginner-shops');
  target.innerHTML=list.length?`<ul class="journey-shop-list">${list.map(shop=>`<li>
   <div><strong>${escape(shop.name)}</strong><small>${escape(shop.address)}</small></div>
-  <button class="primary small" type="button" data-first-book="${escape(shop.id)}">견적 · 예약</button>
+  <div class="journey-shop-actions">
+   ${compareButton(shop)}
+   <button class="primary small" type="button" data-first-book="${escape(shop.id)}">견적 · 예약</button>
+  </div>
  </li>`).join('')}</ul>`:'<p class="note">이 지역에서 예약 링크를 확인한 매장이 없어요.</p>';
  target.querySelectorAll('[data-first-book]').forEach(button=>button.onclick=()=>{
   const palette=styleChoice&&Object.hasOwn(nailPalettes,styleChoice.tone)?nailPalettes[styleChoice.tone]:null;
@@ -362,7 +365,7 @@ function renderCards(){
     ${shop.deposit?`<p class="note">예약금 · ${shop.deposit}</p>`:''}
     ${naverActions(shop)}
     <div class="card-actions">
-     ${shop.prices?.[filters.menu]?`<button class="outline" data-compare="${shop.id}">${compared.includes(shop.id)?'✓ 비교 중':'+ 비교'}</button>`:''}
+     ${compareButton(shop)}
      ${bookingUrlForShop(shop,filters.menu)?`<button class="primary" data-book="${shop.id}">견적 · 예약 보기 ↗</button>`:''}
     </div>
    </div>
@@ -381,7 +384,6 @@ function renderCards(){
   save('favorites',favorites);
   renderCards();
  });
- document.querySelectorAll('[data-compare]').forEach(button=>button.onclick=()=>toggleCompare(button.dataset.compare));
  bindBook();
  if($('#reset'))$('#reset').onclick=()=>{
   filters.favorites=false;filters.query='';
@@ -403,7 +405,39 @@ function naverActions(shop){
  return `<div class="naver-actions">${map}${booking}</div>`;
 }
 function bindBook(){document.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>booking(b.dataset.book));}
-function toggleCompare(id){if(compared.includes(id))compared=compared.filter(x=>x!==id);else if(compared.length>=3){toast('최대 3개 샵까지 비교할 수 있어요.');return;}else compared.push(id);save('compared',compared);updateCount();route();}
+function compareLabel(added){return added?'✓ 비교함에 담김':'+ 비교함 담기';}
+function compareButton(shop){
+ const added=compared.includes(shop.id);
+ return `<button class="outline small" type="button" data-compare="${escape(shop.id)}" aria-pressed="${added}">${compareLabel(added)}</button>`;
+}
+function toggleCompare(id){
+ const added=!compared.includes(id);
+ const feedback=$('#compare-feedback');
+ if(added&&compared.length>=3){
+  const message='비교함에는 매장을 최대 3곳까지 담을 수 있어요.';
+  if(feedback){feedback.hidden=false;feedback.textContent=message;}
+  else toast(message);
+  return false;
+ }
+ const updated=added?[...compared,id]:compared.filter(saved=>saved!==id);
+ if(!save('compared',updated)){
+  if(feedback){feedback.hidden=false;feedback.textContent='비교함을 저장할 수 없어요. 브라우저 저장 설정을 확인해 주세요.';}
+  return false;
+ }
+ compared=updated;
+ updateCount();
+ document.querySelectorAll('[data-compare]').forEach(button=>{
+  if(button.dataset.compare!==id)return;
+  button.textContent=compareLabel(added);
+  button.setAttribute('aria-pressed',String(added));
+ });
+ if(feedback){feedback.textContent='';feedback.hidden=true;}
+ return true;
+}
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-compare]');
+ if(button)toggleCompare(button.dataset.compare);
+});
 function locate(){
  if(!navigator.geolocation){toast('지역을 직접 선택해 주세요.');return;}
  navigator.geolocation.getCurrentPosition(({coords})=>{
@@ -413,13 +447,12 @@ function locate(){
  },()=>toast('위치를 확인할 수 없어요. 지역을 직접 선택해 주세요.'),{timeout:10000,maximumAge:60000});
 }
 function renderCompare(){
- const selected=publicShops.filter(shop=>compared.includes(shop.id));
- const list=selected.filter(shop=>shop.prices?.[filters.menu]);
- const unavailable=selected.filter(shop=>!shop.prices?.[filters.menu]);
+ const list=publicShops.filter(shop=>compared.includes(shop.id));
  const rows=[
   ['주소',shop=>escape(shop.address)],
+  ['네이버 리뷰',shop=>reviewCount(shop)>=0?reviewCount(shop).toLocaleString('ko-KR')+'개':'—'],
   ['기본가',shop=>priceText(shop,filters.menu)],
-  ['가격 조건',shop=>escape(priceCondition(shop.prices[filters.menu])||'—')],
+  ['가격 조건',shop=>escape(priceCondition(shop.prices?.[filters.menu])||'—')],
   ['예약금 안내',shop=>shop.deposit||'예약 화면에서 확인'],
   ['네이버 예약',naverActions],
   ['견적 · 예약',shop=>bookingUrlForShop(shop,filters.menu)?`<button class="primary small" data-book="${shop.id}">견적 · 예약 보기</button>`:'직접 예약 링크 미확인']
@@ -430,11 +463,12 @@ function renderCompare(){
   ${list.length?`<div class="table-scroll"><table class="compare-table"><tbody>
    <tr><th>비교 기준</th>${list.map(shop=>`<th>${escape(shop.name)}<br><button class="text-button small" data-remove="${shop.id}">삭제 ×</button></th>`).join('')}</tr>
    ${rows.map(([label,cell])=>`<tr><th>${label}</th>${list.map(shop=>`<td>${cell(shop)}</td>`).join('')}</tr>`).join('')}
-  </tbody></table></div>`:`<div class="empty">${selected.length?'선택한 시술의 가격 정보가 없어요.':'비교할 샵을 골라주세요.'}<p>${selected.length?'다른 시술을 선택해 보세요.':'샵 카드의 ‘+ 비교’로 최대 3곳을 담을 수 있어요.'}</p><a class="primary" href="#prices">매장 둘러보기</a></div>`}
-  ${unavailable.length?`<p class="note">가격 정보가 없는 매장</p><div class="filters">${unavailable.map(shop=>`<button class="outline small" data-remove="${shop.id}" aria-label="${escape(shop.name)} 비교함에서 삭제">${escape(shop.name)} 삭제 ×</button>`).join('')}</div>`:''}
+  </tbody></table></div>`:`<div class="empty">비교할 샵을 골라주세요.<p>매장 카드에서 ‘비교함 담기’로 최대 3곳을 담을 수 있어요.</p><a class="primary" href="#experienced">매장 둘러보기</a></div>`}
  </section>`;
  bindBook();
- document.querySelectorAll('[data-remove]').forEach(button=>button.onclick=()=>toggleCompare(button.dataset.remove));
+ document.querySelectorAll('[data-remove]').forEach(button=>button.onclick=()=>{
+  if(toggleCompare(button.dataset.remove))renderCompare();
+ });
  document.querySelectorAll('[data-cmenu]').forEach(button=>button.onclick=()=>{filters.menu=button.dataset.cmenu;renderCompare();});
 }
 function booking(id,previous,{reschedule=false}={}){
@@ -449,6 +483,8 @@ function booking(id,previous,{reschedule=false}={}){
  open(`<div class="eyebrow">MAKE YOUR MOMENT</div>
   <h2 class="modal-title">${escape(shop.name)}</h2><p class="sub">${escape(shop.address)}</p>
   ${naverActions(shop)}${shape?`<p class="sub">선호 모양 · ${nailShapes[shape].name}</p>`:''}
+  ${compareButton(shop)}
+  <p class="note" id="compare-feedback" role="status" hidden></p>
   <form id="book-form">
    <div class="form-grid">
     <label class="field">시술 메뉴<select id="b-menu">${Object.entries(menus).map(([key,menu])=>`<option value="${key}" ${key===selected.menu?'selected':''}>${menu.name}</option>`).join('')}</select></label>

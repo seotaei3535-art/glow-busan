@@ -458,6 +458,13 @@
 .journey-shop-list li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #f3e4eb}
 .journey-shop-list small{display:block;margin-top:3px;color:#78596b}
 .journey-shop-list .primary{flex:none;white-space:nowrap}
+.journey-shop-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+.journey-shop-actions button{min-height:44px}
+[data-compare][aria-pressed=true]{background:var(--wash);color:var(--accent)}
+@media(max-width:560px){
+  .journey-shop-list li{flex-wrap:wrap}
+  .journey-shop-actions{justify-content:flex-start}
+}
 .regular-panel{margin-bottom:12px}
 .regular-panel h2{margin-bottom:5px}
 .regular-panel p{margin:0 0 8px}
