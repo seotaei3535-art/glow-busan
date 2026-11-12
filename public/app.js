@@ -168,6 +168,12 @@ function renderCards(){
  };
 }
 function shopNaver(shop){return naverLinks(shop);}
+function bookingDestination(shop,menu,date=''){
+ const links=shopNaver(shop);
+ const product=shop.menuBookingUrls?.[menu]||links.booking;
+ const bookingUrl=naverBookingForDate(product,date&&date>=today()?date:'');
+ return {url:bookingUrl||links.map,direct:Boolean(bookingUrl)};
+}
 function naverActions(shop){
  const links=shopNaver(shop);
  const map=`<a class="naver-link" href="${escape(links.map)}" target="_blank" rel="noopener noreferrer">${links.booking?'네이버 지도 ↗':'네이버 지도에서 예약 확인 ↗'}</a>`;
@@ -286,7 +292,8 @@ function booking(id,previous){
     <label class="field">참고 사진 미리보기 (최대 5MB)<input id="b-photo" type="file" accept="image/jpeg,image/png,image/webp"><span id="photo-output"></span></label>
    </details>
    <label class="consent"><input type="checkbox" required> 견적과 희망 일정을 이 기기에 저장합니다.</label>
-   <button class="primary full gold">견적 저장하고 이어가기</button>
+   <button class="primary full gold" id="save-and-book" type="submit"></button>
+   <p class="note">견적을 저장하면 네이버가 새 탭에서 열려요. 예약 시간은 네이버에서 선택해요.</p>
   </form>`);
  $('#b-removal').value=selected.removal;
  $('#b-note').value=previous?.note||'';
@@ -296,6 +303,8 @@ function booking(id,previous){
  });
  function refresh(){
   const opt=readOptions();
+  const destination=bookingDestination(shop,opt.menu);
+  $('#save-and-book').textContent=destination.direct?'견적 저장하고 네이버 예약 열기 ↗':'견적 저장하고 네이버 지도 열기 ↗';
   $('#pieces-field').hidden=opt.menu!=='art';
   const extras=estimateAddOns(opt);
   $('#quote').innerHTML=`<div class="summary-row"><span>${menus[opt.menu].name} 기본가</span><strong>${priceText(shop,opt.menu)}</strong></div>
@@ -337,7 +346,7 @@ function booking(id,previous){
   const next=[...read('bookings',[]),saved];
   if(!save('bookings',next))return;
   bookings=next;
-  showSavedBooking(saved,shop);
+  openSavedBooking(saved,shop,{justSaved:true});
  };
 }
 
@@ -367,10 +376,8 @@ function savedPriceLabel(saved){
  return Object.hasOwn(saved,'publishedPrice')||Object.hasOwn(saved,'basePrice')?'저장 당시 기본가':'저장 당시 견적';
 }
 
-function showSavedBooking(saved,shop){
- const links=shopNaver(shop);
- const product=shop.menuBookingUrls?.[saved.options.menu]||links.booking;
- const bookingUrl=naverBookingForDate(product,saved.date>=today()?saved.date:'');
+function openSavedBooking(saved,shop,{justSaved=false}={}){
+ const destination=bookingDestination(shop,saved.options.menu,saved.date);
  const details=[
   saved.shopName,
   `희망 일정 ${savedSchedule(saved)}`,
@@ -380,9 +387,9 @@ function showSavedBooking(saved,shop){
   saved.note?`요청사항 ${saved.note}`:''
  ].filter(Boolean);
  const quote=details.join('\n');
- open(`<h2 class="modal-title">견적을 저장했어요</h2>
-  <a class="primary full booking-time-action" id="open-handoff" href="${escape(bookingUrl||links.map)}" target="_blank" rel="noopener noreferrer">${bookingUrl?'네이버에서 가능한 시간 고르기 ↗':'네이버 지도에서 매장 찾기 ↗'}</a>
-  <p class="handoff-instructions">버튼을 누르면 선택한 옵션도 복사돼요. ${bookingUrl?'네이버의 요청사항 칸에 붙여넣을 수 있어요.':'매장에 문의할 때 사용할 수 있어요.'}</p>
+ open(`<h2 class="modal-title">${justSaved?'견적을 저장했어요':'저장한 견적'}</h2>
+  <p class="handoff-instructions">새 탭이 열리지 않으면 아래 버튼을 눌러 주세요. ${destination.direct?'복사한 옵션은 네이버 요청사항 칸이 있을 때 붙여넣을 수 있어요.':'복사한 옵션은 매장에 문의할 때 사용할 수 있어요.'}</p>
+  <a class="primary full booking-time-action" id="open-handoff" href="${escape(destination.url)}" target="_blank" rel="noopener noreferrer">${destination.direct?'네이버에서 가능한 시간 고르기 ↗':'네이버 지도에서 매장 찾기 ↗'}</a>
   <div class="summary booking-handoff">${details.map(detail=>`<p>${escape(detail)}</p>`).join('')}</div>
   <button class="outline" id="copy-booking">견적만 복사</button>
   <p class="note" role="status" id="copy-booking-status"></p>
@@ -403,16 +410,19 @@ function showSavedBooking(saved,shop){
    field.select();
   }
  };
- $('#open-handoff').onclick=copy;
+ const link=$('#open-handoff');
+ link.onclick=copy;
  $('#copy-booking').onclick=copy;
  $('#show-booking').onclick=()=>{modal.close();location.hash='reservations';route();};
+ link.click();
 }
 function time(t){return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');}
 function savedBookingAction(saved){
  if(saved.status==='cancelled'||saved.status==='completed')return '';
  const shop=publicShops.find(s=>s.id===saved.shopId);
  if(!shop)return '';
- return `<button class="primary" data-handoff="${escape(saved.id)}">저장한 견적으로 예약 이어가기</button>`;
+ const destination=bookingDestination(shop,saved.options.menu);
+ return `<button class="primary" data-handoff="${escape(saved.id)}">${destination.direct?'네이버 예약 바로 열기 ↗':'네이버 지도 바로 열기 ↗'}</button>`;
 }
 function renderBookings(){
  bookings=read('bookings',bookings);
@@ -441,7 +451,7 @@ function renderBookings(){
  document.querySelectorAll('[data-handoff]').forEach(button=>button.onclick=()=>{
   const saved=bookings.find(item=>item.id===button.dataset.handoff);
   const shop=saved&&publicShops.find(item=>item.id===saved.shopId);
-  if(shop)showSavedBooking(saved,shop);
+  if(shop)openSavedBooking(saved,shop);
  });
  document.querySelectorAll('[data-rebook]').forEach(button=>button.onclick=()=>{
   const saved=bookings.find(item=>item.id===button.dataset.rebook);
