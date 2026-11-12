@@ -69,20 +69,23 @@
 .art-sample--monthly i:first-child{--polish:#a4b4a1}
 .art-sample--monthly i:nth-child(2){--polish:repeating-linear-gradient(130deg,#f6ded0 0 4px,#af7485 4px 6px,#f6ded0 6px 10px)}
 .art-sample--monthly i:nth-child(3){--polish:#e7aeae}
-.first-nail-topics{display:grid;gap:8px;margin-top:10px}
-.first-nail-topics details{border:1px solid #ead5dd;border-radius:10px;background:#fffaf8;padding:0 10px;overflow-wrap:anywhere}
-.first-nail-topics summary{display:grid;grid-template-columns:42px minmax(0,1fr) 10px;gap:10px;align-items:center;padding:7px 0;min-height:54px;cursor:pointer;list-style:none}
-.first-nail-topics summary::-webkit-details-marker{display:none}
-.first-nail-topics summary::after{content:"";width:7px;height:7px;border-right:2px solid #795362;border-bottom:2px solid #795362;transform:rotate(45deg)}
-.first-nail-topics details[open] summary::after{transform:rotate(225deg)}
-.first-nail-topics summary svg{display:block;width:42px;height:42px;padding:5px;fill:none;stroke:#89526b;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;background:#f6e4ec;border-radius:8px}
-.first-nail-topics summary strong,.first-nail-topics summary small{display:block}
-.first-nail-topics summary strong{font-size:14px}
-.first-nail-topics summary small{margin-top:3px;font-size:12px;color:#664a58;line-height:1.35;word-break:keep-all}
-.first-nail-topics ul{margin:0 0 12px;padding-left:19px;font-size:13px;line-height:1.6}
-.first-nail-topics li+li{margin-top:7px}
+.first-nail-topics{display:grid;gap:8px;margin:10px 0 0;padding:0;list-style:none;counter-reset:nail-care}
+.first-nail-topics li{
+  display:grid;
+  grid-template-columns:auto 36px minmax(0,1fr);
+  gap:9px;
+  align-items:center;
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--surface);
+  counter-increment:nail-care;
+}
+.first-nail-topics li::before{content:counter(nail-care);color:var(--accent);font-weight:650}
+.first-nail-topics svg{display:block;width:36px;height:36px;padding:4px;fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;background:var(--wash);border-radius:8px}
+.first-nail-topics strong{font-size:14px}
+.first-nail-topics p{margin:3px 0 0;color:var(--muted);font-size:13px;line-height:1.45;word-break:keep-all}
 .first-nail-source{margin-top:12px}
-.first-nail-example{margin:0 0 12px;font-size:13px;line-height:1.55;color:#5d4651}
 
 .booking-alternatives{list-style:none;padding:0;margin:14px 0;display:grid;gap:8px}
 .booking-alternatives button{display:grid;gap:4px;width:100%;text-align:left;color:var(--ink)}
@@ -523,13 +526,11 @@ nav b,.status,.district-rank,.popular-rank{background:var(--wash);color:var(--ac
 .field :is(input,select,textarea),.directory-search input,.browse-search-options :is(input,select){background:var(--surface)}
 .consent input,.directory-check input{accent-color:var(--accent)}
 .browse-search,.journey-panel,.popular-panel,.popular-shops button,.booking-card,.browse-results .shop-card,.browse-results .shop-card .card-body,.compare-table :is(th,td){background:var(--surface);border-color:var(--line)}
-.first-nail-art li,.first-nail-shapes li,.first-nail-topics details{background:var(--surface);border-color:var(--line)}
-.style-result,.first-nail-topics summary svg,.art-sample,.care-video,.summary,.tag-chip,.shop-style-tags span{background:var(--wash)}
-.first-nail-topics summary svg{stroke:var(--accent)}
-.first-nail-topics summary::after{border-color:var(--accent)}
+.first-nail-art li,.first-nail-shapes li{background:var(--surface);border-color:var(--line)}
+.style-result,.art-sample,.care-video,.summary,.tag-chip,.shop-style-tags span{background:var(--wash)}
 .tag-chip,.shop-style-tags span{color:var(--accent);border-color:var(--line)}
 .tag-chip[aria-pressed=true]{background:var(--accent);color:#fffdf8;border-color:var(--accent)}
-.first-nail-art li>span,.first-nail-topics summary small,.first-nail-example,.popular-details small,.shop-style-tags small,.journey-shop-list small{color:var(--muted)}
+.first-nail-art li>span,.popular-details small,.shop-style-tags small,.journey-shop-list small{color:var(--muted)}
 .journey-shop-list li,.quote-add-on,.summary-row.total,dialog{border-color:var(--line)}
 .empty{border-color:var(--line);color:var(--muted)}
 dialog::backdrop{background:#21180fb3}
