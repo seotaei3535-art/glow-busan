@@ -78,3 +78,7 @@
 .first-nail-topics li+li{margin-top:7px}
 .first-nail-source{margin-top:12px}
 .first-nail-example{margin:0 0 12px;font-size:13px;line-height:1.55;color:#5d4651}
+
+.booking-alternatives{list-style:none;padding:0;margin:14px 0;display:grid;gap:8px}
+.booking-alternatives button{display:grid;gap:4px;width:100%;text-align:left;color:var(--ink)}
+.booking-alternatives button span{font-size:12px;color:#664a58}

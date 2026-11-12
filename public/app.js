@@ -211,12 +211,14 @@ function renderCompare(){
  document.querySelectorAll('[data-remove]').forEach(button=>button.onclick=()=>toggleCompare(button.dataset.remove));
  document.querySelectorAll('[data-cmenu]').forEach(button=>button.onclick=()=>{filters.menu=button.dataset.cmenu;renderCompare();});
 }
-function booking(id,previous){
+function booking(id,previous,{reschedule=false}={}){
  const shop=publicShops.find(item=>item.id===id);
  if(!shop)return;
  const selected=previous?.options||options();
  const shape=Object.hasOwn(basicNailShapes,selected.shape)?selected.shape:'';
- const date=previous?.date>=today()?previous.date:filters.date||today();
+ const minDate=today();
+ const requestedDate=previous?.date||filters.date;
+ const date=requestedDate>=minDate?requestedDate:minDate;
  open(`<div class="eyebrow">MAKE YOUR MOMENT</div>
   <h2 class="modal-title">${escape(shop.name)}</h2><p class="sub">${escape(shop.address)}</p>
   ${naverActions(shop)}${shape?`<p class="sub">선호 모양 · ${nailShapes[shape].name}</p>`:''}
@@ -226,7 +228,7 @@ function booking(id,previous){
     <label class="field">연장 개수<select id="b-extensions">${extensionOptions(selected.extensions)}</select></label>
     <label class="field">기존 젤 제거<select id="b-removal"><option value="none">제거 없음</option><option value="own">이 매장에서 받은 젤</option><option value="other">다른 매장에서 받은 젤</option></select></label>
     <label class="field" id="pieces-field">일반 아트 개수<select id="b-pieces">${Array.from({length:11},(_,i)=>`<option value="${i}" ${i===Number(selected.pieces)?'selected':''}>${i}개</option>`).join('')}</select></label>
-    <label class="field">희망 방문 날짜<input id="b-date" type="date" required min="${today()}" value="${escape(date)}"></label>
+    <label class="field">희망 방문 날짜<input id="b-date" type="date" required min="${minDate}" value="${escape(date)}"></label>
    </div>
    <div class="summary" id="quote" aria-live="polite"></div>
    <details class="quote-extras"${previous?.note?' open':''}>
@@ -247,7 +249,7 @@ function booking(id,previous){
   const opt=readOptions();
   const bookingUrl=bookingUrlForShop(shop,opt.menu);
   $('#save-and-book').textContent=bookingUrl?'견적 저장하고 네이버 예약으로 바로 가기':'견적만 저장';
-  $('#save-and-book-help').textContent=bookingUrl?'견적은 이 기기의 내 예약에 저장돼요. 방문 시간은 네이버에서 선택해요.':'견적은 이 기기의 내 예약에 저장돼요. 이 매장의 네이버 예약 링크는 아직 확인되지 않았어요.';
+  $('#save-and-book-help').textContent=bookingUrl?'예약 가능한 시간은 네이버에서 확인해요. 휴무나 마감이면 앱으로 돌아와 날짜나 매장을 바꿀 수 있어요.':'견적은 이 기기의 내 예약에 저장돼요. 이 매장의 네이버 예약 링크는 아직 확인되지 않았어요.';
   $('#pieces-field').hidden=opt.menu!=='art';
   const extras=estimateAddOns(opt);
   $('#quote').innerHTML=`<div class="summary-row"><span>${menus[opt.menu].name} 기본가</span><strong>${priceText(shop,opt.menu)}</strong></div>
@@ -280,17 +282,20 @@ function booking(id,previous){
  $('#book-form').onsubmit=event=>{
   event.preventDefault();
   const opt=readOptions();
+  const allBookings=read('bookings',[]);
+  const existing=reschedule&&allBookings.find(item=>item.id===previous?.id&&item.status==='draft');
   const saved={
-   id:crypto.randomUUID(),shopId:id,shopName:shop.name,
+   id:existing?.id||crypto.randomUUID(),shopId:id,shopName:shop.name,
    date:$('#b-date').value,options:opt,
    publishedPrice:shop.prices?.[opt.menu]??null,note:$('#b-note').value,
-   kind:'estimate',status:'draft',createdAt:new Date().toISOString()
+   kind:'estimate',status:'draft',createdAt:existing?.createdAt||new Date().toISOString()
   };
-  const next=[...read('bookings',[]),saved];
+  const next=existing?allBookings.map(item=>item.id===saved.id?saved:item):[...allBookings,saved];
   if(!save('bookings',next))return;
   bookings=next;
   openSavedBooking(saved,shop,{justSaved:true});
  };
+ if(reschedule)$('#b-date').focus();
 }
 
 function estimateAddOns(opt){
@@ -362,6 +367,10 @@ function openSavedBooking(saved,shop,{justSaved=false}={}){
   Promise.race([copy(),new Promise(resolve=>{copyDeadline=setTimeout(resolve,350);})])
    .then(()=>{
     clearTimeout(copyDeadline);
+    // Returning from Naver should show the saved estimate and its next actions.
+    modal.close();
+    history.replaceState(history.state,'','#reservations');
+    route();
     window.location.assign(bookingUrl);
    });
  }
@@ -373,6 +382,27 @@ function savedBookingAction(saved){
  if(!shop)return '';
  const bookingUrl=bookingUrlForShop(shop,saved.options.menu);
  return `<button class="primary" data-handoff="${escape(saved.id)}">${bookingUrl?'네이버 예약으로 바로 가기':'저장한 견적 보기'}</button>`;
+}
+function showAlternativeShops(saved){
+ const menu=saved.options.menu;
+ const minDate=today();
+ const date=saved.date>=minDate?saved.date:minDate;
+ const original=publicShops.find(shop=>shop.id===saved.shopId);
+ const alternatives=publicShops.filter(shop=>shop.id!==saved.shopId&&shop.prices?.[menu]&&bookingUrlForShop(shop,menu));
+ alternatives.sort((a,b)=>Number(b.area===original?.area)-Number(a.area===original?.area)||a.prices[menu].amount-b.prices[menu].amount);
+ open(`<h2 class="modal-title">다른 매장 찾기</h2>
+  <p class="sub">${escape(date)} · ${menus[menu].name}</p>
+  <p class="note">같은 메뉴의 공개 가격과 네이버 예약 링크가 확인된 매장이에요. 해당 날짜의 빈자리는 매장의 네이버 예약창에서 확인해 주세요.</p>
+  ${alternatives.length?`<ul class="booking-alternatives">${alternatives.map(shop=>`<li>
+   <button type="button" class="outline" data-alternative="${escape(shop.id)}">
+    <strong>${escape(shop.name)}</strong><span>${escape(shop.area)} · ${priceText(shop,menu)}</span>
+    ${priceCondition(shop,menu)?`<span>${escape(priceCondition(shop,menu))}</span>`:''}
+   </button></li>`).join('')}</ul>`:'<p>이 메뉴로 바로 연결할 수 있는 다른 매장을 찾지 못했어요. 같은 매장에서 다른 날짜를 골라 보세요.</p>'}`);
+ modal.scrollTop=0;
+ modal.querySelectorAll('[data-alternative]').forEach(button=>button.onclick=()=>{
+  const removal=saved.options.removal==='own'?'other':saved.options.removal;
+  booking(button.dataset.alternative,{...saved,date,options:{...saved.options,removal}});
+ });
 }
 function renderBookings(){
  bookings=read('bookings',bookings);
@@ -392,7 +422,8 @@ function renderBookings(){
    ${saved.record?`<p class="sub">시술 메모 · ${escape(saved.record)}</p>`:''}
    <div class="card-actions">
     ${savedBookingAction(saved)}
-    ${publicShops.some(shop=>shop.id===saved.shopId)?`<button class="outline" data-rebook="${saved.id}">같은 옵션으로 다시 견적</button>`:''}
+    ${publicShops.some(shop=>shop.id===saved.shopId)?`<button class="outline" data-rebook="${escape(saved.id)}">${saved.status==='draft'?'다른 날짜 고르기':'같은 옵션으로 다시 견적'}</button>`:''}
+    ${saved.status==='draft'?`<button class="outline" data-alternatives="${escape(saved.id)}">다른 매장 찾기</button>`:''}
     ${['draft','confirmed'].includes(saved.status)?`<button class="outline" data-cancel="${saved.id}">저장 내역 취소</button>`:''}
    </div>
   </article>`).join(''):`<div class="empty">아직 저장한 견적이 없어요.<p>마음에 드는 샵부터 찾아볼까요?</p><a class="primary" href="#home">샵 둘러보기</a></div>`}
@@ -405,7 +436,11 @@ function renderBookings(){
  });
  document.querySelectorAll('[data-rebook]').forEach(button=>button.onclick=()=>{
   const saved=bookings.find(item=>item.id===button.dataset.rebook);
-  booking(saved.shopId,saved);
+  if(saved)booking(saved.shopId,saved,{reschedule:saved.status==='draft'});
+ });
+ document.querySelectorAll('[data-alternatives]').forEach(button=>button.onclick=()=>{
+  const saved=bookings.find(item=>item.id===button.dataset.alternatives);
+  if(saved)showAlternativeShops(saved);
  });
  document.querySelectorAll('[data-cancel]').forEach(button=>button.onclick=()=>cancelBooking(button.dataset.cancel));
  $('#member').onclick=memberInfo;
