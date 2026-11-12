@@ -72,37 +72,44 @@ function route(){updateCount();const page=location.hash.slice(1)||'home';if(page
 window.addEventListener('hashchange',()=>{route();window.scrollTo(0,0);});
 function renderHome(){
  resultsLimit=directoryPageSize;
- main.innerHTML=`<section class="hero hero--nails"><h1>부산의 네일, 한눈에.<br>내 취향에 꼭 맞는 <em>Glow.</em></h1>
+ main.innerHTML=`<section class="hero hero--nails browse-hero">
+  <div><h1>부산 네일샵 찾기</h1><button class="text-button browse-guide" id="guide">✧ 첫 네일 가이드</button></div>
   <div class="hero-polish" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
  </section>
- <form class="searchbar" id="search">
-  <label>어디에서 찾으세요?<select id="area"><option value="all">부산 전체</option>${publicAreas.map(area=>`<option ${filters.area===area?'selected':''}>${area}</option>`).join('')}</select></label>
-  <label>희망 방문일 (견적에 적용)<input aria-label="방문 날짜" type="date" id="search-date" min="${today()}" value="${filters.date}"></label>
-  <label>어떤 네일을 원하세요?<select id="search-menu">${Object.entries(menus).map(([key,menu])=>`<option value="${key}" ${filters.menu===key?'selected':''}>${menu.name}</option>`).join('')}</select></label>
-  <button class="primary gold">네일샵 찾기 ↗</button>
+ <section class="content browse-content">
+ <form class="browse-search" id="search">
+  <div class="browse-search-main">
+   <label class="directory-search" for="shop-query">매장·주소·해시태그<input id="shop-query" type="search" maxlength="80" placeholder="매장명, 전포동, #연말" value="${escape(filters.query)}"></label>
+   <button class="primary gold" type="submit">검색</button>
+  </div>
+  <div class="browse-search-options">
+   <label>지역<select id="area"><option value="all">부산 전체</option>${publicAreas.map(area=>`<option ${filters.area===area?'selected':''}>${area}</option>`).join('')}</select></label>
+   <label>시술<select id="search-menu">${Object.entries(menus).map(([key,menu])=>`<option value="${key}" ${filters.menu===key?'selected':''}>${menu.name}</option>`).join('')}</select></label>
+   <label>희망 방문일<input aria-label="방문 날짜" type="date" id="search-date" min="${today()}" value="${filters.date}"></label>
+  </div>
+  <div class="tag-filters" aria-label="인기 해시태그">${featuredTags.map(tag=>`<button type="button" class="tag-chip" data-style-tag="${tag}">#${tag}</button>`).join('')}</div>
  </form>
- <section class="content">
- <div class="guide-banner"><span class="spark">✧</span><strong>네일이 처음이세요?</strong><button class="text-button" id="guide">첫 네일 가이드 ↗</button></div>
+ <div class="browse-shortcuts">
+  <div class="filters catalog-views" role="group" aria-label="매장 목록 보기">
+   ${[['directory','#directory','전체 매장'],['booking','#booking','네이버 바로 예약'],['prices','#prices','가격 있는 매장']].map(([view,href,label])=>
+    `<a class="chip ${view===catalogView()?'active':''}" href="${href}" ${view===catalogView()?'aria-current="page"':''}>${label}</a>`).join('')}
+  </div>
+ </div>
  <section id="popular-panel" class="popular-panel" aria-labelledby="popular-title">
-  <div class="popular-heading"><div><h2 id="popular-title">인기 네일샵 TOP 5</h2><p class="note">확인한 매장 중 네이버 플레이스 리뷰 수 기준</p></div>
+  <div class="popular-heading"><div><h2 id="popular-title">인기 네일샵 TOP 5</h2><p class="note">확인한 매장 · 네이버 리뷰 수 기준</p></div>
    <select class="outline small" id="popular-area" aria-label="인기 네일샵 지역">${publicAreas.map(area=>`<option>${area}</option>`).join('')}</select>
   </div>
   <ol id="popular-shops" class="popular-shops"></ol>
  </section>
- <div class="section-head">
-  <div><h2>당신을 위한 네일샵</h2><button class="location" id="locate">⌖ ${origin?'현재 위치 기준 · 가까운 지역 순':'현재 위치로 찾기'}</button></div>
-  <select class="outline small" id="sort" aria-label="정렬"><option value="recommended">추천순</option><option value="price">가격 낮은 순</option><option value="distance">가까운 지역 순</option></select>
+ <div class="section-head browse-list-heading">
+  <div><h2>네일샵 목록</h2><p id="directory-results" class="note" role="status"></p></div>
+  <div class="browse-list-controls">
+   <button class="chip ${filters.favorites?'active':''}" id="only-favorites" aria-pressed="${filters.favorites}">♡ 찜한 샵</button>
+   <select class="outline small" id="sort" aria-label="정렬"><option value="recommended">추천순</option><option value="price">가격 낮은 순</option><option value="distance">가까운 지역 순</option></select>
+   <button class="location" id="locate">⌖ ${origin?'현재 위치 기준':'내 주변'}</button>
+  </div>
  </div>
- <div class="filters">${[['monthly','이달의 아트'],['plain','원컬러'],['gradient','그라데이션'],['art','일반 아트']].map(([key,label])=>`<button class="chip ${filters.menu===key?'active':''}" data-menu="${key}">${label}</button>`).join('')}<button id="only-favorites" class="chip ${filters.favorites?'active':''}">♡ 찜한 샵</button></div>
- <div class="directory-tools">
-  <label class="directory-search" for="shop-query">매장명·주소·해시태그 검색<input id="shop-query" type="search" maxlength="80" placeholder="예: #연말, #가을, 전포동" value="${escape(filters.query)}"></label>
-  <div class="tag-filters" aria-label="인기 해시태그">${featuredTags.map(tag=>`<button type="button" class="tag-chip" data-style-tag="${tag}">#${tag}</button>`).join('')}</div>
- </div>
- <div class="filters catalog-views" role="group" aria-label="매장 목록 보기">
-  ${[['directory','#directory','전체 매장'],['booking','#booking','네이버 바로 예약'],['prices','#prices','가격 있는 매장']].map(([view,href,label])=>
-   `<a class="chip ${view===catalogView()?'active':''}" href="${href}" ${view===catalogView()?'aria-current="page"':''}>${label}</a>`).join('')}
- </div>
- <p id="directory-results" class="note" role="status"></p><div class="grid" id="shops"></div><div id="directory-pagination"></div></section>`;
+ <div class="grid browse-results" id="shops"></div><div id="directory-pagination"></div></section>`;
 $('#sort').value=filters.sort;
 $('#sort').onchange=e=>{
  filters.sort=e.target.value;
@@ -119,22 +126,21 @@ document.querySelectorAll('[data-style-tag]').forEach(button=>button.onclick=()=
  $('#shop-query').value=filters.query;
  renderFirstPage();
 });
-$('#search').onsubmit=e=>{e.preventDefault();applySearch({scroll:true,showAll:true});};
-function applySearch({scroll=false,showAll=false}={}){
+$('#search').onsubmit=e=>{e.preventDefault();applySearch({scroll:true});};
+function applySearch({scroll=false}={}){
  filters.area=$('#area').value;
  filters.date=$('#search-date').value;
  filters.menu=$('#search-menu').value;
  filters.favorites=false;
- if(showAll&&catalogView()!=='directory')history.replaceState(history.state,'','#directory');
  renderHome();
  if(scroll)$('#directory-results').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('#area').onchange=e=>{
  if(e.target.value!=='all')popularArea=e.target.value;
- applySearch({showAll:true});
+ applySearch();
 };
 ['search-date','search-menu'].forEach(id=>$('#'+id).onchange=()=>applySearch());
-$('#guide').onclick=guide;$('#locate').onclick=locate;$('#only-favorites').onclick=()=>{filters.favorites=!filters.favorites;renderHome();};document.querySelectorAll('[data-menu]').forEach(el=>el.onclick=()=>{filters.menu=el.dataset.menu;renderHome();});renderCards();}
+$('#guide').onclick=guide;$('#locate').onclick=locate;$('#only-favorites').onclick=()=>{filters.favorites=!filters.favorites;renderHome();};renderCards();}
 function searchable(value){
  return value.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
 }
@@ -196,9 +202,9 @@ function renderCards(){
    <button class="heart ${favorites.includes(shop.id)?'saved':''}" aria-label="${escape(shop.name)} 찜" aria-pressed="${favorites.includes(shop.id)}" data-fav="${shop.id}">${favorites.includes(shop.id)?'♥':'♡'}</button>
    <div class="card-body">
     <div class="card-top"><h3>${escape(shop.name)}</h3></div>
-    <p class="sub">${escape(shop.address)}</p>
+    <p class="sub shop-address">${escape(shop.address)}</p>
     ${tags.length?`<div class="shop-style-tags">${tags.map(tag=>`<span>#${escape(tag)}</span>`).join('')}${reviewCount(shop)>=0?`<small>리뷰 ${reviewCount(shop).toLocaleString('ko-KR')}</small>`:''}</div>`:''}
-    ${shop.prices?.[filters.menu]?`<div class="price-line"><div><small>${menus[filters.menu].name} 기본가</small><br><strong>${priceText(shop,filters.menu)}</strong>${priceCondition(shop.prices[filters.menu])?`<br><small>${escape(priceCondition(shop.prices[filters.menu]))}</small>`:''}</div></div>`:''}
+    ${shop.prices?.[filters.menu]?`<div class="price-line"><div><small>${menus[filters.menu].name} 기본가</small> <strong>${priceText(shop,filters.menu)}</strong>${priceCondition(shop.prices[filters.menu])?`<small class="price-condition">${escape(priceCondition(shop.prices[filters.menu]))}</small>`:''}</div></div>`:'<p class="note shop-price-missing">가격 정보 없음</p>'}
     ${shop.deposit?`<p class="note">예약금 · ${shop.deposit}</p>`:''}
     ${naverActions(shop)}
     <div class="card-actions">
