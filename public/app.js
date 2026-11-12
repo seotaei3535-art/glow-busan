@@ -64,9 +64,9 @@ function sourceLink(shop){
  return `<a class="naver-link" href="${escape(shop.sourceUrl)}" target="_blank" rel="noopener noreferrer">공개 가격 출처 ↗</a>`;
 }
 function catalogView(){
- if(location.hash==='#directory')return 'directory';
  if(location.hash==='#prices')return 'prices';
- return 'booking';
+ if(location.hash==='#booking'||(!location.hash&&new URLSearchParams(location.search).get('booking')==='direct'))return 'booking';
+ return 'directory';
 }
 function updateCount(){$('#compare-count').textContent=compared.length;}
 function route(){updateCount();const page=location.hash.slice(1)||'home';if(page==='compare')renderCompare();else if(page==='reservations')renderBookings();else renderHome();}
@@ -75,10 +75,10 @@ function renderHome(){resultsLimit=directoryPageSize;main.innerHTML=`<section cl
   <label class="directory-search" for="shop-query">매장명·주소 검색<input id="shop-query" type="search" maxlength="80" placeholder="예: 전포동, 네일이지" value="${escape(filters.query)}"></label>
  </div>
  <div class="filters catalog-views" role="group" aria-label="매장 목록 보기">
-  ${[['booking','#home','네이버 바로 예약'],['prices','#prices','공개 가격 비교'],['directory','#directory','전체 영업 매장']].map(([view,href,label])=>
+  ${[['directory','#directory','전체 영업 매장'],['booking','#booking','네이버 바로 예약'],['prices','#prices','공개 가격 비교']].map(([view,href,label])=>
    `<a class="chip ${view===catalogView()?'active':''}" href="${href}" ${view===catalogView()?'aria-current="page"':''}>${label}</a>`).join('')}
  </div>
- <p class="note">${{booking:'견적을 저장하면 각 매장의 네이버 예약창으로 바로 이동해요.',prices:'선택한 메뉴의 가격을 매장이 공개한 곳만 보여요.',directory:'전체 영업 매장의 위치와 예약 정보를 볼 수 있어요.'}[catalogView()]}</p>
+ <p class="note">${{booking:'견적을 저장하면 각 매장의 네이버 예약창으로 바로 이동해요.',prices:'선택한 메뉴의 가격을 매장이 공개한 곳만 보여요.',directory:'선택한 지역의 영업 매장을 보여요. 희망 방문일은 견적에 적용되고, 빈 시간은 네이버 예약에서 확인할 수 있어요.'}[catalogView()]}</p>
  <p class="note directory-source">부산 16개 구·군 인허가상 영업 중 ${publicShops.length.toLocaleString('ko-KR')}곳 · 직접 예약 확인 ${directBookingCount}곳 · <a href="https://www.data.go.kr/data/15045037/fileData.do" target="_blank" rel="noopener noreferrer">미용업 인허가 자료 ${directoryUpdated} ↗</a><br>오늘 영업시간이나 임시휴무는 방문 전 네이버 지도에서 확인해 주세요.</p>
  <p id="directory-results" class="note" role="status"></p><div class="grid" id="shops"></div><div id="directory-pagination"></div></section>`;
 $('#sort').value=filters.sort;
@@ -88,9 +88,18 @@ $('#sort').onchange=e=>{
  renderFirstPage();
 };
 $('#shop-query').oninput=e=>{filters.query=e.target.value;renderFirstPage();};
-$('#search').onsubmit=e=>{e.preventDefault();applySearch(true);};
-function applySearch(scroll=false){filters.area=$('#area').value;filters.date=$('#search-date').value;filters.menu=$('#search-menu').value;filters.favorites=false;renderHome();if(scroll)$('#shops').scrollIntoView({behavior:'smooth',block:'start'});}
-['area','search-date','search-menu'].forEach(id=>$('#'+id).onchange=()=>applySearch());
+$('#search').onsubmit=e=>{e.preventDefault();applySearch({scroll:true,showAll:true});};
+function applySearch({scroll=false,showAll=false}={}){
+ filters.area=$('#area').value;
+ filters.date=$('#search-date').value;
+ filters.menu=$('#search-menu').value;
+ filters.favorites=false;
+ if(showAll&&catalogView()!=='directory')history.replaceState(history.state,'','#directory');
+ renderHome();
+ if(scroll)$('#directory-results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('#area').onchange=()=>applySearch({showAll:true});
+['search-date','search-menu'].forEach(id=>$('#'+id).onchange=()=>applySearch());
 $('#guide').onclick=guide;$('#locate').onclick=locate;$('#only-favorites').onclick=()=>{filters.favorites=!filters.favorites;renderHome();};document.querySelectorAll('[data-menu]').forEach(el=>el.onclick=()=>{filters.menu=el.dataset.menu;renderHome();});renderCards();}
 function searchable(value){
  return value.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
