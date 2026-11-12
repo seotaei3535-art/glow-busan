@@ -98,7 +98,7 @@ function renderEntry(){
   <h1>오늘은 어떤 네일을 할까요?</h1>
   <div class="journey-choices">
    ${invitation('rookie','#beginner','Welcome,','첫 네일 가이드')}
-   ${invitation('experienced','#experienced','Welcome back,','네일샵 찾기')}
+   ${invitation('experienced','#experienced','Welcome back,','이번엔 어떤 네일?')}
   </div>
  </div></section>`;
 }
@@ -255,7 +255,7 @@ function bindRegularShopPanel(){
  };
 }
 function renderHome(){
- main.innerHTML=`<section class="pastel-sky journey-heading"><div class="journey-inner"><a class="journey-back" href="#home">← 코너 선택</a><h1>경험자 코너</h1><p>해시태그로 찾거나 단골샵에서 바로 예약하세요.</p></div></section>
+ main.innerHTML=`<section class="pastel-sky journey-heading"><div class="journey-inner"><a class="journey-back" href="#home">← 코너 선택</a><h1>이번엔 어떤 네일을, 어디서 할까요?</h1><p>해시태그로 찾거나 단골샵에서 바로 예약하세요.</p></div></section>
  <section class="content browse-content">
  ${regularShopPanel()}
  <form class="browse-search" id="search">
