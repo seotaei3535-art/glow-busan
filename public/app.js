@@ -84,10 +84,13 @@ function areaOptions(selected){
 }
 function renderEntry(){
  const invitation=(tone,href,greeting,label)=>`<a href="${href}" class="journey-choice journey-choice--${tone}">
-  <span class="journey-rosette">
+  <span class="journey-envelope-flap" aria-hidden="true"></span>
+  <span class="journey-invitation-paper">
+   <span class="journey-invitation-brand" lang="fr" aria-hidden="true">CAMÉLIA</span>
    <strong lang="en" class="journey-invitation"><span>${greeting}</span> <span>Princess!</span></strong>
+   <span class="journey-choice-label">${label}</span>
   </span>
-  <span class="journey-choice-label">${label}</span>
+  <span class="journey-envelope-fold" aria-hidden="true"></span>
  </a>`;
  main.innerHTML=`<section class="pastel-sky journey-entry"><div class="journey-inner">
   <h1>오늘은 어떤 네일을 할까요?</h1>
