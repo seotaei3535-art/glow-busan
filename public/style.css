@@ -310,16 +310,20 @@
 .journey-inner{width:min(100% - 32px,1040px);margin-inline:auto}
 .journey-entry{
   padding:clamp(42px,8vw,92px) 0 clamp(66px,10vw,120px);
-  background:radial-gradient(ellipse at top,#fcf6ed 8%,#eadbd5 100%);
+  background:radial-gradient(ellipse at top,#fbf8f2 10%,#e9e0d7 100%);
 }
-.journey-entry::before{opacity:.4}
+.journey-entry::before{opacity:.2}
 .journey-entry h1,.journey-heading h1{margin:0;color:#63374f;font-size:clamp(27px,5vw,48px);line-height:1.28;letter-spacing:-.04em}
-.journey-entry h1{text-align:center;margin-bottom:clamp(22px,5vw,44px)}
+.journey-entry h1{
+  margin-bottom:clamp(26px,5vw,48px);
+  color:#2e2422;
+  text-align:center;
+}
 .journey-choices{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:clamp(10px,3vw,20px);
-  max-width:444px;
+  gap:clamp(10px,3vw,24px);
+  max-width:448px;
   margin:auto;
 }
 .journey-choice{
@@ -332,40 +336,40 @@
   aspect-ratio:4/5;
   padding:12px 10px;
   border:1px solid var(--card-border);
-  border-radius:4px;
+  border-radius:2px;
   background:
-    repeating-linear-gradient(118deg,#fff0 0 3px,#fff1 4px,#fff0 5px),
+    repeating-linear-gradient(118deg,#fff0 0 3px,#ffffff07 4px,#fff0 5px),
     radial-gradient(ellipse at top,var(--card-light),transparent 88%),var(--card-base);
   color:var(--card-ink);
   text-align:center;
   text-decoration:none;
-  box-shadow:0 8px 19px #49322430;
+  box-shadow:0 2px 4px #30221b14,0 12px 26px #30221b24;
 }
 .journey-choice::before{
   position:absolute;
   z-index:-1;
-  inset:5px;
+  inset:clamp(5px,1.6vw,8px);
   border:1px solid var(--card-rule);
   content:"";
   pointer-events:none;
 }
 .journey-choice--rookie{
-  --card-light:#f9eee7;
-  --card-base:#ebd1cc;
-  --card-border:#f8eae0;
-  --card-rule:#a3785059;
-  --card-ink:#76501e;
-  --ribbon-base:#92766470;
-  --ribbon-edge:#70544045;
+  --card-light:#fcf0eb;
+  --card-base:#ead2ca;
+  --card-border:#b69677;
+  --card-rule:#98713b70;
+  --card-ink:#73501f;
+  --ribbon-base:#a18a74a6;
+  --ribbon-edge:#70544036;
 }
 .journey-choice--experienced{
-  --card-light:#fffdf8;
-  --card-base:#f3eee6;
-  --card-border:#26344c;
-  --card-rule:#26344c52;
-  --card-ink:#191919;
-  --ribbon-base:#36466542;
-  --ribbon-edge:#26344c45;
+  --card-light:#fffefa;
+  --card-base:#f5f0e9;
+  --card-border:#292a2c;
+  --card-rule:#292a2c65;
+  --card-ink:#181717;
+  --ribbon-base:#22252bdb;
+  --ribbon-edge:#2b2e3860;
 }
 .journey-choice:hover{box-shadow:0 9px 22px #4932244d}
 .journey-choice:focus-visible{outline:3px solid #844867;outline-offset:4px}
@@ -373,6 +377,7 @@
 .journey-crest img{grid-area:1/1;display:block;object-fit:contain}
 .journey-wreath{width:100%;aspect-ratio:1}
 .journey-crown{width:33%;aspect-ratio:2/1}
+.journey-choice--experienced .journey-crest img{filter:grayscale(1) brightness(.66)}
 .journey-choice strong{
   font-family:Allura,"Segoe Script","Brush Script MT",cursive;
   font-size:clamp(24px,6.8vw,34px);
@@ -380,12 +385,6 @@
   line-height:.98;
 }
 .journey-choice strong span{display:block}
-.journey-choice--experienced strong{
-  font-family:Nunito,system-ui,sans-serif;
-  font-size:clamp(15px,4.4vw,22px);
-  font-weight:800;
-  line-height:1.2;
-}
 .journey-ribbon{
   --seal-size:clamp(22px,6.5vw,31px);
   display:grid;
@@ -396,9 +395,10 @@
   background:linear-gradient(transparent 16%,var(--ribbon-edge) 17% 20%,var(--ribbon-base) 21% 79%,var(--ribbon-edge) 80% 83%,transparent 84%);
 }
 .journey-ribbon img{display:block;width:var(--seal-size);aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 1px 2px #38241666)}
+.journey-choice--experienced .journey-ribbon img{filter:grayscale(1) drop-shadow(0 1px 2px #15151566)}
 .journey-choice-label{max-width:17ch;font-size:clamp(12px,2.9vw,13px);line-height:1.4;word-break:keep-all}
 @media(max-width:350px){
-  .journey-choice--rookie strong{font-size:21px}
+  .journey-choice strong{font-size:clamp(18px,6.55vw,21px)}
 }
 .journey-heading{padding:24px 0 30px}
 .journey-heading h1{margin:5px 0 10px;font-size:clamp(25px,4vw,40px)}
@@ -441,4 +441,9 @@
 body{font-family:"Gowun Dodum",system-ui,-apple-system,"Malgun Gothic",sans-serif}
 .brand{font-family:Nunito,"Gowun Dodum",system-ui,sans-serif;font-weight:900}
 main :is(h1,h2),.modal-title{font-family:Jua,"Gowun Dodum",system-ui,sans-serif;font-weight:400}
-.journey-entry h1{letter-spacing:-.015em}
+.journey-entry h1{
+  font-family:"Nanum Myeongjo",Batang,serif;
+  font-size:clamp(23px,4.6vw,39px);
+  font-weight:700;
+  letter-spacing:-.025em;
+}
