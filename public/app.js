@@ -87,7 +87,7 @@ function renderEntry(){
   <span class="journey-envelope-flap" aria-hidden="true"></span>
   <span class="journey-invitation-paper">
    <span class="journey-invitation-brand" lang="fr" aria-hidden="true">CAMÉLIA</span>
-   <strong lang="en" class="journey-invitation"><span>${greeting}</span> <span>Princess!</span></strong>
+   <strong lang="en" class="journey-invitation"><span>${greeting}</span> <span>Princess</span></strong>
    <span class="journey-choice-label">${label}</span>
   </span>
   <span class="journey-envelope-fold" aria-hidden="true"></span>
