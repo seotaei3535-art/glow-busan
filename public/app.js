@@ -303,8 +303,8 @@ function booking(id,previous){
  function refresh(){
   const opt=readOptions();
   const bookingUrl=bookingUrlForShop(shop,opt.menu);
-  $('#save-and-book').textContent=bookingUrl?'견적 저장하고 네이버 예약 열기 ↗':'견적만 저장';
-  $('#save-and-book-help').textContent=bookingUrl?'네이버 예약창이 새 탭에서 열려요.':'이 매장은 네이버 예약 링크가 확인되면 바로 예약할 수 있어요.';
+  $('#save-and-book').textContent=bookingUrl?'견적 저장하고 네이버 예약으로 바로 가기':'견적만 저장';
+  $('#save-and-book-help').textContent=bookingUrl?'방문 시간은 네이버 예약에서 선택해요.':'이 매장은 네이버 예약 링크가 확인되면 바로 예약할 수 있어요.';
   $('#pieces-field').hidden=opt.menu!=='art';
   const extras=estimateAddOns(opt);
   $('#quote').innerHTML=`<div class="summary-row"><span>${menus[opt.menu].name} 기본가</span><strong>${priceText(shop,opt.menu)}</strong></div>
@@ -388,8 +388,8 @@ function openSavedBooking(saved,shop,{justSaved=false}={}){
  ].filter(Boolean);
  const quote=details.join('\n');
  open(`<h2 class="modal-title">${justSaved?'견적을 저장했어요':'저장한 견적'}</h2>
-  ${bookingUrl?`<p class="handoff-instructions">새 탭이 열리지 않으면 아래 버튼을 눌러 주세요. 복사한 옵션은 네이버 요청사항 칸이 있을 때 붙여넣을 수 있어요.</p>
-  <a class="primary full booking-time-action" id="open-handoff" href="${escape(bookingUrl)}" target="_blank" rel="noopener noreferrer">네이버에서 가능한 시간 고르기 ↗</a>`:
+  ${bookingUrl?`<a class="primary full booking-time-action" id="open-handoff" href="${escape(bookingUrl)}">네이버 예약으로 바로 가기</a>
+  <p class="handoff-instructions">복사한 옵션은 네이버 요청사항 칸이 있을 때 붙여넣을 수 있어요.</p>`:
   '<p class="handoff-instructions">이 매장의 네이버 예약 링크는 아직 확인되지 않았어요.</p>'}
   <div class="summary booking-handoff">${details.map(detail=>`<p>${escape(detail)}</p>`).join('')}</div>
   <button class="outline" id="copy-booking">견적만 복사</button>
@@ -411,11 +411,17 @@ function openSavedBooking(saved,shop,{justSaved=false}={}){
    field.select();
   }
  };
- const link=$('#open-handoff');
- if(link)link.onclick=copy;
  $('#copy-booking').onclick=copy;
  $('#show-booking').onclick=()=>{modal.close();location.hash='reservations';route();};
- link?.click();
+ if(bookingUrl){
+  // Start copying during the click, but do not let clipboard prompts block booking.
+  let copyDeadline;
+  Promise.race([copy(),new Promise(resolve=>{copyDeadline=setTimeout(resolve,350);})])
+   .then(()=>{
+    clearTimeout(copyDeadline);
+    window.location.assign(bookingUrl);
+   });
+ }
 }
 function time(t){return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');}
 function savedBookingAction(saved){
@@ -423,7 +429,7 @@ function savedBookingAction(saved){
  const shop=publicShops.find(s=>s.id===saved.shopId);
  if(!shop)return '';
  const bookingUrl=bookingUrlForShop(shop,saved.options.menu);
- return `<button class="primary" data-handoff="${escape(saved.id)}">${bookingUrl?'네이버 예약 바로 열기 ↗':'저장한 견적 보기'}</button>`;
+ return `<button class="primary" data-handoff="${escape(saved.id)}">${bookingUrl?'네이버 예약으로 바로 가기':'저장한 견적 보기'}</button>`;
 }
 function renderBookings(){
  bookings=read('bookings',bookings);
