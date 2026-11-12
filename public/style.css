@@ -310,9 +310,9 @@
 .journey-inner{width:min(100% - 32px,1040px);margin-inline:auto}
 .journey-entry{
   padding:clamp(42px,8vw,92px) 0 clamp(66px,10vw,120px);
-  background:radial-gradient(ellipse at top,#fbf8f2 10%,#e9e0d7 100%);
+  background:radial-gradient(ellipse at 22% 5%,#fbf5e9,#ddcab0 110%);
 }
-.journey-entry::before{opacity:.2}
+.journey-entry::before{display:none}
 .journey-entry h1,.journey-heading h1{margin:0;color:#63374f;font-size:clamp(27px,5vw,48px);line-height:1.28;letter-spacing:-.04em}
 .journey-entry h1{
   margin-bottom:clamp(26px,5vw,48px);
@@ -330,86 +330,76 @@
   position:relative;
   isolation:isolate;
   display:grid;
+  grid-template-rows:1fr auto;
+  place-items:center;
+  gap:10px;
+  min-width:0;
   aspect-ratio:4/5;
-  padding:24% 0 0;
-  border-radius:2px;
+  padding:clamp(9px,2.6vw,16px) 7px 13px;
+  border:1px solid #998366;
+  border-radius:4px;
   background:
-    repeating-linear-gradient(112deg,transparent 0 2px,#ffffff0a 3px,transparent 4px),
-    linear-gradient(145deg,#292826,#111110 76%);
-  color:var(--card-ink);
+    repeating-linear-gradient(105deg,transparent 0 2px,#ffffff06 3px,transparent 4px),
+    linear-gradient(145deg,var(--box-light),var(--box-dark) 76%);
+  color:#fff5e7;
   text-align:center;
   text-decoration:none;
-  box-shadow:0 2px 4px #30221b14,0 12px 26px #30221b24;
+  box-shadow:inset 0 0 0 3px #f2dfb727,inset 0 0 14px #24180f5c,0 11px 21px #49341e35;
 }
 .journey-choice::before{
   position:absolute;
   z-index:-1;
-  inset:clamp(5px,1.6vw,8px);
-  border:1px solid #b49252;
-  box-shadow:inset 0 0 0 2px #211f19,inset 0 0 0 3px #94713b;
+  inset:5px;
+  border:1px solid #e2cba94f;
   content:"";
   pointer-events:none;
 }
 .journey-choice--rookie{
-  --paper-light:#fffaf4;
-  --paper-base:#eee3dc;
-  --card-ink:#795522;
+  --box-light:#81664c;
+  --box-dark:#493526;
+  --label-light:#fff3df;
+  --label-base:#ecd3b3;
+  --card-ink:#6a481f;
 }
 .journey-choice--experienced{
-  --paper-light:#fffefa;
-  --paper-base:#ecebe6;
-  --card-ink:#181717;
+  --box-light:#5b4e42;
+  --box-dark:#332a22;
+  --label-light:#fffaeb;
+  --label-base:#dfcfb8;
+  --card-ink:#29231d;
 }
-.journey-choice:hover{box-shadow:0 9px 22px #4932244d}
-.journey-choice:focus-visible{outline:3px solid #844867;outline-offset:4px}
-.journey-envelope-flap{
-  position:absolute;
-  inset:2% 20% auto;
-  height:27%;
-  background:linear-gradient(130deg,var(--paper-light),var(--paper-base));
-  clip-path:polygon(50% 0,100% 100%,0 100%);
+.journey-choice:hover .journey-invitation{transform:rotate(-5deg) translateY(-2px)}
+.journey-choice:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+.journey-rosette{
+  display:grid;
+  place-items:center;
+  width:min(100%,176px);
+  aspect-ratio:1;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,#8c7154 0 49%,#71573c 50% 53%,#85613b4f 54%,transparent 60%),
+    repeating-conic-gradient(from 7deg,#d2b68c 0deg,#f5e2bd 6deg,#ebd2a6 8deg,#aa875a 9deg,#c7a77b 10deg);
+  box-shadow:0 3px 9px #20150ea8,inset 0 0 4px #fff0d2;
 }
 .journey-invitation{
-  position:relative;
   display:grid;
-  align-content:center;
-  justify-items:center;
-  gap:clamp(8px,2vw,13px);
+  place-content:center;
+  width:87%;
   min-width:0;
-  padding:10px 6px 24%;
-  background:linear-gradient(148deg,var(--paper-light),var(--paper-base));
-  box-shadow:0 -1px 3px #1b151733;
+  padding:clamp(8px,2.4vw,14px) 3px;
+  border:1px solid #a68961;
+  outline:1px solid #96784b80;
+  outline-offset:-4px;
+  background:linear-gradient(145deg,var(--label-light),var(--label-base));
+  color:var(--card-ink);
+  font-size:clamp(12px,3.65vw,19px);
+  font-weight:650;
+  line-height:1.18;
+  letter-spacing:-.035em;
+  box-shadow:0 3px 5px #21190d66;
+  transform:rotate(-5deg);
 }
-.journey-choice strong{
-  font-family:Allura,"Segoe Script","Brush Script MT",cursive;
-  font-size:clamp(24px,6.8vw,34px);
-  font-weight:400;
-  line-height:.98;
-}
-.journey-choice strong span{display:block}
-.journey-envelope-fold{
-  position:absolute;
-  inset:auto 0 0;
-  height:31%;
-  pointer-events:none;
-  filter:drop-shadow(0 -1px 0 #53473c47);
-}
-.journey-envelope-fold::before,.journey-envelope-fold::after{
-  position:absolute;
-  inset:0;
-  background:linear-gradient(145deg,var(--paper-light),var(--paper-base));
-  content:"";
-}
-.journey-envelope-fold::before{
-  clip-path:polygon(0 0,53% 100%,0 100%);
-}
-.journey-envelope-fold::after{
-  clip-path:polygon(100% 0,100% 100%,0 100%,49% 55%,70% 55%);
-}
-.journey-choice-label{max-width:17ch;font-size:clamp(12px,2.9vw,13px);line-height:1.4;word-break:keep-all}
-@media(max-width:350px){
-  .journey-choice strong{font-size:clamp(18px,6.55vw,21px)}
-}
+.journey-choice-label{max-width:17ch;font-size:clamp(11px,2.9vw,13px);line-height:1.4;word-break:keep-all}
 .journey-heading{padding:24px 0 30px}
 .journey-heading h1{margin:5px 0 10px;font-size:clamp(25px,4vw,40px)}
 .journey-heading p{margin:0;color:#644557}
@@ -448,12 +438,50 @@
  #style-form{grid-template-columns:1fr}
 }
 
-body{font-family:"Gowun Dodum",system-ui,-apple-system,"Malgun Gothic",sans-serif}
-.brand{font-family:Nunito,"Gowun Dodum",system-ui,sans-serif;font-weight:900}
-main :is(h1,h2),.modal-title{font-family:Jua,"Gowun Dodum",system-ui,sans-serif;font-weight:400}
+/* Cream paper, warm brown and brass across the site. */
+:root{
+  --ink:#342b23;
+  --muted:#6c5b4d;
+  --gold:#8a673e;
+  --paper:#f8f3eb;
+  --line:#dfd1bf;
+  --dark:#eee1d0;
+  --surface:#fffdf8;
+  --accent:#6c5036;
+  --wash:#f2e8da;
+  --ui-font:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,"Malgun Gothic",sans-serif;
+}
+body,.brand,.brand small,main :is(h1,h2),.modal-title{font-family:var(--ui-font)}
+.brand{font-weight:700;letter-spacing:.085em}
+main :is(h1,h2),.modal-title{font-weight:650;letter-spacing:-.035em}
+header{background:var(--surface)}
+footer{background:var(--dark)}
+nav b,.status,.district-rank,.popular-rank{background:var(--wash);color:var(--accent)}
+.hero--nails,.journey-heading{background:linear-gradient(125deg,#f9f3e7,#e7d5bb)}
+.hero--nails::after{background:radial-gradient(ellipse at 80% 58%,#c49b6466,transparent 65%)}
+.journey-heading::before{display:none}
+.hero-polish{border-color:#f7ebd9;background:linear-gradient(145deg,#fffbf0c9,#b98e6144);box-shadow:0 16px 32px #78604429,inset 0 1px 12px #fff8}
+.hero-polish::before,.hero-polish::after{color:var(--gold)}
+.journey-heading h1,.journey-heading p{color:var(--ink)}
+.eyebrow,.hero .eyebrow,.journey-back,.browse-hero .browse-guide,.regular-add summary,.handoff-instructions,.quote-extras summary,.quote-add-on strong{color:var(--accent)}
+.primary{background:var(--ink);color:#fffdf8}
+.gold{background:var(--accent);color:#fffdf8}
+.outline,.chip,.directory-search input,.field :is(input,select,textarea),.browse-search-options :is(input,select){border-color:var(--line);color:var(--ink)}
+.field :is(input,select,textarea),.directory-search input,.browse-search-options :is(input,select){background:var(--surface)}
+.consent input,.directory-check input{accent-color:var(--accent)}
+.browse-search,.journey-panel,.popular-panel,.popular-shops button,.booking-card,.browse-results .shop-card,.browse-results .shop-card .card-body,.compare-table :is(th,td){background:var(--surface);border-color:var(--line)}
+.first-nail-art li,.first-nail-shapes li,.first-nail-topics details{background:var(--surface);border-color:var(--line)}
+.style-result,.first-nail-topics summary svg,.art-sample,.care-video,.summary,.tag-chip,.shop-style-tags span{background:var(--wash)}
+.first-nail-topics summary svg{stroke:var(--accent)}
+.first-nail-topics summary::after{border-color:var(--accent)}
+.tag-chip,.shop-style-tags span{color:var(--accent);border-color:var(--line)}
+.tag-chip[aria-pressed=true]{background:var(--accent);color:#fffdf8;border-color:var(--accent)}
+.first-nail-art li>span,.first-nail-topics summary small,.first-nail-example,.popular-details small,.shop-style-tags small,.journey-shop-list small{color:var(--muted)}
+.journey-shop-list li,.quote-add-on,.summary-row.total,dialog{border-color:var(--line)}
+.empty{border-color:var(--line);color:var(--muted)}
+dialog::backdrop{background:#21180fb3}
+#toast{background:var(--accent)}
 .journey-entry h1{
-  font-family:"Nanum Myeongjo",Batang,serif;
   font-size:clamp(23px,4.6vw,39px);
-  font-weight:700;
-  letter-spacing:-.025em;
+  font-weight:650;
 }

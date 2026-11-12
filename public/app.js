@@ -83,19 +83,17 @@ function areaOptions(selected){
  return publicAreas.map(area=>`<option${area===selected?' selected':''}>${area}</option>`).join('');
 }
 function renderEntry(){
- const envelope=(tone,href,greeting,label)=>`<a href="${href}" class="journey-choice journey-choice--${tone}">
-  <span class="journey-envelope-flap" aria-hidden="true"></span>
-  <span class="journey-invitation">
-   <strong lang="en"><span>${greeting}</span> <span>Princess!</span></strong>
-   <span class="journey-choice-label">${label}</span>
+ const invitation=(tone,href,greeting,label)=>`<a href="${href}" class="journey-choice journey-choice--${tone}">
+  <span class="journey-rosette">
+   <strong lang="en" class="journey-invitation"><span>${greeting}</span> <span>Princess!</span></strong>
   </span>
-  <span class="journey-envelope-fold" aria-hidden="true"></span>
+  <span class="journey-choice-label">${label}</span>
  </a>`;
  main.innerHTML=`<section class="pastel-sky journey-entry"><div class="journey-inner">
   <h1>오늘은 어떤 네일을 할까요?</h1>
   <div class="journey-choices">
-   ${envelope('rookie','#beginner','Welcome,','첫 네일 가이드 · 내 스타일 찾기')}
-   ${envelope('experienced','#experienced','Welcome back,','해시태그 검색 · 단골샵 예약')}
+   ${invitation('rookie','#beginner','Welcome,','첫 네일 가이드 · 내 스타일 찾기')}
+   ${invitation('experienced','#experienced','Welcome back,','해시태그 검색 · 단골샵 예약')}
   </div>
  </div></section>`;
 }
