@@ -29,8 +29,7 @@ let resultsLimit=directoryPageSize;
 const areaCenters=Object.fromEntries(districts.map(([area,lat,lng])=>[area,{lat,lng}]));
 const naverMyUrl='https://m.place.naver.com/my';
 let bookings=read('bookings',[]),favorites=read('favorites',[]),compared=read('compared',[]).filter(id=>publicShops.some(shop=>shop.id===id)),origin=null;
-const startWithDirectBooking=new URLSearchParams(location.search).get('booking')==='direct';
-let filters={area:'all',date:'',menu:'plain',sort:'price',favorites:false,query:'',directOnly:startWithDirectBooking};
+let filters={area:'all',date:'',menu:'plain',sort:'price',favorites:false,query:''};
 const main=$('#main'),modal=$('#modal');
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200);}
 function open(html){$('#modal-body').innerHTML=html;if(!modal.open)modal.showModal();}
@@ -64,19 +63,22 @@ function sourceLink(shop){
  if(!shop.sourceUrl)return '';
  return `<a class="naver-link" href="${escape(shop.sourceUrl)}" target="_blank" rel="noopener noreferrer">공개 가격 출처 ↗</a>`;
 }
-function isDirectoryView(){return location.hash==='#directory';}
+function catalogView(){
+ if(location.hash==='#directory')return 'directory';
+ if(location.hash==='#prices')return 'prices';
+ return 'booking';
+}
 function updateCount(){$('#compare-count').textContent=compared.length;}
 function route(){updateCount();const page=location.hash.slice(1)||'home';if(page==='compare')renderCompare();else if(page==='reservations')renderBookings();else renderHome();}
 window.addEventListener('hashchange',()=>{route();window.scrollTo(0,0);});
 function renderHome(){resultsLimit=directoryPageSize;main.innerHTML=`<section class="hero"><div class="eyebrow">YOUR NAIL, YOUR MOMENT</div><h1>부산의 네일, 한눈에.<br>내 취향에 꼭 맞는 <em>Glow.</em></h1><p>부산 16개 구·군의 네일샵을 찾고,<br>공개 가격과 네이버 예약 정보를 비교해 보세요.</p></section><form class="searchbar" id="search"><label>어디에서 찾으세요?<select id="area"><option value="all">부산 전체</option>${publicAreas.map(x=>`<option ${filters.area===x?'selected':''}>${x}</option>`).join('')}</select></label><label>희망 방문일 (견적에 적용)<input aria-label="방문 날짜" type="date" id="search-date" min="${today()}" value="${filters.date}"></label><label>어떤 네일을 원하세요?<select id="search-menu">${Object.entries(menus).map(([k,v])=>`<option value="${k}" ${filters.menu===k?'selected':''}>${v.name}</option>`).join('')}</select></label><button class="primary gold">네일샵 찾기 ↗</button></form><section class="content"><div class="guide-banner"><span class="spark">✧</span><div><strong>네일이 처음이라면, 여기부터 시작해요.</strong><p>손톱 모양과 아트 종류, 시술 전후 알아둘 점을 확인해요.</p></div><button class="text-button" id="guide">첫 네일 가이드 ↗</button></div><div class="section-head"><div><div class="eyebrow">FIND YOUR FAVORITE</div><h2>당신을 위한 네일샵</h2><button class="location" id="locate">⌖ ${origin?'현재 위치 기준 · 가까운 지역 순':'현재 위치로 찾기'}</button></div><select class="outline small" id="sort" aria-label="정렬"><option value="price">공개 가격 낮은 순</option><option value="distance">가까운 지역 순</option></select></div><div class="filters">${[['monthly','이달의 아트'],['plain','원컬러'],['gradient','그라데이션'],['art','일반 아트']].map(([k,v])=>`<button class="chip ${filters.menu===k?'active':''}" data-menu="${k}">${v}</button>`).join('')}<button id="only-favorites" class="chip ${filters.favorites?'active':''}">♡ 찜한 샵</button></div><div class="directory-tools">
   <label class="directory-search" for="shop-query">매장명·주소 검색<input id="shop-query" type="search" maxlength="80" placeholder="예: 전포동, 네일이지" value="${escape(filters.query)}"></label>
-  <label class="directory-check"><input type="checkbox" id="direct-only" ${filters.directOnly?'checked':''}> 네이버 예약창이 바로 열리는 매장만</label>
  </div>
  <div class="filters catalog-views" role="group" aria-label="매장 목록 보기">
-  <a class="chip ${isDirectoryView()?'':'active'}" href="#home" ${isDirectoryView()?'':'aria-current="page"'}>공개 가격 비교</a>
-  <a class="chip ${isDirectoryView()?'active':''}" href="#directory" ${isDirectoryView()?'aria-current="page"':''}>전체 영업 매장</a>
+  ${[['booking','#home','네이버 바로 예약'],['prices','#prices','공개 가격 비교'],['directory','#directory','전체 영업 매장']].map(([view,href,label])=>
+   `<a class="chip ${view===catalogView()?'active':''}" href="${href}" ${view===catalogView()?'aria-current="page"':''}>${label}</a>`).join('')}
  </div>
- <p class="note">${isDirectoryView()?'전체 영업 매장의 위치와 예약 정보를 볼 수 있어요.':'선택한 메뉴의 가격을 매장이 공개한 곳만 보여요.'}</p>
+ <p class="note">${{booking:'견적을 저장하면 각 매장의 네이버 예약창으로 바로 이동해요.',prices:'선택한 메뉴의 가격을 매장이 공개한 곳만 보여요.',directory:'전체 영업 매장의 위치와 예약 정보를 볼 수 있어요.'}[catalogView()]}</p>
  <p class="note directory-source">부산 16개 구·군 인허가상 영업 중 ${publicShops.length.toLocaleString('ko-KR')}곳 · 직접 예약 확인 ${directBookingCount}곳 · <a href="https://www.data.go.kr/data/15045037/fileData.do" target="_blank" rel="noopener noreferrer">미용업 인허가 자료 ${directoryUpdated} ↗</a><br>오늘 영업시간이나 임시휴무는 방문 전 네이버 지도에서 확인해 주세요.</p>
  <p id="directory-results" class="note" role="status"></p><div class="grid" id="shops"></div><div id="directory-pagination"></div></section>`;
 $('#sort').value=filters.sort;
@@ -86,7 +88,6 @@ $('#sort').onchange=e=>{
  renderFirstPage();
 };
 $('#shop-query').oninput=e=>{filters.query=e.target.value;renderFirstPage();};
-$('#direct-only').onchange=e=>{filters.directOnly=e.target.checked;renderFirstPage();};
 $('#search').onsubmit=e=>{e.preventDefault();applySearch(true);};
 function applySearch(scroll=false){filters.area=$('#area').value;filters.date=$('#search-date').value;filters.menu=$('#search-menu').value;filters.favorites=false;renderHome();if(scroll)$('#shops').scrollIntoView({behavior:'smooth',block:'start'});}
 ['area','search-date','search-menu'].forEach(id=>$('#'+id).onchange=()=>applySearch());
@@ -99,24 +100,24 @@ function renderFirstPage(){
  renderCards();
 }
 function renderCards(){
+ const view=catalogView();
  const terms=filters.query.trim().split(/\s+/).map(searchable).filter(Boolean);
  const matches=publicShops.filter(shop=>{
   if(filters.area!=='all'&&shop.area!==filters.area)return false;
   if(filters.favorites&&!favorites.includes(shop.id))return false;
-  if(filters.directOnly&&!shopNaver(shop).booking)return false;
   const searchableAddress=searchable(shop.name+' '+shop.address);
   return terms.every(term=>searchableAddress.includes(term));
  });
- const directory=isDirectoryView();
- const priced=matches.filter(shop=>shop.prices?.[filters.menu]);
- const list=directory?matches:priced;
+ const list=view==='booking'?matches.filter(shop=>bookingUrlForShop(shop,filters.menu)):
+  view==='prices'?matches.filter(shop=>shop.prices?.[filters.menu]):matches;
  if(filters.sort==='distance'&&origin){
   list.sort((a,b)=>distanceKm(origin,areaCenters[a.area])-distanceKm(origin,areaCenters[b.area]));
  }else{
   list.sort((a,b)=>(a.prices?.[filters.menu]?.amount??Number.MAX_SAFE_INTEGER)-(b.prices?.[filters.menu]?.amount??Number.MAX_SAFE_INTEGER));
  }
  const visible=list.slice(0,resultsLimit);
- $('#directory-results').textContent=`${directory?'영업 매장':menus[filters.menu].name+' 공개가 확인'} ${list.length.toLocaleString('ko-KR')}곳 · ${visible.length.toLocaleString('ko-KR')}곳 표시`;
+ const resultLabel={booking:'네이버 바로 예약',prices:menus[filters.menu].name+' 공개가 확인',directory:'영업 매장'}[view];
+ $('#directory-results').textContent=`${resultLabel} ${list.length.toLocaleString('ko-KR')}곳 · ${visible.length.toLocaleString('ko-KR')}곳 표시`;
  $('#shops').innerHTML=visible.length?visible.map(shop=>`
   <article class="shop-card">
    <div class="shop-card-media">${shopExterior(shop)}
@@ -130,10 +131,13 @@ function renderCards(){
     ${naverActions(shop)}
     <div class="card-actions">
      ${shop.prices?.[filters.menu]?`<button class="outline" data-compare="${shop.id}">${compared.includes(shop.id)?'✓ 비교 중':'+ 비교'}</button>`:''}
-     <button class="primary" data-book="${shop.id}">${shopNaver(shop).booking?'견적 · 예약 보기 ↗':'견적 보기'}</button>
+     ${bookingUrlForShop(shop,filters.menu)?`<button class="primary" data-book="${shop.id}">견적 · 예약 보기 ↗</button>`:''}
     </div>
    </div>
-  </article>`).join(''):`<div class="empty" style="grid-column:1/-1">${!directory&&matches.length?'이 조건에서 공개된 메뉴 가격이 없어요.':'조건에 맞는 샵이 없어요.'}<p>검색어 또는 시술 메뉴를 바꿔 보세요.</p>${!directory&&matches.length?'<a class="outline" href="#directory">전체 영업 매장에서 찾기</a>':'<button class="outline" id="reset">필터 초기화</button>'}</div>`;
+  </article>`).join(''):`<div class="empty" style="grid-column:1/-1">${view==='booking'?'이 조건에서 네이버 예약 링크가 확인된 매장이 없어요.':view==='prices'&&matches.length?'이 조건에서 공개된 메뉴 가격이 없어요.':'조건에 맞는 샵이 없어요.'}
+  <p>지역이나 검색 조건을 바꿔 보세요.</p>
+  <button class="outline" id="reset">필터 초기화</button>
+  ${view==='directory'?'':'<a class="outline" href="#directory">전체 영업 매장에서 찾기</a>'}</div>`;
  document.querySelectorAll('.shop-exterior img').forEach(img=>{
   const showFallback=()=>{
    const figure=img.closest('figure');
@@ -152,7 +156,7 @@ function renderCards(){
  document.querySelectorAll('[data-compare]').forEach(button=>button.onclick=()=>toggleCompare(button.dataset.compare));
  bindBook();
  if($('#reset'))$('#reset').onclick=()=>{
-  filters.area='all';filters.favorites=false;filters.query='';filters.directOnly=false;
+  filters.area='all';filters.favorites=false;filters.query='';
   renderHome();
  };
  const pagination=$('#directory-pagination');
@@ -166,7 +170,7 @@ function renderCards(){
 function shopNaver(shop){return naverLinks(shop);}
 function bookingUrlForShop(shop,menu,date=''){
  const links=shopNaver(shop);
- const visitDate=date>=today()?date:'';
+ const visitDate=date&&date>=today()?date:'';
  return naverBookingForDate(shop.menuBookingUrls?.[menu],visitDate)||naverBookingForDate(links.booking,visitDate);
 }
 function naverActions(shop){
@@ -196,7 +200,7 @@ function renderCompare(){
   ['가격 출처',shop=>sourceLink(shop)||'—'],
   ['예약금 안내',shop=>shop.deposit||'예약 화면에서 확인'],
   ['네이버 예약',naverActions],
-  ['견적 저장',shop=>`<button class="primary small" data-book="${shop.id}">견적 · 예약 보기</button>`]
+  ['견적 · 예약',shop=>bookingUrlForShop(shop,filters.menu)?`<button class="primary small" data-book="${shop.id}">견적 · 예약 보기</button>`:'직접 예약 링크 미확인']
  ];
  main.innerHTML=`<section class="content">
   <div class="page-head"><div class="eyebrow">SIDE BY SIDE</div><h1>네일샵 한눈에 비교</h1><p class="sub">같은 메뉴의 기본가를 비교하세요. 연장·제거 비용은 매장마다 달라요.</p></div>
@@ -204,7 +208,7 @@ function renderCompare(){
   ${list.length?`<div class="table-scroll"><table class="compare-table"><tbody>
    <tr><th>비교 기준</th>${list.map(shop=>`<th>${escape(shop.name)}<br><button class="text-button small" data-remove="${shop.id}">삭제 ×</button></th>`).join('')}</tr>
    ${rows.map(([label,cell])=>`<tr><th>${label}</th>${list.map(shop=>`<td>${cell(shop)}</td>`).join('')}</tr>`).join('')}
-  </tbody></table></div>`:`<div class="empty">${selected.length?'선택한 메뉴의 공개 가격이 없어요.':'비교할 샵을 골라주세요.'}<p>${selected.length?'다른 메뉴를 선택하거나 가격이 공개된 샵을 추가해 보세요.':'샵 카드에서 ‘+ 비교’를 누르면 최대 3곳을 비교할 수 있어요.'}</p><a class="primary" href="#home">공개 가격 비교</a></div>`}
+  </tbody></table></div>`:`<div class="empty">${selected.length?'선택한 메뉴의 공개 가격이 없어요.':'비교할 샵을 골라주세요.'}<p>${selected.length?'다른 메뉴를 선택하거나 가격이 공개된 샵을 추가해 보세요.':'샵 카드에서 ‘+ 비교’를 누르면 최대 3곳을 비교할 수 있어요.'}</p><a class="primary" href="#prices">공개 가격 비교</a></div>`}
   ${unavailable.length?`<p class="note">이 메뉴의 가격이 공개되지 않은 매장</p><div class="filters">${unavailable.map(shop=>`<button class="outline small" data-remove="${shop.id}" aria-label="${escape(shop.name)} 비교함에서 삭제">${escape(shop.name)} 삭제 ×</button>`).join('')}</div>`:''}
  </section>`;
  bindBook();
@@ -215,6 +219,7 @@ function booking(id,previous,{reschedule=false}={}){
  const shop=publicShops.find(item=>item.id===id);
  if(!shop)return;
  const selected=previous?.options||options();
+ if(!bookingUrlForShop(shop,selected.menu))return;
  const shape=Object.hasOwn(basicNailShapes,selected.shape)?selected.shape:'';
  const minDate=today();
  const requestedDate=previous?.date||filters.date;
@@ -248,8 +253,9 @@ function booking(id,previous,{reschedule=false}={}){
  function refresh(){
   const opt=readOptions();
   const bookingUrl=bookingUrlForShop(shop,opt.menu);
-  $('#save-and-book').textContent=bookingUrl?'견적 저장하고 네이버 예약으로 바로 가기':'견적만 저장';
-  $('#save-and-book-help').textContent=bookingUrl?'예약 가능한 시간은 네이버에서 확인해요. 휴무나 마감이면 앱으로 돌아와 날짜나 매장을 바꿀 수 있어요.':'견적은 이 기기의 내 예약에 저장돼요. 이 매장의 네이버 예약 링크는 아직 확인되지 않았어요.';
+  $('#save-and-book').textContent='견적 저장하고 네이버 예약으로 바로 가기';
+  $('#save-and-book').disabled=!bookingUrl;
+  $('#save-and-book-help').textContent=bookingUrl?'예약 가능한 시간은 네이버에서 확인해요. 휴무나 마감이면 앱으로 돌아와 날짜나 매장을 바꿀 수 있어요.':'이 메뉴의 네이버 예약 링크가 확인되지 않았어요.';
   $('#pieces-field').hidden=opt.menu!=='art';
   const extras=estimateAddOns(opt);
   $('#quote').innerHTML=`<div class="summary-row"><span>${menus[opt.menu].name} 기본가</span><strong>${priceText(shop,opt.menu)}</strong></div>
@@ -282,6 +288,7 @@ function booking(id,previous,{reschedule=false}={}){
  $('#book-form').onsubmit=event=>{
   event.preventDefault();
   const opt=readOptions();
+  if(!bookingUrlForShop(shop,opt.menu))return;
   const allBookings=read('bookings',[]);
   const existing=reschedule&&allBookings.find(item=>item.id===previous?.id&&item.status==='draft');
   const saved={
@@ -422,7 +429,7 @@ function renderBookings(){
    ${saved.record?`<p class="sub">시술 메모 · ${escape(saved.record)}</p>`:''}
    <div class="card-actions">
     ${savedBookingAction(saved)}
-    ${publicShops.some(shop=>shop.id===saved.shopId)?`<button class="outline" data-rebook="${escape(saved.id)}">${saved.status==='draft'?'다른 날짜 고르기':'같은 옵션으로 다시 견적'}</button>`:''}
+    ${publicShops.some(shop=>shop.id===saved.shopId&&bookingUrlForShop(shop,saved.options.menu))?`<button class="outline" data-rebook="${escape(saved.id)}">${saved.status==='draft'?'다른 날짜 고르기':'같은 옵션으로 다시 견적'}</button>`:''}
     ${saved.status==='draft'?`<button class="outline" data-alternatives="${escape(saved.id)}">다른 매장 찾기</button>`:''}
     ${['draft','confirmed'].includes(saved.status)?`<button class="outline" data-cancel="${saved.id}">저장 내역 취소</button>`:''}
    </div>
