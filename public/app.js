@@ -5,7 +5,7 @@ import {directoryUpdated,registryShops} from './busan-directory.js';
 import {publishedPrices} from './published-prices.js';
 import {basicNailShapes,nailShapes,nailShapeIcon} from './nail-shapes.js';
 import {menus,distanceKm} from './domain.js';
-import {firstNailGuide} from './first-nail-guide.js?v=20261112-6';
+import {firstNailGuide} from './first-nail-guide.js?v=20261112-7';
 const $=s=>document.querySelector(s),money=n=>Number(n).toLocaleString('ko-KR')+'원';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function read(key,fallback){try{return JSON.parse(localStorage.getItem('glow-'+key))??fallback;}catch{return fallback;}}
