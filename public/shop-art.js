@@ -1,19 +1,76 @@
-// Each photo was checked in the named shop's public gallery.
+// Real nail treatments shown in each matched salon’s public gallery.
 export const shopArt = {
-  // 네일이지 · 2026년 10월 이달의 아트
-  'naver-1534398': 'https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261005_252%2F1791187044280qHao2_JPEG%2FKakaoTalk_20261005_165553126_03.jpg',
-  // 달처럼 예뻐라 · 이달의아트
-  'permit-3390000-213-2024-00005': 'https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260408_133%2F1775648983938t4YVM_JPEG%2FKakaoTalk_20260408_204905086_01.jpg',
-  // 네일그리밍
-  'permit-3290000-215-2026-00016': 'https://img.kr.gcp-karroter.net/business-profile/business-profile/2496470/1791368177817/RklMRV9LSVRfMDE2MzI0Nzg0NTY4Nzc4MDY=.jpeg?q=95&s=720x720&t=inside&service=business-profile',
-  // 작은도화지네일
-  'permit-3330000-215-2026-00012': 'https://img.kr.gcp-karroter.net/BUSINESS_REVIEW/etc/202608/c7d82bef-d496-46b3-95fa-24c0212c7f17.webp?service=business-profile&s=720x720&q=95&t=inside',
-  // 비비네일
-  'permit-3370000-215-2025-00015': 'https://img.kr.gcp-karroter.net/BUSINESS_REVIEW/etc/202610/17919638849119f8a267b3b70d857d7033bd3a10e03bea07e875005e88ae5f8f3a78dc75847db0.webp?service=business-profile&s=720x720&q=95&t=inside',
-  // JALHAE
-  'permit-3250000-213-2025-00006': 'https://img.kr.gcp-karroter.net/origin/shortform/202606/a982ee0741274c853b3cfad5f16d8bcf2cd5f4b9341e7c61c4e74e796e9f5e74_0.webp?service=business-profile&s=720x720&q=95&t=inside',
-  // 르온네일
-  'permit-3340000-215-2025-00003': 'https://img.kr.gcp-karroter.net/business-profile/bizPlatform/profile/44436623/1752743037338/NkpJaHBReG1CVF9ZZ2FsRUpUM3I5.jpeg?q=95&s=720x720&t=inside&service=business-profile',
-  // 오아이네일
-  'permit-3320000-215-2025-00006': 'https://img.kr.gcp-karroter.net/business-profile/bizPlatform/profile/12842917/1766976622498/RklMRV9LSVRfNjIxNjczMzE5NjU0MjM5Nw==.jpeg?q=95&s=720x720&t=inside&service=business-profile'
+  "3250000-213-2022-00008": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260514_153%2F1778763162121B9TkG_JPEG%2FIMG_1671.jpg", // 쏘블링네일&속눈썹펌
+  "3250000-213-2023-00005": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20241114_29%2F1731586810685dVvB2_JPEG%2FIMG_0274.jpeg", // 네일에비뉴(Nail Avenue)
+  "3250000-213-2025-00006": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261030_105%2F1793336436103JVEiO_JPEG%2F24020.jpg", // JALHAE(네일잘해)
+  "3250000-215-2020-00004": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260924_174%2F1790261186923MgB1N_JPEG%2FC702EE3B-840F-48BA-8B65-67191E43B115.jpg", // 미소샵네일
+  "3250000-215-2023-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261108_120%2F1794113872235vIMtb_JPEG%2F1000040340.jpg", // 뷰티 3975
+  "3250000-215-2023-00003": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260505_198%2F1777909468995cltHq_JPEG%2FIMG_6043.jpeg", // 네일 앤 블랑
+  "3250000-215-2024-00004": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20231123_84%2F1700730838235KdbgK_JPEG%2F40711EC4-0BBB-43FD-9416-CE9AAF079D74.jpeg", // 가이쌀롱
+  "3250000-215-2024-00006": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261105_220%2F1793845202809o6NEi_JPEG%2FIMG_3384.jpg", // 도치네일
+  "3250000-215-2025-00005": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260926_126%2F1790428512897yr3ys_JPEG%2F1000055035.jpg", // 매니의 네일스쿨
+  "3250000-215-2025-00007": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250821_213%2F1755780569719NMyTz_JPEG%2FIMG_8525.jpeg", // 네일리 영
+  "3250000-218-2012-00001": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261105_99%2F1793856940951jICMw_JPEG%2Fbeauty_1678351771941.jpg", // 네일시티
+  "3260000-215-2018-00004": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261027_277%2F1793110970079MIFSi_JPEG%2F1000083459.jpg", // 네일은
+  "3260000-215-2019-00003": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250411_163%2F1744360054456VNQxh_JPEG%2F1658285237556.jpg", // 그녀의 네일
+  "3260000-215-2026-00001": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261104_177%2F1793784667353xcrfe_JPEG%2FIMG_8926.jpg", // 네일윤슬
+  "3260000-215-2026-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260615_82%2F1781502028007nzF0h_JPEG%2F1000025529.jpg", // 예손 네일
+  "3260000-222-2017-00001": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260402_184%2F1775109045789rNvMQ_JPEG%2F13073.jpg", // 달라 네일
+  "3270000-213-2013-00003": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260331_196%2F1774927764593JuSTd_JPEG%2FKakaoTalk_20260331_122735820_03.jpg", // 뷰티바이정 부산범일점
+  "3270000-213-2022-00003": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250331_88%2F1743401654194MFt0T_JPEG%2FIMG_3073.jpeg", // 코엔네일
+  "3270000-215-2016-00001": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261021_116%2F1792548220403pxdil_JPEG%2FIMG_9977.jpg", // 네일채움
+  "3270000-215-2020-00005": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261028_184%2F1793159072479TALm8_JPEG%2F1792627378642.jpg", // 네일데코
+  "3280000-215-2015-00001": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261027_216%2F1793092911556hq4iV_JPEG%2F1000014530.jpg", // 손이예쁜그녀
+  "3280000-215-2017-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20190719_197%2F1563500228494ENvk6_JPEG%2FwhxeK184Ez29Zt-QzrVWGzIU.jpg", // 나나뷰티살롱
+  "3280000-215-2022-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260131_169%2F1769787310300U1zXx_JPEG%2FIMG_9756.jpeg", // 르메드
+  "3290000-213-2013-00015": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20251229_69%2F1766986210750gIwQd_JPEG%2FKakaoTalk_20251229_142845673_04.jpg", // 매료네일in뷰티
+  "3290000-213-2022-00046": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261015_59%2F1792046261471rtzwB_JPEG%2FKakaoTalk_20261015_152735094_04.jpg", // 우아 스튜디오
+  "3290000-215-2026-00016": "https://img.kr.gcp-karroter.net/business-profile/business-profile/2496470/1791368177817/RklMRV9LSVRfMDE2MzI0Nzg0NTY4Nzc4MDY=.jpeg?q=95&s=720x720&t=inside&service=business-profile", // 네일그리밍
+  "3300000-213-2024-00003": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260715_85%2F1784113828570ubeOC_JPEG%2FIMG_9883.jpg", // 예쁠정뷰티
+  "3300000-215-2021-00014": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260706_41%2F1783315575166ddnAN_JPEG%2FIMG_0675.jpg", // 젬마네일
+  "3300000-215-2022-00004": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250531_255%2F1748639795558I4gqs_JPEG%2FIMG_20250529_134617_394.jpg", // 네일혜
+  "3300000-215-2022-00009": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261108_271%2F1794080111477oioeC_JPEG%2F38075.jpg", // 로사네일&뷰티
+  "3300000-218-2017-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20251019_234%2F1760878191268PIE0c_JPEG%2F1000017439.jpg", // 네일채우다&스킨케어
+  "3310000-213-2023-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260918_204%2F1789738767594ppsXC_JPEG%2FDA19D38F-206A-49D4-AE20-DF1FD4FE1A93.jpg", // 네일키나
+  "3310000-215-2016-00021": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260915_182%2F17894238012532SY8N_JPEG%2F30B2B8DE-8DC4-40F7-BA38-B66273EBC5D7.jpg", // 마야네일
+  "3310000-215-2020-00011": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260907_139%2F1788753668694dOdjm_JPEG%2F22385.jpg", // 랑만뷰티살롱
+  "3320000-213-2018-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20251212_34%2F17655078302253mbtI_JPEG%2FIMG_7595.jpeg", // 엘오네일
+  "3320000-213-2025-00005": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261029_208%2F1793250886272I66xA_JPEG%2FKakaoTalk_20261026_163749239.jpg", // 루미아즈 뷰티
+  "3320000-215-2014-00004": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20230313_27%2F16786674551178qHox_JPEG%2F0305-01.jpg", // 네일끌리다
+  "3320000-215-2018-00019": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260611_185%2F1781162071539Asn7l_JPEG%2F5747.jpg", // 네일의기록
+  "3320000-215-2025-00006": "https://img.kr.gcp-karroter.net/business-profile/bizPlatform/profile/12842917/1766976622498/RklMRV9LSVRfNjIxNjczMzE5NjU0MjM5Nw==.jpeg?q=95&s=720x720&t=inside&service=business-profile", // 오아이네일(OAI)
+  "3320000-215-2026-00004": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260808_84%2F1786195931177c3bXY_JPEG%2FKakaoTalk_20260808_221656252_06.jpg", // 네일예쁘다
+  "3330000-213-2024-00003": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260921_213%2F17899738130894MyzX_JPEG%2FKakaoTalk_20260921_155630548.jpg", // 딥라잇 D.light
+  "3330000-215-2026-00012": "https://img.kr.gcp-karroter.net/BUSINESS_REVIEW/etc/202608/c7d82bef-d496-46b3-95fa-24c0212c7f17.webp?service=business-profile&s=720x720&q=95&t=inside", // 작은도화지네일
+  "3330000-218-2022-00003": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20240112_27%2F1705024936371aGMNQ_JPEG%2F161.jpg", // 만월네일
+  "3330000-218-2025-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261101_243%2F1793501442399DBB6i_JPEG%2Fedited-1793501441996-0.jpg", // 네일드메르
+  "3340000-213-2020-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20251128_93%2F1764306716890rMtxU_JPEG%2FKakaoTalk_20251128_140446112.jpg", // 디즈네일
+  "3340000-215-2025-00003": "https://img.kr.gcp-karroter.net/business-profile/bizPlatform/profile/44436623/1752743037338/NkpJaHBReG1CVF9ZZ2FsRUpUM3I5.jpeg?q=95&s=720x720&t=inside&service=business-profile", // 르온네일
+  "3340000-226-2017-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260601_299%2F178030915475605Tyc_JPEG%2FIMG_7258.jpg", // 고고네일
+  "3350000-215-2017-00009": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261106_138%2F179395763344271A81_JPEG%2FIMG_5345.jpg", // 리리살롱
+  "3350000-215-2021-00001": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250425_246%2F17455731550972ynqp_JPEG%2FIMG_4792.jpeg", // 하이네일
+  "3350000-215-2021-00015": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20211101_6%2F1635744828416ATa5W_JPEG%2FCsss7WFAj3HIU7vFfXTHV7tr.jpg", // 엘르네일(Aile)
+  "3350000-215-2022-00002": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261008_279%2F1791444612043nULvF_JPEG%2F1000053885.jpg", // 졍이네일
+  "3360000-215-2023-00005": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260616_10%2F1781597330627ECBku_JPEG%2F1000055549.jpg", // 네일린
+  "3360000-215-2024-00006": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260913_157%2F1789293009058e06Od_JPEG%2FIMG_6886.jpg", // 르모루네일
+  "3360000-215-2025-00004": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261016_252%2F1792117801987tHx4x_JPEG%2FIMG_6891.jpg", // 룸에이치(room H)
+  "3360000-215-2026-00001": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260508_286%2F17782218608367qVot_JPEG%2FKakaoTalk_20260508_151649087.jpg", // 공든네일
+  "3370000-213-2026-00017": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261004_31%2F1791080894816LmMB0_JPEG%2FKakaoTalk_20261004_112454261.jpg", // 솔리아네일
+  "3370000-215-2022-00003": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261111_13%2F1794369607014YfxIx_JPEG%2F3646.jpg", // 가온네일 Gaon Nail
+  "3370000-215-2022-00006": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20231101_193%2F1698768383558oqliY_JPEG%2F2B0D986E-68AD-4B84-8246-5411CDCE0EAE.jpeg", // 챠밍네일
+  "3370000-215-2023-00006": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250110_179%2F1736457160775RYaWK_JPEG%2FIMG_5226.jpeg", // 네일예쁨
+  "3370000-215-2025-00015": "https://img.kr.gcp-karroter.net/BUSINESS_REVIEW/etc/202610/17919638849119f8a267b3b70d857d7033bd3a10e03bea07e875005e88ae5f8f3a78dc75847db0.webp?service=business-profile&s=720x720&q=95&t=inside", // 비비네일
+  "3370000-222-2025-00001": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261029_228%2F1793265047514wukMV_JPEG%2FIMG_6384.jpg", // 네일리크
+  "3380000-213-2022-00006": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261111_126%2F17943246730990S6PB_JPEG%2FIMG_0035.jpg", // 내일이빛나다
+  "3380000-213-2025-00005": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260917_18%2F1789613478159K3k4e_JPEG%2F1000043822.jpg", // 하늘네일
+  "3380000-215-2016-00019": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250319_34%2F1742355697774CDOQ3_JPEG%2F1000027072.jpg", // 제니의하루
+  "3380000-215-2020-00004": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261103_272%2F1793687195397CSYFW_JPEG%2FIMG_0183.jpg", // 나날네일
+  "3380000-218-2025-00001": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261014_38%2F1791984572984Nebpy_JPEG%2FIMG_0266.jpg", // 엘린네일
+  "3390000-213-2024-00005": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260408_133%2F1775648983938t4YVM_JPEG%2FKakaoTalk_20260408_204905086_01.jpg", // 달처럼 예뻐라
+  "3390000-215-2021-00014": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260220_266%2F1771538376930aF9Y5_JPEG%2FIMG_0479.jpeg", // 로코네일
+  "3390000-215-2023-00003": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260614_198%2F1781441922037HVoIi_JPEG%2FIMG_8251.jpg", // 옐블링
+  "3390000-215-2023-00011": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260811_162%2F1786422052664o6UfO_JPEG%2FKakaoTalk_20260811_131651301_02.jpg", // 네일해찌
+  "3390000-215-2025-00010": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261005_252%2F1791187044280qHao2_JPEG%2FKakaoTalk_20261005_165553126_03.jpg", // 네일,이지
+  "3400000-215-2023-00001": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261108_245%2F1794100078811nVXVl_JPEG%2Ffile_0000000018e082098025beee5cd4aaf2.jpg", // 난달라
+  "3400000-215-2024-00005": "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20261012_221%2F1791765005795n9Izf_JPEG%2FIMG_3407.jpg", // 요니네일
 };

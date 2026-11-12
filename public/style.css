@@ -34,7 +34,12 @@
 .directory-source a{text-decoration:underline;text-underline-offset:2px}
 #directory-pagination{text-align:center;margin-top:22px}
 
-.shop-card{position:relative}.shop-card:not(:has(.shop-art)) .card-top{padding-right:28px}.shop-art{margin:0;background:#f5f0f1}.shop-art img{display:block;width:100%;height:clamp(178px,18vw,240px);object-fit:contain}
+.shop-card{position:relative;isolation:isolate}
+.shop-card:not(:has(.shop-art-background)) .card-top{padding-right:28px}
+.shop-card:has(.shop-art-background){--art-window:clamp(164px,17vw,206px);display:flex;flex-direction:column;justify-content:flex-end;background:#f5edf1}
+.shop-art-background{position:absolute;inset:0 0 auto;width:100%;height:calc(var(--art-window) + 58px);object-fit:cover;object-position:center 54%;z-index:-1}
+.shop-card:has(.shop-art-background) .card-body{margin:var(--art-window) 9px 9px;padding:16px;background:#fffdfdf5;border-radius:10px}
+.shop-card .heart{z-index:1}
 .booking-time-action{display:grid;place-items:center;min-height:52px;padding:12px 16px;font-size:16px;font-weight:700;text-align:center}
 .handoff-instructions{margin:8px 0 14px;color:#5d4651;font-size:14px;line-height:1.55}
 .quote-add-on{gap:12px;padding-top:9px;margin-top:9px;border-top:1px solid #ddc9d1}

@@ -4,7 +4,7 @@ import {districts} from './catalog.js';
 import {publicShops as verifiedShops} from './verified-shops.js?v=20261112-14';
 import {directoryUpdated,registryShops} from './busan-directory.js';
 import {publishedPrices} from './published-prices.js?v=20261112-14';
-import {shopArt} from './shop-art.js?v=20261112-14';
+import {shopArt} from './shop-art.js?v=20261112-16';
 import {basicNailShapes,nailShapes} from './nail-shapes.js';
 import {menus,distanceKm} from './domain.js';
 import {firstNailGuide} from './first-nail-guide.js?v=20261112-7';
@@ -36,12 +36,11 @@ const main=$('#main'),modal=$('#modal');
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200);}
 function open(html){$('#modal-body').innerHTML=html;if(!modal.open)modal.showModal();}
 $('.close').onclick=()=>modal.close();
-function shopArtPhoto(shop){
- const photo=shopArt[shop.id];
+function shopArtBackground(shop){
+ const photo=shopArt[shop.permitId];
  if(!photo)return '';
- return `<figure class="shop-art">
-  <img src="${escape(photo)}" alt="${escape(shop.name+' 네일 시술 사진')}" loading="lazy" decoding="async" referrerpolicy="no-referrer">
- </figure>`;
+ return `<img class="shop-art-background" src="${escape(photo)}"
+  alt="${escape(shop.name+' 네일 시술 사진')}" loading="lazy" decoding="async" referrerpolicy="no-referrer">`;
 }
 function today(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
 function options(){return {menu:filters.menu,extensions:0,pieces:0,removal:'none'};}
@@ -129,7 +128,7 @@ function renderCards(){
  $('#directory-results').textContent=`${resultLabel} ${list.length.toLocaleString('ko-KR')}곳 · ${visible.length.toLocaleString('ko-KR')}곳 표시`;
  $('#shops').innerHTML=visible.length?visible.map(shop=>`
   <article class="shop-card">
-   ${shopArtPhoto(shop)}
+   ${shopArtBackground(shop)}
    <button class="heart ${favorites.includes(shop.id)?'saved':''}" aria-label="${escape(shop.name)} 찜" aria-pressed="${favorites.includes(shop.id)}" data-fav="${shop.id}">${favorites.includes(shop.id)?'♥':'♡'}</button>
    <div class="card-body">
     <div class="card-top"><h3>${escape(shop.name)}</h3></div>
@@ -146,8 +145,8 @@ function renderCards(){
   <p>지역이나 검색 조건을 바꿔 보세요.</p>
   <button class="outline" id="reset">필터 초기화</button>
   ${view==='directory'?'':'<a class="outline" href="#directory">전체 영업 매장에서 찾기</a>'}</div>`;
- document.querySelectorAll('.shop-art img').forEach(img=>{
-  const removePhoto=()=>img.closest('figure')?.remove();
+ document.querySelectorAll('.shop-art-background').forEach(img=>{
+  const removePhoto=()=>img.remove();
   img.addEventListener('error',removePhoto,{once:true});
   if(img.complete&&!img.naturalWidth)removePhoto();
  });
