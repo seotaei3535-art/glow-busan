@@ -4,11 +4,7 @@ export const publicShops = [
     id:'naver-1534398', permitId:'3390000-215-2025-00010', name:'네일이지', area:'사상구',
     address:'부산 사상구 엄궁로179번가길 17-9',
     color:'#b47f95', bg:'#f7e9ec',
-    naverBookingUrl:'https://m.booking.naver.com/booking/13/bizes/1534398/items/7184421',
-    buildingExterior:{
-      image:'https://search.pstatic.net/common/?autoRotate=true&quality=95&type=w750&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20251104_224%2F1762245501799EmFxj_JPEG%2FKakaoTalk_20251104_173533631_01.jpg',
-      source:'https://m.place.naver.com/nailshop/2022406101/photo'
-    }
+    naverBookingUrl:'https://m.booking.naver.com/booking/13/bizes/1534398/items/7184421'
   },
   {
     id:'naver-505353', permitId:'3370000-222-2021-00001', name:'이유네일', area:'연제구',

@@ -34,7 +34,7 @@
 .directory-source a{text-decoration:underline;text-underline-offset:2px}
 #directory-pagination{text-align:center;margin-top:22px}
 
-.shop-card{position:relative}.shop-card:not(:has(.shop-exterior)) .card-top{padding-right:28px}.shop-exterior{margin:0;background:#f5f0f1}.shop-exterior img{display:block;width:100%;height:clamp(178px,18vw,240px);object-fit:contain}
+.shop-card{position:relative}.shop-card:not(:has(.shop-art)) .card-top{padding-right:28px}.shop-art{margin:0;background:#f5f0f1}.shop-art img{display:block;width:100%;height:clamp(178px,18vw,240px);object-fit:contain}
 .booking-time-action{display:grid;place-items:center;min-height:52px;padding:12px 16px;font-size:16px;font-weight:700;text-align:center}
 .handoff-instructions{margin:8px 0 14px;color:#5d4651;font-size:14px;line-height:1.55}
 .quote-add-on{gap:12px;padding-top:9px;margin-top:9px;border-top:1px solid #ddc9d1}

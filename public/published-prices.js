@@ -43,18 +43,10 @@ export const publishedPrices = {
   },
   "permit-3390000-213-2024-00005": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/달처럼-예뻐라-6y38jxa3o8sk/",
-    buildingExterior: {
-      image: "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=w750&src=https%3A%2F%2Fblogfiles.pstatic.net%2FMjAyNjA1MTlfMjEy%2FMDAxNzc5MTkzMDM3MjAw.3BphSbo1iQbDSgMX3VdzbH4suRQGgMeIgfVhq-6zX0og.X8obg7m0CV9BANn2ARDBWfRz2PRHXqKsOS_ffeSlJ28g.JPEG%2F1779193033502.jpg",
-      source: "https://m.place.naver.com/nailshop/1699052156/photo"
-    },
     prices: {"plain":{"amount":45000,"from":true},"monthly":{"amount":55000,"from":true}}
   },
   "permit-3290000-215-2026-00016": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/네일그리밍-tf9dyvaxetgr/",
-    buildingExterior: {
-      image: "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=w750&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260526_195%2F1779721924262hhMLF_JPEG%2F1000074957.jpg",
-      source: "https://m.place.naver.com/nailshop/2057959979/photo"
-    },
     prices: {"plain":{"amount":35000,"from":true,"note":"회원가"}}
   },
   "permit-3250000-213-2025-00006": {
