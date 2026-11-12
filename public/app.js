@@ -86,7 +86,7 @@ function renderEntry(){
  const invitation=(tone,href,greeting,label)=>`<a href="${href}" class="journey-choice journey-choice--${tone}">
   <span class="journey-envelope-flap" aria-hidden="true"></span>
   <span class="journey-invitation-paper">
-   <span class="journey-invitation-brand" lang="fr" aria-hidden="true">CAMÉLIA</span>
+   <span class="journey-invitation-brand" lang="fr" aria-hidden="true">ÉCRIN</span>
    <strong lang="en" class="journey-invitation"><span>${greeting}</span> <span>Princess</span></strong>
    <span class="journey-choice-label">${label}</span>
   </span>
