@@ -87,3 +87,79 @@
 .booking-alternatives{list-style:none;padding:0;margin:14px 0;display:grid;gap:8px}
 .booking-alternatives button{display:grid;gap:4px;width:100%;text-align:left;color:var(--ink)}
 .booking-alternatives button span{font-size:12px;color:#664a58}
+
+.hero--nails {
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+  align-items:center;
+  gap:24px;
+  min-height:300px;
+  padding:35px max(6%,calc((100vw - 1090px)/2)) 62px;
+  background:linear-gradient(125deg,#fff9f6,#f6e1eb);
+}
+.hero--nails::after{background:radial-gradient(ellipse at 78% 62%,#dfa3b85c,transparent 62%)}
+.hero--nails h1{margin:0;max-width:none;word-break:keep-all}
+.hero-polish {
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(7px,1.2vw,15px);
+  min-height:180px;
+  border:1px solid #fff9;
+  border-radius:50% 48% 48% 52%;
+  background:linear-gradient(145deg,#fffafcbf,#f5cedd4d);
+  box-shadow:0 20px 45px #b46d891e,inset 0 1px 15px #fff9;
+  transform:rotate(-5deg);
+}
+.hero-polish::before,.hero-polish::after{
+  content:'✧';
+  position:absolute;
+  color:#aa587a;
+  font-size:29px;
+}
+.hero-polish::before{left:12%;top:9%}
+.hero-polish::after{right:10%;bottom:8%;font-size:20px}
+.hero-polish i {
+  width:clamp(30px,4.6vw,58px);
+  height:clamp(63px,8vw,105px);
+  border-radius:48% 48% 34% 34%;
+  background:linear-gradient(100deg,transparent 10%,#fff8 30%,transparent 57%),var(--polish);
+  border:1px solid #8b496134;
+  box-shadow:2px 10px 17px #8e4a6533,inset 1px 0 7px #fffc,inset -2px -3px 7px #7c416128;
+  transform:translateY(var(--rise,0)) rotate(var(--tilt,0deg));
+}
+.hero-polish i:nth-child(1){--polish:linear-gradient(#c65478,#ee9fb4);--rise:15px;--tilt:-16deg}
+.hero-polish i:nth-child(2){--polish:linear-gradient(#fffcf4 0 25%,#eab1bc 28% 100%);--rise:-7px;--tilt:-7deg}
+.hero-polish i:nth-child(3){--polish:linear-gradient(35deg,#7c4b77,#dfa1c6 54%,#9e6c9c);--rise:-16px}
+.hero-polish i:nth-child(4){--polish:linear-gradient(#f8e1e8,#d282a3);--rise:-7px;--tilt:9deg}
+.hero-polish i:nth-child(5){--polish:linear-gradient(125deg,#a35473,#f8c6b0 45%,#b66e86);--rise:12px;--tilt:17deg}
+.popular-panel{margin:0 0 34px;padding:20px;background:#fff7fa;border:1px solid #efdce5;border-radius:14px}
+.popular-panel[hidden]{display:none}
+.popular-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.popular-heading h2{margin:0 0 3px;font-size:20px}
+.popular-heading .note{margin:0}
+.popular-heading select{min-height:42px;color:var(--ink);background:white}
+.popular-shops{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:0;padding:0}
+.popular-shops button{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:7px;width:100%;min-height:64px;padding:9px 7px;text-align:left;color:var(--ink);background:white;border:1px solid #f0e1e7;border-radius:9px}
+.popular-rank{display:grid;place-items:center;border-radius:50%;width:24px;height:24px;background:#f5e4ed;color:#8a405e;font-weight:700}
+.popular-details strong,.popular-details small{display:block;overflow-wrap:anywhere}
+.popular-details strong{font-size:12px}
+.popular-details small{margin-top:4px;color:#765a68}
+.tag-filters,.shop-style-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:9px}
+.tag-chip,.shop-style-tags span{color:#8b4266;background:#f8e7ef;border:1px solid #eed8e3;border-radius:999px;padding:6px 10px;font-size:12px}
+.tag-chip{min-height:36px}
+.tag-chip[aria-pressed=true]{color:white;background:#7d405d;border-color:#7d405d}
+.shop-style-tags{margin:0 0 10px}
+.shop-style-tags small{color:#765a68}
+@media(max-width:850px){.popular-shops{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){
+  .hero--nails{grid-template-columns:1fr;gap:14px;min-height:0;padding:28px 6% 62px}
+  .hero--nails h1{font-size:clamp(23px,6.8vw,30px)}
+  .hero-polish{min-height:118px;width:min(100%,300px);justify-self:center}
+  .hero-polish::before{left:9%}
+  .popular-panel{padding:13px}
+  .popular-heading h2{font-size:17px}
+  .popular-shops{grid-template-columns:1fr}
+  .popular-shops button{min-height:44px;padding:6px 9px}
+}

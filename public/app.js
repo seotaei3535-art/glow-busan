@@ -5,6 +5,7 @@ import {publicShops as verifiedShops} from './verified-shops.js?v=20261112-14';
 import {registryShops} from './busan-directory.js';
 import {publishedPrices} from './published-prices.js?v=20261112-14';
 import {shopArt} from './shop-art.js?v=20261112-16';
+import {shopDiscovery} from './shop-discovery.js?v=20261112-19';
 import {basicNailShapes,nailShapes} from './nail-shapes.js';
 import {menus,distanceKm} from './domain.js';
 import {firstNailGuide} from './first-nail-guide.js?v=20261112-7';
@@ -30,7 +31,9 @@ let resultsLimit=directoryPageSize;
 const areaCenters=Object.fromEntries(districts.map(([area,lat,lng])=>[area,{lat,lng}]));
 const naverMyUrl='https://m.place.naver.com/my';
 let bookings=read('bookings',[]),favorites=read('favorites',[]),compared=read('compared',[]).filter(id=>publicShops.some(shop=>shop.id===id)),origin=null;
-let filters={area:'all',date:'',menu:'plain',sort:'price',favorites:false,query:''};
+let filters={area:'all',date:'',menu:'plain',sort:'recommended',favorites:false,query:''};
+const featuredTags=['연말','가을','겨울','자석네일','프렌치','글리터','시럽네일'];
+let popularArea='부산진구';
 const main=$('#main'),modal=$('#modal');
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200);}
 function open(html){$('#modal-body').innerHTML=html;if(!modal.open)modal.showModal();}
@@ -69,7 +72,9 @@ function route(){updateCount();const page=location.hash.slice(1)||'home';if(page
 window.addEventListener('hashchange',()=>{route();window.scrollTo(0,0);});
 function renderHome(){
  resultsLimit=directoryPageSize;
- main.innerHTML=`<section class="hero"><h1>부산의 네일, 한눈에.<br>내 취향에 꼭 맞는 <em>Glow.</em></h1></section>
+ main.innerHTML=`<section class="hero hero--nails"><h1>부산의 네일, 한눈에.<br>내 취향에 꼭 맞는 <em>Glow.</em></h1>
+  <div class="hero-polish" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+ </section>
  <form class="searchbar" id="search">
   <label>어디에서 찾으세요?<select id="area"><option value="all">부산 전체</option>${publicAreas.map(area=>`<option ${filters.area===area?'selected':''}>${area}</option>`).join('')}</select></label>
   <label>희망 방문일 (견적에 적용)<input aria-label="방문 날짜" type="date" id="search-date" min="${today()}" value="${filters.date}"></label>
@@ -78,13 +83,20 @@ function renderHome(){
  </form>
  <section class="content">
  <div class="guide-banner"><span class="spark">✧</span><strong>네일이 처음이세요?</strong><button class="text-button" id="guide">첫 네일 가이드 ↗</button></div>
+ <section id="popular-panel" class="popular-panel" aria-labelledby="popular-title">
+  <div class="popular-heading"><div><h2 id="popular-title">인기 네일샵 TOP 5</h2><p class="note">확인한 매장 중 네이버 플레이스 리뷰 수 기준</p></div>
+   <select class="outline small" id="popular-area" aria-label="인기 네일샵 지역">${publicAreas.map(area=>`<option>${area}</option>`).join('')}</select>
+  </div>
+  <ol id="popular-shops" class="popular-shops"></ol>
+ </section>
  <div class="section-head">
   <div><h2>당신을 위한 네일샵</h2><button class="location" id="locate">⌖ ${origin?'현재 위치 기준 · 가까운 지역 순':'현재 위치로 찾기'}</button></div>
-  <select class="outline small" id="sort" aria-label="정렬"><option value="price">가격 낮은 순</option><option value="distance">가까운 지역 순</option></select>
+  <select class="outline small" id="sort" aria-label="정렬"><option value="recommended">추천순</option><option value="price">가격 낮은 순</option><option value="distance">가까운 지역 순</option></select>
  </div>
  <div class="filters">${[['monthly','이달의 아트'],['plain','원컬러'],['gradient','그라데이션'],['art','일반 아트']].map(([key,label])=>`<button class="chip ${filters.menu===key?'active':''}" data-menu="${key}">${label}</button>`).join('')}<button id="only-favorites" class="chip ${filters.favorites?'active':''}">♡ 찜한 샵</button></div>
  <div class="directory-tools">
-  <label class="directory-search" for="shop-query">매장명·주소 검색<input id="shop-query" type="search" maxlength="80" placeholder="예: 전포동, 네일이지" value="${escape(filters.query)}"></label>
+  <label class="directory-search" for="shop-query">매장명·주소·해시태그 검색<input id="shop-query" type="search" maxlength="80" placeholder="예: #연말, #가을, 전포동" value="${escape(filters.query)}"></label>
+  <div class="tag-filters" aria-label="인기 해시태그">${featuredTags.map(tag=>`<button type="button" class="tag-chip" data-style-tag="${tag}">#${tag}</button>`).join('')}</div>
  </div>
  <div class="filters catalog-views" role="group" aria-label="매장 목록 보기">
   ${[['directory','#directory','전체 매장'],['booking','#booking','네이버 바로 예약'],['prices','#prices','가격 있는 매장']].map(([view,href,label])=>
@@ -98,6 +110,15 @@ $('#sort').onchange=e=>{
  renderFirstPage();
 };
 $('#shop-query').oninput=e=>{filters.query=e.target.value;renderFirstPage();};
+$('#popular-area').onchange=e=>{popularArea=e.target.value;renderPopularShops();};
+document.querySelectorAll('[data-style-tag]').forEach(button=>button.onclick=()=>{
+ const tag=button.dataset.styleTag;
+ const selected=searchParts(filters.query).tags.includes(tag);
+ const tokens=filters.query.match(/#[\p{L}\p{N}_-]+|[^#\s,]+/gu)||[];
+ filters.query=(selected?tokens.filter(token=>!token.startsWith('#')||searchable(token)!==tag):[...tokens,'#'+tag]).join(' ');
+ $('#shop-query').value=filters.query;
+ renderFirstPage();
+});
 $('#search').onsubmit=e=>{e.preventDefault();applySearch({scroll:true,showAll:true});};
 function applySearch({scroll=false,showAll=false}={}){
  filters.area=$('#area').value;
@@ -108,11 +129,37 @@ function applySearch({scroll=false,showAll=false}={}){
  renderHome();
  if(scroll)$('#directory-results').scrollIntoView({behavior:'smooth',block:'start'});
 }
-$('#area').onchange=()=>applySearch({showAll:true});
+$('#area').onchange=e=>{
+ if(e.target.value!=='all')popularArea=e.target.value;
+ applySearch({showAll:true});
+};
 ['search-date','search-menu'].forEach(id=>$('#'+id).onchange=()=>applySearch());
 $('#guide').onclick=guide;$('#locate').onclick=locate;$('#only-favorites').onclick=()=>{filters.favorites=!filters.favorites;renderHome();};document.querySelectorAll('[data-menu]').forEach(el=>el.onclick=()=>{filters.menu=el.dataset.menu;renderHome();});renderCards();}
 function searchable(value){
  return value.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
+}
+function searchParts(query){
+ const tokens=query.match(/#[\p{L}\p{N}_-]+|[^#\s,]+/gu)||[];
+ return {
+  terms:tokens.filter(token=>!token.startsWith('#')).map(searchable).filter(Boolean),
+  tags:tokens.filter(token=>token.startsWith('#')).map(searchable).filter(Boolean)
+ };
+}
+function reviewCount(shop){
+ return shopDiscovery[shop.permitId]?.reviews??-1;
+}
+function renderPopularShops(){
+ $('#popular-area').value=popularArea;
+ const ranked=publicShops.filter(shop=>shop.area===popularArea&&reviewCount(shop)>=0)
+  .sort((a,b)=>reviewCount(b)-reviewCount(a)||a.name.localeCompare(b.name,'ko')).slice(0,5);
+ $('#popular-shops').innerHTML=ranked.length?ranked.map((shop,index)=>`<li>
+  <button type="button" data-popular-shop="${escape(shop.id)}">
+   <span class="popular-rank">${index+1}</span>
+   <span class="popular-details"><strong>${escape(shop.name)}</strong><small>리뷰 ${reviewCount(shop).toLocaleString('ko-KR')}</small></span>
+   <span aria-hidden="true">↗</span>
+  </button>
+ </li>`).join(''):'<li class="note">리뷰 수를 확인한 매장이 없어요.</li>';
+ document.querySelectorAll('[data-popular-shop]').forEach(button=>button.onclick=()=>booking(button.dataset.popularShop));
 }
 function renderFirstPage(){
  resultsLimit=directoryPageSize;
@@ -120,22 +167,28 @@ function renderFirstPage(){
 }
 function renderCards(){
  const view=catalogView();
- const terms=filters.query.trim().split(/\s+/).map(searchable).filter(Boolean);
+ const {terms,tags}=searchParts(filters.query);
+ $('#popular-panel').hidden=!!(terms.length||tags.length||filters.favorites);
+ if(!$('#popular-panel').hidden)renderPopularShops();
+ document.querySelectorAll('[data-style-tag]').forEach(button=>button.setAttribute('aria-pressed',tags.includes(button.dataset.styleTag)));
  const matches=publicShops.filter(shop=>{
   if(filters.area!=='all'&&shop.area!==filters.area)return false;
   if(filters.favorites&&!favorites.includes(shop.id))return false;
   const searchableAddress=searchable(shop.name+' '+shop.address);
-  return terms.every(term=>searchableAddress.includes(term));
+  const availableTags=shopDiscovery[shop.permitId]?.tags||[];
+  return terms.every(term=>searchableAddress.includes(term))&&tags.every(tag=>availableTags.includes(tag));
  });
  const list=view==='booking'?matches.filter(shop=>bookingUrlForShop(shop,filters.menu)):
   view==='prices'?matches.filter(shop=>shop.prices?.[filters.menu]):matches;
  if(filters.sort==='distance'&&origin){
   list.sort((a,b)=>distanceKm(origin,areaCenters[a.area])-distanceKm(origin,areaCenters[b.area]));
+ }else if(tags.length&&filters.sort==='recommended'){
+  list.sort((a,b)=>reviewCount(b)-reviewCount(a)||a.name.localeCompare(b.name,'ko'));
  }else{
   list.sort((a,b)=>(a.prices?.[filters.menu]?.amount??Number.MAX_SAFE_INTEGER)-(b.prices?.[filters.menu]?.amount??Number.MAX_SAFE_INTEGER));
  }
  const visible=list.slice(0,resultsLimit);
- const resultLabel={booking:'네이버 바로 예약',prices:'가격 있는 매장',directory:'전체 매장'}[view];
+ const resultLabel=tags.length?tags.map(tag=>'#'+tag).join(' ')+' 검색 결과':{booking:'네이버 바로 예약',prices:'가격 있는 매장',directory:'전체 매장'}[view];
  $('#directory-results').textContent=`${resultLabel} ${list.length.toLocaleString('ko-KR')}곳 · ${visible.length.toLocaleString('ko-KR')}곳 표시`;
  $('#shops').innerHTML=visible.length?visible.map(shop=>`
   <article class="shop-card">
@@ -144,6 +197,7 @@ function renderCards(){
    <div class="card-body">
     <div class="card-top"><h3>${escape(shop.name)}</h3></div>
     <p class="sub">${escape(shop.address)}</p>
+    ${tags.length?`<div class="shop-style-tags">${tags.map(tag=>`<span>#${escape(tag)}</span>`).join('')}${reviewCount(shop)>=0?`<small>리뷰 ${reviewCount(shop).toLocaleString('ko-KR')}</small>`:''}</div>`:''}
     ${shop.prices?.[filters.menu]?`<div class="price-line"><div><small>${menus[filters.menu].name} 기본가</small><br><strong>${priceText(shop,filters.menu)}</strong>${priceCondition(shop.prices[filters.menu])?`<br><small>${escape(priceCondition(shop.prices[filters.menu]))}</small>`:''}</div></div>`:''}
     ${shop.deposit?`<p class="note">예약금 · ${shop.deposit}</p>`:''}
     ${naverActions(shop)}
@@ -152,7 +206,7 @@ function renderCards(){
      ${bookingUrlForShop(shop,filters.menu)?`<button class="primary" data-book="${shop.id}">견적 · 예약 보기 ↗</button>`:''}
     </div>
    </div>
-  </article>`).join(''):`<div class="empty" style="grid-column:1/-1">${view==='booking'?'이 조건에 맞는 네이버 예약 매장이 없어요.':view==='prices'&&matches.length?'선택한 시술의 가격 정보가 없어요.':'조건에 맞는 샵이 없어요.'}
+  </article>`).join(''):`<div class="empty" style="grid-column:1/-1">${tags.length?'이 해시태그에 맞는 매장을 찾지 못했어요.':view==='booking'?'이 조건에 맞는 네이버 예약 매장이 없어요.':view==='prices'&&matches.length?'선택한 시술의 가격 정보가 없어요.':'조건에 맞는 샵이 없어요.'}
   <p>지역이나 검색 조건을 바꿔 보세요.</p>
   <button class="outline" id="reset">필터 초기화</button>
   ${view==='directory'?'':'<a class="outline" href="#directory">전체 영업 매장에서 찾기</a>'}</div>`;
