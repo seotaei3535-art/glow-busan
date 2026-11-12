@@ -29,7 +29,8 @@ let resultsLimit=directoryPageSize;
 const areaCenters=Object.fromEntries(districts.map(([area,lat,lng])=>[area,{lat,lng}]));
 const naverMyUrl='https://m.place.naver.com/my';
 let bookings=read('bookings',[]),favorites=read('favorites',[]),compared=read('compared',[]).filter(id=>publicShops.some(shop=>shop.id===id)),origin=null;
-let filters={area:'all',date:'',menu:'plain',sort:'price',favorites:false,query:'',directOnly:false};
+const startWithDirectBooking=new URLSearchParams(location.search).get('booking')==='direct';
+let filters={area:'all',date:'',menu:'plain',sort:'price',favorites:false,query:'',directOnly:startWithDirectBooking};
 const savedPreferences=read('estimate-preferences',{});
 let preferences={
  shape:Object.hasOwn(basicNailShapes,savedPreferences.shape)?savedPreferences.shape:'',
@@ -290,7 +291,6 @@ function booking(id,previous){
     <label class="field">예약 요청사항<textarea id="b-note" maxlength="500" placeholder="원하는 색상이나 스타일을 적어주세요."></textarea></label>
     <label class="field">참고 사진 미리보기 (최대 5MB)<input id="b-photo" type="file" accept="image/jpeg,image/png,image/webp"><span id="photo-output"></span></label>
    </details>
-   <label class="consent"><input type="checkbox" required> 견적과 희망 일정을 이 기기에 저장합니다.</label>
    <button class="primary full gold" id="save-and-book" type="submit"></button>
    <p class="note" id="save-and-book-help"></p>
   </form>`);
@@ -304,7 +304,7 @@ function booking(id,previous){
   const opt=readOptions();
   const bookingUrl=bookingUrlForShop(shop,opt.menu);
   $('#save-and-book').textContent=bookingUrl?'견적 저장하고 네이버 예약으로 바로 가기':'견적만 저장';
-  $('#save-and-book-help').textContent=bookingUrl?'방문 시간은 네이버 예약에서 선택해요.':'이 매장은 네이버 예약 링크가 확인되면 바로 예약할 수 있어요.';
+  $('#save-and-book-help').textContent=bookingUrl?'견적은 이 기기의 내 예약에 저장돼요. 방문 시간은 네이버에서 선택해요.':'견적은 이 기기의 내 예약에 저장돼요. 이 매장의 네이버 예약 링크는 아직 확인되지 않았어요.';
   $('#pieces-field').hidden=opt.menu!=='art';
   const extras=estimateAddOns(opt);
   $('#quote').innerHTML=`<div class="summary-row"><span>${menus[opt.menu].name} 기본가</span><strong>${priceText(shop,opt.menu)}</strong></div>
