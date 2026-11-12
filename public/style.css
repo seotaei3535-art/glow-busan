@@ -35,19 +35,8 @@
 .shape-description{margin:4px 0 0;min-height:2.8em}
 .shape-details{margin:10px 0 0}
 .shape-details summary{padding:7px 0;cursor:pointer;font-weight:600}
-.first-nail-steps{list-style:none;padding:0;margin:18px 0 8px;counter-reset:first-nail-step;display:grid;gap:8px}
-.first-nail-step{counter-increment:first-nail-step;word-break:keep-all;overflow-wrap:anywhere;display:grid;grid-template-columns:96px minmax(0,1fr);gap:13px;align-items:center;padding:10px;border:1px solid #ead5dd;border-radius:10px;background:#fffaf8}
-.first-nail-illustration{display:grid;place-items:center;min-height:74px;background:#faedf0;border-radius:8px}
-.first-nail-illustration svg{display:block;width:88px;max-width:100%;stroke:#815067;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.first-nail-step h3{display:flex;align-items:baseline;gap:7px;margin:0 0 4px;font-size:14px}
-.first-nail-step h3::before{content:counter(first-nail-step);flex:0 0 18px;text-align:center;border-radius:50%;background:#f1d7e2;color:#793b58;font-size:11px;line-height:18px}
-.first-nail-step p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
 .booking-handoff p{margin:0 0 6px;overflow-wrap:anywhere}
 .booking-handoff p:last-child{margin-bottom:0}
-@media(max-width:460px){
- .first-nail-step{grid-template-columns:66px minmax(0,1fr);gap:9px;padding:8px}
- .first-nail-illustration{min-height:58px}
-}
 .directory-tools{display:flex;align-items:end;gap:16px;flex-wrap:wrap;margin:14px 0 6px}
 .directory-search{display:grid;gap:5px;flex:1 1 230px;font-size:13px;color:var(--muted)}
 .directory-search input{width:100%;padding:11px 12px;border:1px solid #ebd7df;border-radius:8px;background:#fff;font:inherit;color:var(--ink)}
@@ -66,3 +55,7 @@
 #book-form select,#book-form input[type=date],#book-form textarea{min-height:44px;font-size:16px}
 #book-form .consent,#book-form button[type=submit],#book-form button.full{min-height:44px}
 @media(max-width:520px){#book-form .form-grid{grid-template-columns:1fr}.quote-add-on{flex-wrap:wrap}}
+
+.first-nail-shapes{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin:14px 0 0;padding:0;list-style:none}
+.first-nail-shapes li{display:grid;justify-items:center;align-content:center;gap:9px;min-height:108px;padding:10px 8px;text-align:center;border:1px solid #ead5dd;border-radius:10px;background:#fffaf8;font-size:13px;font-weight:600;line-height:1.3}
+.first-nail-shapes .nail-shape-icon{width:40px;height:58px}
