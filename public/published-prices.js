@@ -78,14 +78,17 @@ export const publishedPrices = {
   },
   "permit-3370000-222-2025-00002": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/효리의-빛나는-네일-ohvcf6ysqzna/",
+    naverBookingUrl: "https://m.booking.naver.com/booking/13/bizes/1433504/items/6828198",
     prices: {plain:{amount:40000,from:true,note:"비회원가 · 첫 방문 할인 별도"}}
   },
   "permit-3290000-218-2025-00001": {
-    sourceUrl: "https://www.daangn.com/kr/local-profile/콩네일-dzniu6iv7twa/",
-    prices: {plain:{amount:40000,from:true,note:"현금가 · 케어와 오버레이 포함"},monthly:{amount:66000,from:true,note:"현금가 · 디자인별 금액 상이"}}
+    sourceUrl: "https://m.booking.naver.com/booking/13/bizes/245139/items/3129145",
+    naverBookingUrl: "https://m.booking.naver.com/booking/13/bizes/245139/items/3129145",
+    prices: {plain:{amount:40000},gradient:{amount:60000},monthly:{amount:55000,max:99000,note:"디자인별 금액 상이"}}
   },
   "permit-3340000-215-2025-00003": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/르온네일-aoozozeafks9/",
+    naverBookingUrl: "https://m.booking.naver.com/booking/13/bizes/1399690/items/6699245",
     prices: {plain:{amount:35000,from:true,note:"오버레이 포함 · 제거 별도"},gradient:{amount:50000,from:true,note:"오버레이 포함 · 제거 별도"},monthly:{amount:50000,from:true,note:"디자인별 금액 상이"}}
   },
   "permit-3300000-215-2025-00006": {
@@ -98,6 +101,7 @@ export const publishedPrices = {
   },
   "permit-3290000-215-2022-00046": {
     sourceUrl: "https://www.daangn.com/kr/local-profile/네일디스튜디오-mdy5uq5cvpn5/",
+    naverBookingUrl: "https://m.booking.naver.com/booking/13/bizes/1569190/items/7324515",
     prices: {plain:{amount:40000,from:true,note:"오버레이 포함"}}
   },
   "permit-3320000-215-2025-00006": {
