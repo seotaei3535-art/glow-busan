@@ -86,13 +86,15 @@ function renderEntry(){
  main.innerHTML=`<section class="pastel-sky journey-entry"><div class="journey-inner">
   <h1>오늘은 어떤 네일을 할까요?</h1>
   <div class="journey-choices">
-   <a href="#beginner" class="journey-choice">
-    <span class="art-sample art-sample--french" aria-hidden="true"><i></i><i></i><i></i></span>
-    <strong lang="en">Welcome, Princess!</strong><span>첫 네일 가이드 · 내 스타일 찾기</span>
+   <a href="#beginner" class="journey-choice journey-choice--rookie">
+    <img class="journey-crown" src="/welcome-crown.webp" alt="">
+    <strong lang="en"><span>Welcome,</span> <span>Princess!</span></strong>
+    <span class="journey-choice-label">첫 네일 가이드 · 내 스타일 찾기</span>
    </a>
-   <a href="#experienced" class="journey-choice">
-    <span class="art-sample art-sample--monthly" aria-hidden="true"><i></i><i></i><i></i></span>
-    <strong lang="en">Welcome back, Princess!</strong><span>해시태그 검색 · 단골샵 예약</span>
+   <a href="#experienced" class="journey-choice journey-choice--experienced">
+    <img class="journey-crown" src="/welcome-crown.webp" alt="">
+    <strong lang="en"><span>Welcome back,</span> <span>Princess!</span></strong>
+    <span class="journey-choice-label">해시태그 검색 · 단골샵 예약</span>
    </a>
   </div>
  </div></section>`;

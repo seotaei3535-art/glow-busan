@@ -311,12 +311,51 @@
 .journey-entry{padding:clamp(42px,8vw,92px) 0 clamp(66px,10vw,120px)}
 .journey-entry h1,.journey-heading h1{margin:0;color:#63374f;font-size:clamp(27px,5vw,48px);line-height:1.28;letter-spacing:-.04em}
 .journey-entry h1{text-align:center;margin-bottom:clamp(22px,5vw,44px)}
-.journey-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:750px;margin:auto}
-.journey-choice{display:grid;gap:9px;padding:clamp(17px,4vw,28px);border:1px solid #fff;border-radius:19px;background:#fffafbef;box-shadow:0 12px 40px #a4527425}
-.journey-choice:hover{border-color:#ce8faa}
-.journey-choice strong{font-size:clamp(19px,3vw,27px);color:#63374f}
-.journey-choice>span:last-child{color:#765768;font-size:14px}
-.journey-choice .art-sample{width:75px}
+.journey-choices{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(10px,3vw,20px);
+  max-width:444px;
+  margin:auto;
+}
+.journey-choice{
+  display:grid;
+  align-content:center;
+  justify-items:center;
+  gap:clamp(7px,2vw,12px);
+  aspect-ratio:4/5;
+  padding:12px 9px;
+  border:1px solid var(--card-border);
+  border-radius:clamp(12px,3vw,20px);
+  background:radial-gradient(ellipse at top,var(--card-light),transparent 80%),var(--card-base);
+  color:var(--card-ink);
+  text-align:center;
+  text-decoration:none;
+  box-shadow:0 8px 20px #55304728;
+}
+.journey-choice--rookie{
+  --card-light:#fbe9ee;
+  --card-base:#efcfd9;
+  --card-border:#fff7fa;
+  --card-ink:#5f3c23;
+}
+.journey-choice--experienced{
+  --card-light:#243655;
+  --card-base:#111f39;
+  --card-border:#3b4964;
+  --card-ink:#f9dfac;
+}
+.journey-choice:hover{box-shadow:0 9px 22px #5530474a}
+.journey-choice:focus-visible{outline:3px solid #844867;outline-offset:4px}
+.journey-crown{display:block;width:clamp(48px,16vw,76px);aspect-ratio:2/1;object-fit:contain}
+.journey-choice strong{
+  font-family:Allura,"Segoe Script","Brush Script MT",cursive;
+  font-size:clamp(24px,6.8vw,34px);
+  font-weight:400;
+  line-height:.98;
+}
+.journey-choice strong span{display:block}
+.journey-choice-label{max-width:17ch;font-size:clamp(12px,2.9vw,13px);line-height:1.4;word-break:keep-all}
 .journey-heading{padding:24px 0 30px}
 .journey-heading h1{margin:5px 0 10px;font-size:clamp(25px,4vw,40px)}
 .journey-heading p{margin:0;color:#644557}
@@ -351,9 +390,6 @@
 #regular-error{grid-column:1/-1;color:#8c315b}
 .district-rank{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 4px;border-radius:999px;background:#fae7f1;color:#864466;font-size:12px}
 @media(max-width:560px){
- .journey-choices{grid-template-columns:1fr}
- .journey-choice{grid-template-columns:65px 1fr;align-items:center;column-gap:12px;row-gap:4px}
- .journey-choice .art-sample{grid-row:1/3;width:62px}
  .regular-form{grid-template-columns:1fr}
  #style-form{grid-template-columns:1fr}
 }
@@ -362,17 +398,3 @@ body{font-family:"Gowun Dodum",system-ui,-apple-system,"Malgun Gothic",sans-seri
 .brand{font-family:Nunito,"Gowun Dodum",system-ui,sans-serif;font-weight:900}
 main :is(h1,h2),.modal-title{font-family:Jua,"Gowun Dodum",system-ui,sans-serif;font-weight:400}
 .journey-entry h1{letter-spacing:-.015em}
-.journey-choices{max-width:840px}
-.journey-choice strong{
-  font-family:Nunito,"Gowun Dodum",system-ui,sans-serif;
-  font-size:clamp(21px,3vw,28px);
-  font-weight:900;
-  line-height:1.12;
-  color:#823d61;
-}
-.journey-choice>span:last-child{font-size:15px}
-@media(max-width:560px){
-  .journey-choice{grid-template-columns:62px minmax(0,1fr)}
-  .journey-choice strong{font-size:clamp(19px,5.8vw,25px)}
-  .journey-choice>span:last-child{font-size:13px}
-}
