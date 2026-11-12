@@ -1,4 +1,5 @@
-import {naverLinks,naverBookingForDate} from './naver.js';
+import {naverLinks,naverBookingForDate} from './naver.js?v=20261112-15';
+import {naverBookingByPermit} from './naver-booking-directory.js?v=20261112-15';
 import {districts} from './catalog.js';
 import {publicShops as verifiedShops} from './verified-shops.js?v=20261112-14';
 import {directoryUpdated,registryShops} from './busan-directory.js';
@@ -20,7 +21,7 @@ const verifiedPermits=new Set(activeVerifiedShops.map(shop=>shop.permitId));
 const publicShops=[
  ...activeVerifiedShops,
  ...registryShops.filter(([permit])=>!verifiedPermits.has(permit)).map(([permit,name,area,address])=>({
-  id:'permit-'+permit,name,area,address,color:'#bd95a5',bg:'#f6ecef'
+  id:'permit-'+permit,permitId:permit,name,area,address,color:'#bd95a5',bg:'#f6ecef'
  }))
 ].map(shop=>publishedPrices[shop.id]?{...shop,...publishedPrices[shop.id]}:shop);
 const publicAreas=districts.map(([area])=>area);
@@ -170,7 +171,9 @@ function renderCards(){
   $('#shops').children[visible.length]?.querySelector('button')?.focus({preventScroll:true});
  };
 }
-function shopNaver(shop){return naverLinks(shop);}
+function shopNaver(shop){
+ return naverLinks(shop.naverBookingUrl?shop:{...shop,naverBookingUrl:naverBookingByPermit[shop.permitId]});
+}
 function bookingUrlForShop(shop,menu,date=''){
  const links=shopNaver(shop);
  const visitDate=date&&date>=today()?date:'';

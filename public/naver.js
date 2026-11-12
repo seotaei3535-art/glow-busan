@@ -1,6 +1,9 @@
 export function validateNaverUrl(value,kind){
  if(!String(value??'').trim())return '';
  try{const u=new URL(String(value).trim());if(u.protocol!=='https:'||u.username||u.password||u.port)return '';
+ if(kind==='booking'&&u.hostname==='m.place.naver.com'){
+  return /^\/nailshop\/\d+\/stylist\/?$/.test(u.pathname)?u.href:'';
+ }
  const hosts=kind==='booking'?['booking.naver.com','m.booking.naver.com']:['map.naver.com','m.map.naver.com'];
  if(!hosts.includes(u.hostname))return '';
  if(kind==='booking'&&!/\/b\/businesses\/\d+/.test(u.pathname)&&!/^\/booking\//.test(u.pathname))return '';
