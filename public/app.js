@@ -83,26 +83,19 @@ function areaOptions(selected){
  return publicAreas.map(area=>`<option${area===selected?' selected':''}>${area}</option>`).join('');
 }
 function renderEntry(){
- const crest=`<span class="journey-crest" aria-hidden="true">
-  <img class="journey-wreath" src="/welcome-wreath.webp" alt="">
-  <img class="journey-crown" src="/welcome-crown.webp" alt="">
- </span>`;
- const ribbon=`<span class="journey-ribbon" aria-hidden="true"><img src="/welcome-seal.webp" alt=""></span>`;
+ const envelope=(tone,href,greeting,label)=>`<a href="${href}" class="journey-choice journey-choice--${tone}">
+  <span class="journey-envelope-flap" aria-hidden="true"></span>
+  <span class="journey-invitation">
+   <strong lang="en"><span>${greeting}</span> <span>Princess!</span></strong>
+   <span class="journey-choice-label">${label}</span>
+  </span>
+  <span class="journey-envelope-fold" aria-hidden="true"></span>
+ </a>`;
  main.innerHTML=`<section class="pastel-sky journey-entry"><div class="journey-inner">
   <h1>오늘은 어떤 네일을 할까요?</h1>
   <div class="journey-choices">
-   <a href="#beginner" class="journey-choice journey-choice--rookie">
-    ${crest}
-    <strong lang="en"><span>Welcome,</span> <span>Princess!</span></strong>
-    ${ribbon}
-    <span class="journey-choice-label">첫 네일 가이드 · 내 스타일 찾기</span>
-   </a>
-   <a href="#experienced" class="journey-choice journey-choice--experienced">
-    ${crest}
-    <strong lang="en"><span>Welcome back,</span> <span>Princess!</span></strong>
-    ${ribbon}
-    <span class="journey-choice-label">해시태그 검색 · 단골샵 예약</span>
-   </a>
+   ${envelope('rookie','#beginner','Welcome,','첫 네일 가이드 · 내 스타일 찾기')}
+   ${envelope('experienced','#experienced','Welcome back,','해시태그 검색 · 단골샵 예약')}
   </div>
  </div></section>`;
 }
