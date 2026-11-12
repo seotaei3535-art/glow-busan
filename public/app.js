@@ -416,13 +416,20 @@ function showAlternativeShops(saved){
   booking(button.dataset.alternative,{...saved,date,options:{...saved.options,removal}});
  });
 }
+function canCancelSavedBooking(saved){
+ return saved.status==='draft'||saved.status==='confirmed';
+}
 function renderBookings(){
  bookings=read('bookings',bookings);
+ const cancellable=bookings.filter(canCancelSavedBooking);
  main.innerHTML=`<section class="content">
   <div class="page-head">
    <div class="eyebrow">YOUR NAIL JOURNEY</div><h1>내 예약과 저장한 견적</h1>
    <p class="sub">희망 일정과 견적은 이 브라우저에 저장돼요. 네이버에서 신청한 예약, 확정 여부와 결제 내역은 MY플레이스의 예약 탭에서 확인할 수 있어요.</p>
-   <a class="outline" href="${naverMyUrl}" target="_blank" rel="noopener noreferrer">네이버 예약 내역 확인 ↗</a>
+   <div class="card-actions">
+    <a class="outline" href="${naverMyUrl}" target="_blank" rel="noopener noreferrer">네이버 예약 내역 확인 ↗</a>
+    ${cancellable.length?'<button type="button" class="outline" id="cancel-all-bookings">저장 내역 모두 취소</button>':''}
+   </div>
   </div>
   ${bookings.length?bookings.slice().reverse().map(saved=>`<article class="booking-card">
    <div class="booking-top"><h3>${escape(saved.shopName)}</h3><span class="status">${saved.status==='cancelled'?'저장 내역 취소':saved.status==='completed'?'시술 완료 (시연)':'견적 저장'}</span></div>
@@ -436,7 +443,7 @@ function renderBookings(){
     ${savedBookingAction(saved)}
     ${publicShops.some(shop=>shop.id===saved.shopId&&bookingUrlForShop(shop,saved.options.menu))?`<button class="outline" data-rebook="${escape(saved.id)}">${saved.status==='draft'?'다른 날짜 고르기':'같은 옵션으로 다시 견적'}</button>`:''}
     ${saved.status==='draft'?`<button class="outline" data-alternatives="${escape(saved.id)}">다른 매장 찾기</button>`:''}
-    ${['draft','confirmed'].includes(saved.status)?`<button class="outline" data-cancel="${saved.id}">저장 내역 취소</button>`:''}
+    ${canCancelSavedBooking(saved)?`<button class="outline" data-cancel="${escape(saved.id)}">저장 내역 취소</button>`:''}
    </div>
   </article>`).join(''):`<div class="empty">아직 저장한 견적이 없어요.<p>마음에 드는 샵부터 찾아볼까요?</p><a class="primary" href="#home">샵 둘러보기</a></div>`}
   <div class="modal-section"><button class="outline full" id="member">샵 회원 인증 안내</button></div>
@@ -455,8 +462,41 @@ function renderBookings(){
   if(saved)showAlternativeShops(saved);
  });
  document.querySelectorAll('[data-cancel]').forEach(button=>button.onclick=()=>cancelBooking(button.dataset.cancel));
+ const cancelAll=$('#cancel-all-bookings');
+ if(cancelAll)cancelAll.onclick=()=>confirmCancelAllBookings(cancellable);
  $('#member').onclick=memberInfo;
 }
-function cancelBooking(id){open(`<h2 class="modal-title">저장 내역을 취소할까요?</h2><p>네이버에서 신청한 예약은 네이버 예약 내역에서 따로 취소해 주세요.</p><button class="primary full" id="confirm-cancel">저장 내역 취소</button>`);$('#confirm-cancel').onclick=()=>{bookings=bookings.map(b=>b.id===id?{...b,status:'cancelled'}:b);save('bookings',bookings);modal.close();route();toast('저장한 예약 내용이 취소됐어요.');};}
+function cancelSavedBookings(ids){
+ const current=read('bookings',bookings);
+ const selected=new Set(ids);
+ let cancelled=0;
+ const next=current.map(saved=>{
+  if(!selected.has(saved.id)||!canCancelSavedBooking(saved))return saved;
+  cancelled++;
+  return {...saved,status:'cancelled'};
+ });
+ if(cancelled&&!save('bookings',next))return;
+ bookings=next;
+ modal.close();
+ route();
+ toast(cancelled?`저장 내역 ${cancelled.toLocaleString('ko-KR')}건을 취소했어요.`:'취소할 저장 내역이 없어요.');
+}
+function cancelBooking(id){
+ open(`<h2 class="modal-title">저장 내역을 취소할까요?</h2><p>네이버에서 신청한 예약은 네이버 예약 내역에서 따로 취소해 주세요.</p><button class="primary full" id="confirm-cancel">저장 내역 취소</button>`);
+ $('#confirm-cancel').onclick=()=>cancelSavedBookings([id]);
+}
+function confirmCancelAllBookings(entries){
+ const ids=entries.map(saved=>saved.id);
+ const count=ids.length.toLocaleString('ko-KR');
+ open(`<h2 class="modal-title">저장 내역 ${count}건을 모두 취소할까요?</h2>
+  <p>네이버에서 신청한 예약은 네이버 예약 내역에서 따로 취소해 주세요.</p>
+  <div class="card-actions">
+   <button type="button" class="outline" id="keep-bookings">돌아가기</button>
+   <button type="button" class="primary" id="confirm-cancel-all">모두 취소하기</button>
+  </div>`);
+ $('#keep-bookings').onclick=()=>modal.close();
+ $('#keep-bookings').focus();
+ $('#confirm-cancel-all').onclick=()=>cancelSavedBookings(ids);
+}
 function memberInfo(){open(`<div class="eyebrow">MEMBERSHIP</div><h2 class="modal-title">샵 회원 연결 안내</h2><p>실서비스에서는 이름·전화번호 입력 후 본인확인과 샵 회원정보 대조가 필요합니다.</p><p class="note">과제 버전에서는 실제 이름·전화번호를 수집하지 않으며 문자 인증과 회원 혜택은 연결되지 않았습니다.</p><button class="primary full" id="member-close">확인</button>`);$('#member-close').onclick=()=>modal.close();}
 route();if(!read('onboarded',false))onboarding();
