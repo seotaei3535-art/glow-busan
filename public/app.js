@@ -109,9 +109,11 @@ const nailPalettes={
  neutral:{label:'어디에나 어울리는 색',colors:['#f7e7e0','#d0aaa3','#9b7c79'],names:'밀크 베이지 · 누드 핑크 · 토프'}
 };
 const nailLooks={
- simple:{label:'깔끔한 원컬러',menu:'plain',tag:'',name:'원컬러'},
- soft:{label:'은은하게 물든 느낌',menu:'gradient',tag:'그라데이션',name:'그라데이션'},
- point:{label:'한두 손톱에 포인트',menu:'art',tag:'글리터',name:'글리터 포인트 아트'}
+ simple:{label:'깔끔한 원컬러',menu:'plain',tag:'',name:'원컬러',preview:'solid',detail:'한 가지 색으로 깔끔하게 마무리해요.'},
+ soft:{label:'은은한 그라데이션',menu:'gradient',tag:'그라데이션',name:'그라데이션',preview:'gradient',detail:'연한 바탕에서 끝으로 갈수록 색이 진해져요.'},
+ french:{label:'손끝에만 컬러 · 프렌치',menu:'art',tag:'프렌치',name:'프렌치 아트',preview:'french',detail:'손톱 끝에만 얇게 컬러를 넣어요.'},
+ point:{label:'반짝이는 글리터 포인트',menu:'art',tag:'글리터',name:'글리터 포인트 아트',preview:'accent',detail:'한 손톱에만 반짝이는 포인트를 더해요.'},
+ pearl:{label:'은은한 진주 포인트',menu:'art',tag:'',name:'진주 포인트 아트',preview:'pearl',detail:'한 손톱에 작은 진주 장식을 올려요.'}
 };
 function styleOptions(choices,selected){
  return Object.entries(choices).map(([key,value])=>`<option value="${key}"${key===selected?' selected':''}>${value.label}</option>`).join('');
@@ -159,9 +161,14 @@ function renderStyleResult(){
  if(!styleChoice||!Object.hasOwn(nailPalettes,styleChoice.tone)||!Object.hasOwn(nailLooks,styleChoice.look))return;
  const palette=nailPalettes[styleChoice.tone],look=nailLooks[styleChoice.look];
  const shape=styleChoice.length==='long'?'almond':'oval';
+ const [base,accent,deep]=palette.colors;
  target.tabIndex=-1;
  target.innerHTML=`<div class="style-result">
   <h3>${look.name} · ${nailShapes[shape].name}</h3>
+  <figure class="style-preview" style="--nail-base:${base};--nail-accent:${accent};--nail-deep:${deep}">
+   <div class="art-sample art-sample--${look.preview} style-preview-nails style-preview-nails--${shape}" aria-hidden="true"><i></i><i></i><i></i></div>
+   <figcaption>디자인 예시 · ${look.detail}</figcaption>
+  </figure>
   <div class="style-colors" aria-hidden="true">${palette.colors.map(color=>`<i style="--swatch:${color}"></i>`).join('')}</div>
   <p>${palette.names}</p><p class="sub">고른 스타일은 견적의 예약 요청사항에 담겨요.</p>
  </div>`;
