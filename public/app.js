@@ -9,6 +9,7 @@ import {shopDiscovery} from './shop-discovery.js?v=20261112-21';
 import {basicNailShapes,nailShapes} from './nail-shapes.js';
 import {menus,distanceKm} from './domain.js';
 import {firstNailGuide} from './first-nail-guide.js?v=20261113-33';
+import {nailStylePhotos} from './nail-style-photos.js?v=20261118-39';
 const $=s=>document.querySelector(s),money=n=>Number(n).toLocaleString('ko-KR')+'원';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function read(key,fallback){try{return JSON.parse(localStorage.getItem('glow-'+key))??fallback;}catch{return fallback;}}
@@ -109,15 +110,11 @@ const nailPalettes={
  neutral:{label:'어디에나 어울리는 색',colors:['#f7e7e0','#d0aaa3','#9b7c79'],names:'밀크 베이지 · 누드 핑크 · 토프'}
 };
 const nailLooks={
- simple:{label:'깔끔한 원컬러',menu:'plain',tag:'',name:'원컬러',photo:shopArt['3370000-215-2023-00006']},
- soft:{label:'은은한 그라데이션',menu:'gradient',tag:'그라데이션',name:'그라데이션',photo:shopArt['3270000-213-2013-00003']},
- french:{label:'손끝에만 컬러 · 프렌치',menu:'art',tag:'프렌치',name:'프렌치 아트',photo:'https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20230313_54%2F1678667176785X7bMY_JPEG%2F2%25BF%25F9%25C7%25C8%25BE%25C6%25C6%25AE02.jpg'},
- point:{label:'반짝이는 글리터 포인트',menu:'art',tag:'글리터',name:'글리터 포인트 아트',photo:shopArt['3280000-215-2015-00001']},
- pearl:{
-  label:'은은한 진주 포인트',menu:'art',tag:'',name:'진주 포인트 아트',
-  photo:'https://stat.ameba.jp/user_images/20210210/23/nail-color-stella/0e/da/j/o1080108014894486803.jpg',
-  photoPage:'https://nail-color-stella.hatenablog.com/entry/2021/02/10/233000'
- }
+ simple:{label:'깔끔한 원컬러',menu:'plain',tag:'',name:'원컬러'},
+ soft:{label:'은은한 그라데이션',menu:'gradient',tag:'그라데이션',name:'그라데이션'},
+ french:{label:'손끝에만 컬러 · 프렌치',menu:'art',tag:'프렌치',name:'프렌치 아트'},
+ point:{label:'반짝이는 글리터 포인트',menu:'art',tag:'글리터',name:'글리터 포인트 아트'},
+ pearl:{label:'은은한 진주 포인트',menu:'art',tag:'',name:'진주 포인트 아트'}
 };
 function styleOptions(choices,selected){
  return Object.entries(choices).map(([key,value])=>`<option value="${key}"${key===selected?' selected':''}>${value.label}</option>`).join('');
@@ -165,26 +162,33 @@ function renderStyleResult(){
  if(!styleChoice||!Object.hasOwn(nailPalettes,styleChoice.tone)||!Object.hasOwn(nailLooks,styleChoice.look))return;
  const palette=nailPalettes[styleChoice.tone],look=nailLooks[styleChoice.look];
  const shape=styleChoice.length==='long'?'almond':'oval';
+ const matchesTone=photo=>Number(photo.tones.includes(styleChoice.tone));
+ const photos=[...nailStylePhotos[styleChoice.look]].sort((a,b)=>matchesTone(b)-matchesTone(a));
  target.tabIndex=-1;
  target.innerHTML=`<div class="style-result">
   <h3>${look.name}</h3>
   <figure class="style-preview">
-   <img src="${escape(look.photo)}" alt="${look.name} 실제 시술 사진" referrerpolicy="no-referrer" decoding="async">
-   <a hidden class="naver-link style-photo-fallback" href="${escape(look.photoPage||look.photo)}" target="_blank" rel="noopener noreferrer">시술 사진 열기 ↗</a>
-   <figcaption>실제 시술 예시예요. 아래 추천 색상과 모양을 조합해 보세요.</figcaption>
+   <div class="style-preview-grid">
+    ${photos.map(({src,href},index)=>`<a href="${escape(href||src)}" target="_blank" rel="noopener noreferrer">
+     <img src="${escape(src)}" alt="${look.name} 실제 시술 사진 ${index+1} 크게 보기" referrerpolicy="no-referrer" decoding="async">
+     <span hidden class="style-photo-fallback">시술 사진 ${index+1} 열기 ↗</span>
+    </a>`).join('')}
+   </div>
+   <figcaption>실제 시술 예시예요. 사진을 누르면 크게 볼 수 있어요.</figcaption>
   </figure>
   <p class="style-recommendation">추천 모양 · ${nailShapes[shape].name}</p>
   <div class="style-colors" aria-hidden="true">${palette.colors.map(color=>`<i style="--swatch:${color}"></i>`).join('')}</div>
   <p>${palette.names}</p><p class="sub">고른 스타일은 견적의 예약 요청사항에 담겨요.</p>
  </div>`;
- const photo=target.querySelector('.style-preview img');
- const fallback=target.querySelector('.style-photo-fallback');
- const showPhotoLink=()=>{
-  photo.hidden=true;
-  fallback.hidden=false;
- };
- photo.addEventListener('error',showPhotoLink,{once:true});
- if(photo.complete&&!photo.naturalWidth)showPhotoLink();
+ target.querySelectorAll('.style-preview img').forEach(photo=>{
+  const fallback=photo.nextElementSibling;
+  const showPhotoLink=()=>{
+   photo.hidden=true;
+   fallback.hidden=false;
+  };
+  photo.addEventListener('error',showPhotoLink,{once:true});
+  if(photo.complete&&!photo.naturalWidth)showPhotoLink();
+ });
 }
 function renderBeginnerShops(){
  const look=styleChoice&&Object.hasOwn(nailLooks,styleChoice.look)?nailLooks[styleChoice.look]:null;
