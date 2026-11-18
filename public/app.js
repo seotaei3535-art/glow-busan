@@ -305,7 +305,7 @@ function renderHome(){
   </div>
  </div>
  <div class="section-head browse-list-heading">
-  <div><h2>${escape(filters.area)} 인기 TOP 10</h2><p id="directory-results" class="note" role="status"></p></div>
+  <div><h2>${escape(filters.area)} ${catalogView()==='prices'?'가격 있는 매장':'인기 TOP 10'}</h2><p id="directory-results" class="note" role="status"></p></div>
   <div class="browse-list-controls">
    <button class="chip ${filters.favorites?'active':''}" id="only-favorites" aria-pressed="${filters.favorites}">♡ 찜한 샵</button>
    <select class="outline small" id="sort" aria-label="정렬"><option value="recommended">네이버 리뷰 많은 순</option><option value="price">가격 낮은 순</option></select>
@@ -355,37 +355,42 @@ function searchParts(query){
 function reviewCount(shop){
  return shopDiscovery[shop.permitId]?.reviews??-1;
 }
+function byReviews(a,b){
+ return reviewCount(b)-reviewCount(a)||a.name.localeCompare(b.name,'ko');
+}
 function rankedShops(area){
  return publicShops.filter(shop=>shop.area===area&&reviewCount(shop)>=0)
-  .sort((a,b)=>reviewCount(b)-reviewCount(a)||a.name.localeCompare(b.name,'ko')).slice(0,districtLimit);
+  .sort(byReviews).slice(0,districtLimit);
 }
 function renderCards(){
  const view=catalogView();
  const {terms,tags}=searchParts(filters.query);
  document.querySelectorAll('[data-style-tag]').forEach(button=>button.setAttribute('aria-pressed',tags.includes(button.dataset.styleTag)));
- const ranked=rankedShops(filters.area);
+ const ranked=view==='prices'
+  ?publicShops.filter(shop=>shop.area===filters.area&&shop.prices?.[filters.menu]).sort(byReviews)
+  :rankedShops(filters.area);
  const matches=ranked.filter(shop=>{
   if(filters.favorites&&!favorites.includes(shop.id))return false;
   const searchableAddress=searchable(shop.name+' '+shop.address);
   const availableTags=shopDiscovery[shop.permitId]?.tags||[];
   return terms.every(term=>searchableAddress.includes(term))&&tags.every(tag=>availableTags.includes(tag));
  });
- const list=view==='booking'?matches.filter(shop=>bookingUrlForShop(shop,filters.menu)):
-  view==='prices'?matches.filter(shop=>shop.prices?.[filters.menu]):matches;
+ const list=view==='booking'?matches.filter(shop=>bookingUrlForShop(shop,filters.menu)):matches;
  if(filters.sort==='price'){
   list.sort((a,b)=>(a.prices?.[filters.menu]?.amount??Number.MAX_SAFE_INTEGER)-(b.prices?.[filters.menu]?.amount??Number.MAX_SAFE_INTEGER));
  }
- const visible=list;
+ const visible=list.slice(0,districtLimit);
  const resultLabel=tags.length?tags.map(tag=>'#'+tag).join(' ')+' 검색 결과':{booking:'네이버 바로 예약',prices:'가격 있는 매장',directory:'전체 매장'}[view];
- $('#directory-results').textContent=`${resultLabel} ${list.length.toLocaleString('ko-KR')}곳 · 네이버 리뷰 확인 매장 기준`;
+ const resultBasis=view==='prices'?'선택한 시술의 가격을 확인한 매장':'네이버 리뷰 확인 매장 기준';
+ $('#directory-results').textContent=`${resultLabel} ${visible.length.toLocaleString('ko-KR')}곳 · ${resultBasis}`;
  $('#shops').innerHTML=visible.length?visible.map(shop=>`
   <article class="shop-card">
    ${shopArtBackground(shop)}
    <button class="heart ${favorites.includes(shop.id)?'saved':''}" aria-label="${escape(shop.name)} 찜" aria-pressed="${favorites.includes(shop.id)}" data-fav="${shop.id}">${favorites.includes(shop.id)?'♥':'♡'}</button>
    <div class="card-body">
-    <div class="card-top"><h3><span class="district-rank">${ranked.indexOf(shop)+1}</span> ${escape(shop.name)}</h3></div>
+    <div class="card-top"><h3>${view==='prices'?'':`<span class="district-rank">${ranked.indexOf(shop)+1}</span> `}${escape(shop.name)}</h3></div>
     <p class="sub shop-address">${escape(shop.address)}</p>
-    <div class="shop-style-tags">${tags.map(tag=>`<span>#${escape(tag)}</span>`).join('')}<small>리뷰 ${reviewCount(shop).toLocaleString('ko-KR')}</small></div>
+    ${tags.length||reviewCount(shop)>=0?`<div class="shop-style-tags">${tags.map(tag=>`<span>#${escape(tag)}</span>`).join('')}${reviewCount(shop)>=0?`<small>리뷰 ${reviewCount(shop).toLocaleString('ko-KR')}</small>`:''}</div>`:''}
     ${shop.prices?.[filters.menu]?`<div class="price-line"><div><small>${menus[filters.menu].name} 기본가</small> <strong>${priceText(shop,filters.menu)}</strong>${priceCondition(shop.prices[filters.menu])?`<small class="price-condition">${escape(priceCondition(shop.prices[filters.menu]))}</small>`:''}</div></div>`:'<p class="note shop-price-missing">가격 정보 없음</p>'}
     ${shop.deposit?`<p class="note">예약금 · ${shop.deposit}</p>`:''}
     ${naverActions(shop)}
@@ -394,8 +399,8 @@ function renderCards(){
      ${bookingUrlForShop(shop,filters.menu)?`<button class="primary" data-book="${shop.id}">견적 · 예약 보기 ↗</button>`:''}
     </div>
    </div>
-  </article>`).join(''):`<div class="empty" style="grid-column:1/-1">${tags.length?'이 해시태그에 맞는 매장을 찾지 못했어요.':view==='booking'?'이 조건에 맞는 네이버 예약 매장이 없어요.':view==='prices'&&matches.length?'선택한 시술의 가격 정보가 없어요.':'조건에 맞는 샵이 없어요.'}
-  <p>지역이나 검색 조건을 바꿔 보세요.</p>
+  </article>`).join(''):`<div class="empty" style="grid-column:1/-1">${view==='prices'?'이 조건에서 가격을 확인한 매장이 없어요.':tags.length?'이 해시태그에 맞는 매장을 찾지 못했어요.':view==='booking'?'이 조건에 맞는 네이버 예약 매장이 없어요.':'조건에 맞는 샵이 없어요.'}
+  <p>${view==='prices'?'다른 지역이나 시술을 선택해 보세요.':'지역이나 검색 조건을 바꿔 보세요.'}</p>
   <button class="outline" id="reset">필터 초기화</button>
   ${view==='directory'?'':'<a class="outline" href="#directory">전체 영업 매장에서 찾기</a>'}</div>`;
  document.querySelectorAll('.shop-art-background').forEach(img=>{
