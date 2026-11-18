@@ -546,3 +546,40 @@ dialog::backdrop{background:#21180fb3}
   font-size:clamp(23px,4.6vw,39px);
   font-weight:650;
 }
+
+.journey-entry,.journey-winter-banner{
+  background-color:#faf8f3;
+  background-image:linear-gradient(90deg,#fcfaf42a,#fcfaf468 25% 75%,#fcfaf42a),url('/ecrin-winter.webp');
+  background-position:center;
+  background-size:100% 100%;
+}
+.journey-winter-banner{
+  padding:clamp(25px,5vw,46px) 0 clamp(30px,5vw,52px);
+  text-align:center;
+  border-bottom:1px solid var(--line);
+}
+.journey-winter-banner h1{margin:6px auto 10px;word-break:keep-all}
+.journey-winter-banner p{line-height:1.45;word-break:keep-all}
+.journey-winter-banner .journey-banner-greeting{
+  color:var(--accent);
+  font-family:Allura,"Segoe Script","Brush Script MT",cursive;
+  font-size:clamp(28px,5vw,48px);
+  line-height:1.1;
+}
+.is-invitation-home > header nav a:is([href="#home"],[href="#compare"]){display:none}
+body:not(.is-invitation-home) > header nav{
+  align-items:center;
+  gap:clamp(12px,3vw,30px);
+}
+body:not(.is-invitation-home) > header nav a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  min-height:44px;
+  font-weight:600;
+}
+@media(max-width:560px){
+  .is-invitation-home > header nav{width:auto;order:0;margin:0 0 0 auto;padding:0;border:0}
+  body:has(.journey-winter-banner) > header nav{justify-content:space-around;padding-top:3px}
+}

@@ -72,6 +72,7 @@ function updateCount(){$('#compare-count').textContent=compared.length;}
 function route(){
  updateCount();
  const page=location.hash.slice(1)||(catalogView()==='booking'?'booking':'home');
+ document.body.classList.toggle('is-invitation-home',page==='home');
  if(page==='home')renderEntry();
  else if(page==='beginner')renderBeginner();
  else if(page==='compare')renderCompare();
@@ -116,7 +117,7 @@ function styleOptions(choices,selected){
  return Object.entries(choices).map(([key,value])=>`<option value="${key}"${key===selected?' selected':''}>${value.label}</option>`).join('');
 }
 function renderBeginner(){
- main.innerHTML=`<section class="pastel-sky journey-heading"><div class="journey-inner"><a class="journey-back" href="#home">← 코너 선택</a><h1>첫 네일 가이드</h1><a class="primary gold" href="#beginner" id="jump-style">내 스타일 찾기 ↓</a></div></section>
+ main.innerHTML=`<section class="journey-heading journey-winter-banner"><div class="journey-inner"><p class="journey-banner-greeting" lang="en">Welcome, Princess</p><h1>첫 네일 가이드</h1><a class="primary gold" href="#beginner" id="jump-style">내 스타일 찾기 ↓</a></div></section>
  <div class="content journey-content">
   <section class="journey-panel">${firstNailGuide()}</section>
   <section class="journey-panel" aria-labelledby="care-video-title">
@@ -258,7 +259,7 @@ function bindRegularShopPanel(){
  };
 }
 function renderHome(){
- main.innerHTML=`<section class="pastel-sky journey-heading"><div class="journey-inner"><a class="journey-back" href="#home">← 코너 선택</a><h1>이번엔 어떤 네일을, 어디서 할까요?</h1><p>해시태그로 찾거나 단골샵에서 바로 예약하세요.</p></div></section>
+ main.innerHTML=`<section class="journey-heading journey-winter-banner"><div class="journey-inner"><p class="journey-banner-greeting" lang="en">Welcome back, Princess</p><h1>이번엔 어떤 네일을, 어디서 할까요?</h1><p>해시태그로 찾거나 단골샵에서 바로 예약하세요.</p></div></section>
  <section class="content browse-content">
  ${regularShopPanel()}
  <form class="browse-search" id="search">
