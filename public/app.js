@@ -305,7 +305,7 @@ function renderHome(){
   </div>
  </div>
  <div class="section-head browse-list-heading">
-  <div><h2>${escape(filters.area)} ${catalogView()==='prices'?'가격 있는 매장':'인기 TOP 10'}</h2><p id="directory-results" class="note" role="status"></p></div>
+  <div><h2 id="directory-heading"></h2><p id="directory-results" class="note" role="status"></p></div>
   <div class="browse-list-controls">
    <button class="chip ${filters.favorites?'active':''}" id="only-favorites" aria-pressed="${filters.favorites}">♡ 찜한 샵</button>
    <select class="outline small" id="sort" aria-label="정렬"><option value="recommended">네이버 리뷰 많은 순</option><option value="price">가격 낮은 순</option></select>
@@ -358,37 +358,44 @@ function reviewCount(shop){
 function byReviews(a,b){
  return reviewCount(b)-reviewCount(a)||a.name.localeCompare(b.name,'ko');
 }
-function rankedShops(area){
+function reviewedShops(area){
  return publicShops.filter(shop=>shop.area===area&&reviewCount(shop)>=0)
-  .sort(byReviews).slice(0,districtLimit);
+  .sort(byReviews);
+}
+function rankedShops(area){
+ return reviewedShops(area).slice(0,districtLimit);
 }
 function renderCards(){
  const view=catalogView();
  const {terms,tags}=searchParts(filters.query);
  document.querySelectorAll('[data-style-tag]').forEach(button=>button.setAttribute('aria-pressed',tags.includes(button.dataset.styleTag)));
- const ranked=view==='prices'
-  ?publicShops.filter(shop=>shop.area===filters.area&&shop.prices?.[filters.menu]).sort(byReviews)
-  :rankedShops(filters.area);
- const matches=ranked.filter(shop=>{
+ const candidates=view==='prices'
+  ?publicShops.filter(shop=>shop.area===filters.area&&shop.prices?.[filters.menu]&&(!tags.length||reviewCount(shop)>=0)).sort(byReviews)
+  :tags.length?reviewedShops(filters.area):rankedShops(filters.area);
+ const matches=candidates.filter(shop=>{
   if(filters.favorites&&!favorites.includes(shop.id))return false;
   const searchableAddress=searchable(shop.name+' '+shop.address);
-  const availableTags=shopDiscovery[shop.permitId]?.tags||[];
+  const availableTags=(shopDiscovery[shop.permitId]?.tags||[]).map(searchable);
   return terms.every(term=>searchableAddress.includes(term))&&tags.every(tag=>availableTags.includes(tag));
  });
- const list=view==='booking'?matches.filter(shop=>bookingUrlForShop(shop,filters.menu)):matches;
+ const eligible=view==='booking'?matches.filter(shop=>bookingUrlForShop(shop,filters.menu)):matches;
+ const ranked=tags.length?eligible.slice(0,districtLimit):candidates;
+ const list=tags.length?[...ranked]:eligible;
  if(filters.sort==='price'){
   list.sort((a,b)=>(a.prices?.[filters.menu]?.amount??Number.MAX_SAFE_INTEGER)-(b.prices?.[filters.menu]?.amount??Number.MAX_SAFE_INTEGER));
  }
  const visible=list.slice(0,districtLimit);
- const resultLabel=tags.length?tags.map(tag=>'#'+tag).join(' ')+' 검색 결과':{booking:'네이버 바로 예약',prices:'가격 있는 매장',directory:'전체 매장'}[view];
- const resultBasis=view==='prices'?'선택한 시술의 가격을 확인한 매장':'네이버 리뷰 확인 매장 기준';
+ const resultLabel={booking:'네이버 바로 예약',prices:'가격 있는 매장',directory:'전체 매장'}[view];
+ const tagLabel=tags.map(tag=>'#'+tag).join(' ');
+ $('#directory-heading').textContent=`${filters.area} ${tagLabel?tagLabel+' 인기 TOP 10':view==='prices'?'가격 있는 매장':'인기 TOP 10'}`;
+ const resultBasis=tags.length?'선택한 태그 · 네이버 리뷰 수 기준':view==='prices'?'선택한 시술의 가격을 확인한 매장':'네이버 리뷰 확인 매장 기준';
  $('#directory-results').textContent=`${resultLabel} ${visible.length.toLocaleString('ko-KR')}곳 · ${resultBasis}`;
  $('#shops').innerHTML=visible.length?visible.map(shop=>`
   <article class="shop-card">
    ${shopArtBackground(shop)}
    <button class="heart ${favorites.includes(shop.id)?'saved':''}" aria-label="${escape(shop.name)} 찜" aria-pressed="${favorites.includes(shop.id)}" data-fav="${shop.id}">${favorites.includes(shop.id)?'♥':'♡'}</button>
    <div class="card-body">
-    <div class="card-top"><h3>${view==='prices'?'':`<span class="district-rank">${ranked.indexOf(shop)+1}</span> `}${escape(shop.name)}</h3></div>
+    <div class="card-top"><h3>${view==='prices'&&!tags.length?'':`<span class="district-rank">${ranked.indexOf(shop)+1}</span> `}${escape(shop.name)}</h3></div>
     <p class="sub shop-address">${escape(shop.address)}</p>
     ${tags.length||reviewCount(shop)>=0?`<div class="shop-style-tags">${tags.map(tag=>`<span>#${escape(tag)}</span>`).join('')}${reviewCount(shop)>=0?`<small>리뷰 ${reviewCount(shop).toLocaleString('ko-KR')}</small>`:''}</div>`:''}
     ${shop.prices?.[filters.menu]?`<div class="price-line"><div><small>${menus[filters.menu].name} 기본가</small> <strong>${priceText(shop,filters.menu)}</strong>${priceCondition(shop.prices[filters.menu])?`<small class="price-condition">${escape(priceCondition(shop.prices[filters.menu]))}</small>`:''}</div></div>`:'<p class="note shop-price-missing">가격 정보 없음</p>'}
