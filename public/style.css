@@ -453,50 +453,16 @@
 .style-result{margin-top:16px;padding:15px;border-radius:12px;background:#f9edf4}
 .style-result h3{margin-bottom:8px}
 .style-preview{max-width:380px;margin:0 0 14px}
-.art-sample.style-preview-nails{
-  min-height:124px;
-  gap:clamp(9px,4vw,18px);
+.style-preview img{
+  display:block;
+  width:100%;
+  aspect-ratio:1;
+  object-fit:contain;
   border:1px solid var(--line);
-  background:radial-gradient(ellipse at 50% 25%,#fffefa,#eae0d1);
+  border-radius:9px;
+  background:var(--surface);
 }
-.style-preview-nails i{
-  --polish:var(--nail-accent);
-  width:33px;
-  height:59px;
-  border:1px solid #4a2e242e;
-  border-radius:48% 48% 35% 35% / 55% 55% 26% 26%;
-  background:linear-gradient(105deg,transparent 12%,#fff8 37%,transparent 58%),var(--polish);
-  box-shadow:0 5px 12px #56403230;
-}
-.style-preview-nails i:nth-child(2){height:69px}
-.style-preview-nails--almond i{
-  height:75px;
-  border-radius:50% 50% 40% 40% / 75% 75% 25% 25%;
-}
-.style-preview-nails--almond i:nth-child(2){height:87px}
-.style-preview-nails.art-sample--gradient i{--polish:linear-gradient(var(--nail-deep),var(--nail-base) 84%)}
-.style-preview-nails.art-sample--french i{--polish:linear-gradient(var(--nail-deep) 0 18%,var(--nail-base) 20%)}
-.style-preview-nails.art-sample--accent i:nth-child(2){--polish:var(--nail-deep)}
-.style-preview-nails.art-sample--accent i:nth-child(2)::after{
-  inset:11px 5px;
-  background:
-    radial-gradient(circle at 27% 28%,#fff8c9 0 2px,transparent 3px),
-    radial-gradient(circle at 57% 18%,#fff 0 1px,transparent 2px),
-    radial-gradient(circle at 68% 50%,#fff8c9 0 2px,transparent 3px),
-    radial-gradient(circle at 32% 67%,#fff 0 1px,transparent 2px),
-    radial-gradient(circle at 63% 80%,#f7d99a 0 2px,transparent 3px);
-}
-.style-preview-nails.art-sample--pearl i:nth-child(2)::after{
-  position:absolute;
-  right:7px;
-  bottom:12px;
-  width:9px;
-  height:9px;
-  border-radius:50%;
-  background:radial-gradient(circle at 35% 25%,#fff,#f4e7c6 52%,#b09979);
-  box-shadow:0 1px 2px #38281e77;
-  content:"";
-}
+.style-recommendation{margin:0 0 8px;font-weight:600}
 .style-preview figcaption{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.5}
 .style-colors{display:flex;gap:8px}
 .style-colors i{width:19px;height:19px;border-radius:50%;background:var(--swatch);border:1px solid #4a2e242e}
