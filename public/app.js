@@ -432,13 +432,8 @@ function booking(id,previous,{reschedule=false}={}){
  const shop=publicShops.find(item=>item.id===id);
  if(!shop)return;
  const requested=previous?.options||options();
- const pricedMenus=Object.entries(menus).filter(([key])=>shop.prices?.[key]);
- if(!pricedMenus.length){
-  const menuUrl=shop.sourceUrl||shopNaver(shop).booking;
-  open(`<h2 class="modal-title">${escape(shop.name)}</h2><p class="note">네이버에 공개된 손젤 금액이 없어 앱에서 견적을 계산할 수 없어요.</p>${naverActions(shop)}${menuUrl?`<a class="outline full" href="${escape(menuUrl)}" target="_blank" rel="noopener noreferrer">네이버 메뉴 확인</a>`:''}`);
-  return;
- }
- const selected={...requested,menu:shop.prices?.[requested.menu]?requested.menu:shop.prices?.plain?'plain':pricedMenus[0][0]};
+ const selected={...requested,menu:Object.hasOwn(menus,requested.menu)?requested.menu:'plain'};
+ const treatmentMenus=['plain','monthly','art','gradient'].map(key=>[key,menus[key]]);
  if(!bookingUrlForShop(shop,selected.menu))return;
  const shape=Object.hasOwn(basicNailShapes,selected.shape)?selected.shape:'';
  const minDate=today();
@@ -449,10 +444,9 @@ function booking(id,previous,{reschedule=false}={}){
   ${naverActions(shop)}${shape?`<p class="sub">선호 모양 · ${nailShapes[shape].name}</p>`:''}
   ${compareButton(shop)}
   <p class="note" id="compare-feedback" role="status" hidden></p>
-  ${requested.menu!==selected.menu?'<p class="note">이 매장은 가격이 공개된 메뉴로 견적을 확인할 수 있어요.</p>':''}
   <form id="book-form">
    <div class="form-grid">
-    <label class="field">시술 메뉴<select id="b-menu">${pricedMenus.map(([key,menu])=>`<option value="${key}" ${key===selected.menu?'selected':''}>${menu.name}</option>`).join('')}</select></label>
+    <label class="field">시술 메뉴<select id="b-menu">${treatmentMenus.map(([key,menu])=>`<option value="${key}" ${key===selected.menu?'selected':''}>${menu.name}</option>`).join('')}</select></label>
     <label class="field">연장 개수<select id="b-extensions">${extensionOptions(selected.extensions)}</select></label>
     <label class="field">기존 젤 제거<select id="b-removal"><option value="none">제거 없음</option><option value="own">이 매장에서 받은 젤</option><option value="other">다른 매장에서 받은 젤</option></select></label>
     <label class="field" id="removal-count-field">제거할 손톱 개수<select id="b-removal-count">${Array.from({length:10},(_,i)=>`<option value="${i+1}" ${i+1===Number(selected.removalCount??10)?'selected':''}>${i+1}개</option>`).join('')}</select></label>
@@ -484,11 +478,12 @@ function booking(id,previous,{reschedule=false}={}){
   $('#removal-count-field').hidden=shop.addOns?.removal?.[opt.removal]?.unit!=='finger';
   const estimate=estimatePublishedPrice(shop,opt);
   const condition=priceCondition(shop.prices?.[opt.menu]);
-  $('#quote').innerHTML=`<div class="summary-row"><span>${menus[opt.menu].name} 기본가</span><strong>${priceText(shop,opt.menu)}</strong></div>
+  const subtotalLabel=estimate.base?(estimate.total?'예상 합계':'공개금액 소계'):(estimate.subtotal?'추가옵션 소계':'예상 합계');
+  $('#quote').innerHTML=`<div class="summary-row"><span>${menus[opt.menu].name} 기본가</span><strong>${estimate.base?formatPublishedPrice(estimate.base):'디자인별 금액'}</strong></div>
    ${condition?`<p class="note">${escape(condition)}</p>`:''}
    ${estimate.rows.map(row=>`<div class="summary-row quote-add-on"><span>${escape(row.label)}</span><strong>${row.price?formatPublishedPrice(row.price):'네이버 미공개'}</strong></div>${row.price?.note?`<p class="note">${escape(row.price.note)}</p>`:''}`).join('')}
-   <div class="summary-row total"><strong>${estimate.total?'예상 합계':'공개금액 소계'}</strong><strong>${estimate.subtotal?formatPublishedPrice(estimate.subtotal):'—'}</strong></div>
-   ${estimate.missing.length?`<p class="note">${escape(estimate.missing.join(' · '))} 요금은 공개되지 않아 소계에 포함하지 않았어요.</p>`:''}
+   <div class="summary-row total"><strong>${subtotalLabel}</strong><strong>${estimate.subtotal?formatPublishedPrice(estimate.subtotal):'디자인 선택 후 확정'}</strong></div>
+   ${estimate.missing.length?`<p class="note">${escape(estimate.missing.join(' · '))} 금액은 아직 확인되지 않아 합계에 포함하지 않았어요. 네이버 메뉴판에서 확인해 주세요.</p>`:''}
    <p class="note">디자인·추가 시술에 따라 최종 금액은 달라질 수 있어요.</p>
    ${shop.sourceUrl?`<a class="naver-link" href="${escape(shop.menuPhotoUrl||shop.sourceUrl)}" target="_blank" rel="noopener noreferrer">메뉴판 보기 ↗</a>`:''}`;
  }
@@ -551,7 +546,7 @@ function savedPrice(saved){
  if(saved.priceEstimate){
   const estimate=saved.priceEstimate;
   const condition=priceCondition(saved.publishedPrice);
-  return (estimate.subtotal?formatPublishedPrice(estimate.subtotal):'—')+(condition?` · ${condition}`:'');
+  return (estimate.subtotal?formatPublishedPrice(estimate.subtotal):'디자인 선택 후 확정')+(!estimate.base&&estimate.subtotal?' · 기본 시술비 제외':'')+(condition?` · ${condition}`:'');
  }
  if(Object.hasOwn(saved,'publishedPrice')){
   const price=saved.publishedPrice;
@@ -562,7 +557,7 @@ function savedPrice(saved){
  return Number.isFinite(saved.total)?money(saved.total):'매장 확인';
 }
 function savedPriceLabel(saved){
- if(saved.priceEstimate)return saved.priceEstimate.total?'저장 당시 예상 합계':'저장 당시 공개금액 소계';
+ if(saved.priceEstimate)return !saved.priceEstimate.base?(saved.priceEstimate.subtotal?'저장 당시 추가옵션 소계':'시술 금액'):saved.priceEstimate.total?'저장 당시 예상 합계':'저장 당시 공개금액 소계';
  return Object.hasOwn(saved,'publishedPrice')||Object.hasOwn(saved,'basePrice')?'저장 당시 기본가':'저장 당시 견적';
 }
 
