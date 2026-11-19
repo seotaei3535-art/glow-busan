@@ -9,6 +9,7 @@ import {shopDiscovery} from './shop-discovery.js?v=20261112-21';
 import {basicNailShapes,nailShapes} from './nail-shapes.js';
 import {menus,distanceKm} from './domain.js';
 import {firstNailGuide} from './first-nail-guide.js?v=20261113-33';
+import {nailStyleTones,nailStyleLooks,normalizeStyleChoice,recommendNailStyle} from './nail-style-photos.js?v=20261119-45';
 const $=s=>document.querySelector(s),money=n=>Number(n).toLocaleString('ko-KR')+'원';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function read(key,fallback){try{return JSON.parse(localStorage.getItem('glow-'+key))??fallback;}catch{return fallback;}}
@@ -34,6 +35,7 @@ let bookings=read('bookings',[]),favorites=read('favorites',[]),compared=read('c
 let filters={area:defaultArea,date:'',menu:'plain',sort:'recommended',favorites:false,query:''};
 const featuredTags=['연말','가을','겨울','자석네일','프렌치','글리터','시럽네일'];
 let beginnerArea=defaultArea;
+let styleChoice=normalizeStyleChoice(read('nail-style',null));
 const main=$('#main'),modal=$('#modal');
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200);}
 function open(html){$('#modal-body').innerHTML=html;if(!modal.open)modal.showModal();}
@@ -103,8 +105,20 @@ function renderEntry(){
  </div></section>`;
 }
 function renderBeginner(){
- main.innerHTML=`<section class="journey-heading journey-winter-banner"><div class="journey-inner"><p class="journey-banner-greeting" lang="en">Welcome, Princess</p><h1>첫 네일 가이드</h1></div></section>
+ const selectionOptions=(items,selected)=>Object.entries(items).map(([key,item])=>`<option value="${key}"${key===selected?' selected':''}>${item.label}</option>`).join('');
+ main.innerHTML=`<section class="journey-heading journey-winter-banner"><div class="journey-inner"><p class="journey-banner-greeting" lang="en">Welcome, Princess</p><h1>첫 네일 가이드</h1><a class="primary gold" href="#beginner" id="jump-style">나에게 맞는 스타일 찾기</a></div></section>
  <div class="content journey-content">
+  <section class="journey-panel" id="nail-style" aria-labelledby="nail-style-title">
+   <h2 id="nail-style-title">나에게 맞는 스타일 찾기</h2>
+   <p class="sub">좋아하는 색과 분위기를 골라 실제 시술 사진으로 비교해 보세요.</p>
+   <form id="style-form" class="form-grid">
+    <label class="field">끌리는 색<select name="tone">${selectionOptions(nailStyleTones,styleChoice?.tone||'neutral')}</select></label>
+    <label class="field">원하는 분위기<select name="look">${selectionOptions(nailStyleLooks,styleChoice?.look||'soft')}</select></label>
+    <label class="field">편한 손톱 길이<select name="length"><option value="short"${styleChoice?.length!=='long'?' selected':''}>짧고 편하게</option><option value="long"${styleChoice?.length==='long'?' selected':''}>조금 길고 날렵하게</option></select></label>
+    <button type="submit" class="primary gold">실물 사진으로 스타일 보기</button>
+   </form>
+   <div id="style-result" aria-live="polite"></div>
+  </section>
   <section class="journey-panel">${firstNailGuide()}</section>
   <section class="journey-panel" aria-labelledby="care-video-title">
    <h2 id="care-video-title">젤 네일 전후 유의사항 영상</h2>
@@ -117,11 +131,57 @@ function renderBeginner(){
    <div id="beginner-shops"></div>
   </section>
  </div>`;
+ $('#jump-style').onclick=event=>{event.preventDefault();$('#nail-style').scrollIntoView({block:'start',behavior:'smooth'});$('#style-form select').focus({preventScroll:true});};
+ $('#style-form').onsubmit=event=>{
+  event.preventDefault();
+  styleChoice=normalizeStyleChoice(Object.fromEntries(new FormData(event.currentTarget)));
+  save('nail-style',styleChoice);
+  renderStyleResult();
+  renderBeginnerShops();
+  $('#style-result').focus();
+ };
  $('#beginner-area').onchange=event=>{beginnerArea=event.target.value;renderBeginnerShops();};
+ renderStyleResult();
  renderBeginnerShops();
 }
+function renderStyleResult(){
+ const target=$('#style-result');
+ const recommendation=recommendNailStyle(styleChoice);
+ if(!recommendation){target.innerHTML='';return;}
+ const {lookInfo,toneInfo,shape,lengthLabel,photos}=recommendation;
+ target.tabIndex=-1;
+ target.innerHTML=`<div class="style-result">
+  <h3>${lookInfo.name}</h3>
+  <p class="sub">고른 색과 길이에 가까운 실물 사진을 먼저 보여드려요.</p>
+  <figure class="style-preview">
+   <div class="style-preview-grid">${photos.map((photo,index)=>`<button type="button" class="style-photo-button" data-style-photo="${index}" aria-label="${escape(photo.title)} 실물 사진 크게 보기">
+    <img src="${escape(photo.src)}" alt="${escape(photo.title)} 실제 시술 사진" referrerpolicy="no-referrer" decoding="async">
+    <span>${escape(photo.title)}</span>
+   </button>`).join('')}</div>
+   <figcaption>손톱에 실제로 시술한 예시예요. 사진을 누르면 크게 볼 수 있어요.</figcaption>
+  </figure>
+  <p class="style-recommendation">추천 모양 · ${nailShapes[shape].name}</p>
+  <p>${toneInfo.names} · ${lengthLabel}</p>
+  <button class="outline" id="style-show-shops" type="button">이 스타일로 예약할 매장 보기</button>
+ </div>`;
+ target.querySelectorAll('[data-style-photo]').forEach(button=>button.onclick=()=>{
+  const photo=photos[Number(button.dataset.stylePhoto)];
+  open(`<h2 class="modal-title">${escape(photo.title)}</h2><img class="style-full-photo" src="${escape(photo.fullSrc)}" alt="${escape(photo.title)} 실제 시술 확대 사진" referrerpolicy="no-referrer"><p class="sub">실제 시술 참고 사진</p>${photo.href?`<a class="naver-link" href="${escape(photo.href)}" target="_blank" rel="noopener noreferrer">사진 원문 보기 ↗</a>`:''}`);
+  $('.style-full-photo').onerror=event=>{event.currentTarget.onerror=null;event.currentTarget.src=photo.src;};
+ });
+ target.querySelectorAll('.style-preview img').forEach(photo=>{
+  const fallback=()=>{photo.hidden=true;photo.nextElementSibling.textContent+=' · 크게 보기';};
+  photo.addEventListener('error',fallback,{once:true});
+  if(photo.complete&&!photo.naturalWidth)fallback();
+ });
+ $('#style-show-shops').onclick=()=>{$('#beginner-shops').scrollIntoView({block:'start',behavior:'smooth'});$('#beginner-area').focus({preventScroll:true});};
+}
 function renderBeginnerShops(){
- const list=rankedShops(beginnerArea).filter(shop=>bookingUrlForShop(shop,'plain'));
+ const recommendation=recommendNailStyle(styleChoice);
+ const menu=recommendation?.lookInfo.menu||'plain';
+ const list=rankedShops(beginnerArea).filter(shop=>bookingUrlForShop(shop,menu));
+ const tag=recommendation?.lookInfo.tag;
+ if(tag)list.sort((a,b)=>Number((shopDiscovery[b.permitId]?.tags||[]).includes(tag))-Number((shopDiscovery[a.permitId]?.tags||[]).includes(tag)));
  const target=$('#beginner-shops');
  target.innerHTML=list.length?`<ul class="journey-shop-list">${list.map(shop=>`<li>
   <div><strong>${escape(shop.name)}</strong><small>${escape(shop.address)}</small></div>
@@ -131,7 +191,8 @@ function renderBeginnerShops(){
   </div>
  </li>`).join('')}</ul>`:'<p class="note">이 지역에서 예약 링크를 확인한 매장이 없어요.</p>';
  target.querySelectorAll('[data-first-book]').forEach(button=>button.onclick=()=>{
-  booking(button.dataset.firstBook,{options:{...options(),menu:'plain'}});
+  booking(button.dataset.firstBook,{options:{...options(),menu,shape:recommendation?.shape||''},
+   note:recommendation?`선호 스타일 · ${recommendation.lookInfo.name}\n선호 색 · ${recommendation.toneInfo.names}\n손톱 길이 · ${recommendation.lengthLabel}`:''});
  });
 }
 function regularShopPanel(){
